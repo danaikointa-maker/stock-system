@@ -1,0 +1,36 @@
+<?php
+
+/*
+ * เพิ่มบล็อกนี้ลงใน config/services.php ของโปรเจกต์
+ * (วางก่อนวงเล็บปิด ]; ท้ายไฟล์ — ไม่ใช่แทนที่ทั้งไฟล์)
+ *
+ * แล้วใส่ค่าจริงใน .env
+ *   LINE_CLIENT_ID=...
+ *   LINE_CLIENT_SECRET=...
+ *   LINE_CHANNEL_ACCESS_TOKEN=...   (Messaging API ใช้ส่งข้อความ)
+ *   GOOGLE_CLIENT_ID=...
+ *   GOOGLE_CLIENT_SECRET=...
+ *
+ * Callback URL ที่ต้องตั้งในหน้าคอนโซลของผู้ให้บริการ
+ *   LINE   : https://โดเมนของคุณ/auth/line/callback
+ *   Google : https://โดเมนของคุณ/auth/google/callback
+ *
+ * ถ้ายังไม่ได้ตั้งค่า ปุ่มเข้าสู่ระบบด้วย LINE/Google จะแจ้งว่ายังไม่เปิดใช้
+ * แต่การสแกนด้วยเบอร์โทรยังทำงานได้ตามปกติ
+ */
+
+return [
+
+    'line' => [
+        'client_id'     => env('LINE_CLIENT_ID'),
+        'client_secret' => env('LINE_CLIENT_SECRET'),
+        // สำหรับส่งข้อความแจ้งเตือน (Messaging API — คนละตัวกับ Login)
+        'channel_access_token' => env('LINE_CHANNEL_ACCESS_TOKEN'),
+    ],
+
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
+
+];

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RoaMembers — เทมเพลตหน้าร้านค้า</title>
+<style>
+/* ===================================================================
+   RoaMembers — ชุดเทมเพลตหน้าร้านค้า
+   สีแบรนด์ดึงจากโลโก้จริง: ส้ม #F04800 / เขียว #006018 / ทอง #484800
+   ทุกเทมเพลตใช้โครงเดียวกัน ต่างกันแค่ "ชุดสี + ไอคอน + บล็อกเนื้อหา"
+   เจ้าของร้านสลับธีมและแก้ข้อความได้เองจากหลังบ้าน
+=================================================================== */
+:root{
+  --brand-orange:#F04800;
+  --brand-green:#006018;
+  --brand-gold:#484800;
+  --ink:#14140F;
+  --muted:#6E6E63;
+  --line:#E8E8E0;
+  --bg:#F4F4EE;
+  --radius:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;font-family:'Kanit','Prompt',-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--ink);padding:28px 14px;
+}
+
+/* ---------- หัวหน้าเพจตัวอย่าง ---------- */
+.pagehead{max-width:1280px;margin:0 auto 30px;text-align:center}
+.pagehead h1{
+  margin:0 0 6px;font-size:26px;font-weight:800;
+  background:linear-gradient(90deg,var(--brand-orange),var(--brand-green));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.pagehead p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+
+.grid{
+  max-width:1280px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(376px,1fr));gap:26px;
+}
+.slot{}
+.slot > .cap{
+  font-size:13px;font-weight:700;color:var(--muted);
+  margin:0 0 9px;display:flex;align-items:center;gap:8px;
+}
+.slot > .cap i{
+  width:9px;height:9px;border-radius:50%;background:var(--t);display:inline-block;
+}
+
+/* ---------- โครงการ์ดร้าน (ใช้ร่วมทุกเทมเพลต) ---------- */
+.shop{
+  background:#fff;border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 6px 26px rgba(0,0,0,.10);
+}
+
+/* แถบปกร้าน */
+.cover{
+  height:132px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--t),var(--t2));
+}
+.cover::before{ /* ลายจุดโปร่ง */
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.20) 0 2px, transparent 3px),
+                   radial-gradient(circle at 70% 60%, rgba(255,255,255,.14) 0 2px, transparent 3px);
+  background-size:64px 64px;
+}
+.cover::after{ /* โค้งมนล่างแบบโลโก้ */
+  content:"";position:absolute;left:-14%;right:-14%;bottom:-56px;height:96px;
+  background:#fff;border-radius:50%;
+}
+.cover .emoji{
+  position:absolute;right:16px;top:14px;font-size:56px;opacity:.30;
+  transform:rotate(-8deg);
+}
+.badge-open{
+  position:absolute;left:16px;top:14px;z-index:2;
+  background:rgba(255,255,255,.94);color:var(--t);
+  font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:99px;
+  display:flex;align-items:center;gap:5px;
+}
+.badge-open b{width:7px;height:7px;border-radius:50%;background:#12A150;display:inline-block}
+
+/* โลโก้ร้าน */
+.shophead{padding:0 18px 16px;position:relative;margin-top:-42px;z-index:2}
+.avatar{
+  width:78px;height:78px;border-radius:22px;background:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.16);display:grid;place-items:center;
+  font-size:38px;border:3px solid #fff;margin-bottom:10px;
+}
+.shophead h2{margin:0 0 3px;font-size:19px;font-weight:800;line-height:1.3}
+.shophead .cat{
+  display:inline-block;font-size:11px;font-weight:700;color:var(--t);
+  background:var(--t-soft);padding:3px 10px;border-radius:99px;margin-bottom:7px;
+}
+.shophead .desc{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
+
+/* แถวข้อมูลติดต่อ */
+.meta{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 14px}
+.meta span{
+  font-size:11.5px;color:var(--muted);background:#F7F7F2;
+  padding:5px 10px;border-radius:8px;display:flex;align-items:center;gap:5px;
+}
+
+/* แถบแต้ม */
+.ptsbar{
+  margin:0 18px 16px;border-radius:15px;padding:14px 16px;
+  background:linear-gradient(120deg,var(--t),var(--t2));color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ptsbar .l{font-size:11.5px;opacity:.92}
+.ptsbar .v{font-size:26px;font-weight:800;line-height:1.15}
+.ptsbar .btn-s{
+  background:rgba(255,255,255,.95);color:var(--t);border:none;
+  padding:9px 16px;border-radius:11px;font-family:inherit;
+  font-weight:800;font-size:13px;cursor:pointer;
+}
+
+/* หัวข้อส่วน */
+.sec{padding:0 18px 6px}
+.sec h3{
+  margin:0 0 11px;font-size:14px;font-weight:800;
+  display:flex;align-items:center;gap:7px;
+}
+.sec h3::before{content:"";width:4px;height:15px;border-radius:3px;background:var(--t)}
+
+/* รายการบริการ/สินค้า */
+.items{padding:0 18px 6px}
+.item{
+  display:flex;gap:11px;align-items:center;padding:11px 12px;
+  border:1.5px solid var(--line);border-radius:14px;margin-bottom:9px;
+  transition:border-color .15s,transform .12s;cursor:pointer;
+}
+.item:hover{border-color:var(--t);transform:translateX(2px)}
+.item .th{
+  width:48px;height:48px;border-radius:12px;flex-shrink:0;display:grid;
+  place-items:center;font-size:23px;background:var(--t-soft);
+}
+.item .tx{flex:1;min-width:0}
+.item .tx b{display:block;font-size:13.5px;margin-bottom:2px}
+.item .tx small{color:var(--muted);font-size:11.5px;display:block;line-height:1.45}
+.item .pt{text-align:right;flex-shrink:0}
+.item .pt .n{font-weight:800;color:var(--t);font-size:15px;white-space:nowrap}
+.item .pt .u{font-size:10px;color:var(--muted)}
+
+/* ตารางเวลา / ตัวเลือกพิเศษ */
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 18px 14px}
+.slots button{
+  padding:9px 4px;border:1.5px solid var(--line);border-radius:10px;background:#fff;
+  font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;
+}
+.slots button.on{background:var(--t);border-color:var(--t);color:#fff}
+.slots button:disabled{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+
+/* แกลเลอรี */
+.gal{display:flex;gap:8px;padding:0 18px 16px;overflow-x:auto}
+.gal div{
+  min-width:96px;height:70px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--t-soft),#fff);
+  display:grid;place-items:center;font-size:27px;border:1.5px solid var(--line);
+}
+
+/* รีวิว */
+.rev{padding:0 18px 16px}
+.rev .r{
+  background:#FAFAF6;border-radius:13px;padding:12px;margin-bottom:8px;
+  font-size:12.5px;line-height:1.6;
+}
+.rev .r .who{font-weight:700;margin-bottom:3px;display:flex;justify-content:space-between}
+.rev .r .who i{color:#FFB300;font-style:normal}
+
+/* ปุ่มท้าย */
+.cta{padding:4px 18px 20px;display:flex;gap:9px}
+.cta button{
+  flex:1;padding:14px;border:none;border-radius:14px;font-family:inherit;
+  font-weight:800;font-size:14.5px;cursor:pointer;transition:transform .12s;
+}
+.cta button:active{transform:translateY(2px)}
+.cta .primary{
+  background:linear-gradient(180deg,var(--t),var(--t2));color:#fff;
+  box-shadow:0 4px 0 var(--t-dark);
+}
+.cta .ghost{background:#fff;color:var(--t);border:2px solid var(--t)}
+
+/* ===================== ชุดสีแต่ละประเภทร้าน ===================== */
+/* ร้านกาแฟ — น้ำตาลอบอุ่น */
+.t-cafe{--t:#8B5A2B;--t2:#B8763C;--t-dark:#6B4520;--t-soft:#F5EBE0}
+/* ร้านอาหาร — แดงส้มแบรนด์ */
+.t-food{--t:#F04800;--t2:#FF6B2B;--t-dark:#C23800;--t-soft:#FFEDE4}
+/* ล้างรถ — ฟ้าสดใส */
+.t-wash{--t:#0A7EA4;--t2:#22A7D0;--t-dark:#07617D;--t-soft:#E1F3FA}
+/* เสริมสวย/ตัดผม — ม่วงชมพู */
+.t-beauty{--t:#C2185B;--t2:#E5487F;--t-dark:#951344;--t-soft:#FCE8F0}
+/* ร้านยา — เขียวแบรนด์ */
+.t-pharm{--t:#006018;--t2:#0C8A2C;--t-dark:#004512;--t-soft:#E3F3E7}
+/* ค้าปลีกทั่วไป — ทองแบรนด์ */
+.t-retail{--t:#7A6A00;--t2:#A08C10;--t-dark:#5A4E00;--t-soft:#F7F3DC}
+
+/* ---------- แถบเลือกธีม (ส่วนหลังบ้าน) ---------- */
+.builder{
+  max-width:1280px;margin:36px auto 0;background:#fff;border-radius:var(--radius);
+  padding:24px;box-shadow:0 6px 26px rgba(0,0,0,.09);
+}
+.builder h2{margin:0 0 5px;font-size:19px;font-weight:800}
+.builder > p{margin:0 0 18px;color:var(--muted);font-size:13.5px;line-height:1.65}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.sw{
+  border:2px solid var(--line);border-radius:13px;padding:11px 14px;cursor:pointer;
+  display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;background:#fff;
+}
+.sw.on{border-color:var(--ink)}
+.sw em{width:22px;height:22px;border-radius:7px;display:block;font-style:normal}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.opt{border:1.5px solid var(--line);border-radius:13px;padding:14px}
+.opt b{display:block;font-size:13px;margin-bottom:7px}
+.opt label{
+  display:flex;align-items:center;gap:8px;font-size:12.5px;
+  color:var(--muted);padding:4px 0;cursor:pointer;
+}
+.opt input{accent-color:var(--brand-orange);width:16px;height:16px}
+</style>
+</head>
+<body>
+
+<div class="pagehead">
+  <h1>RoaMembers — เทมเพลตหน้าร้านค้า</h1>
+  <p>
+    6 เทมเพลตพร้อมใช้ตามประเภทธุรกิจ · ใช้โครงเดียวกันทั้งหมด ต่างที่ชุดสีและบล็อกเนื้อหา<br>
+    เจ้าของร้านเลือกธีม แก้ข้อความ อัปโหลดรูป และเปิด/ปิดแต่ละบล็อกได้เองจากหลังบ้าน
+  </p>
+</div>
+
+<div class="grid">
+
+  <!-- ============ 1. ร้านกาแฟ ============ -->
+  <div class="slot t-cafe" style="--t:#8B5A2B">
+    <p class="cap"><i></i>ร้านกาแฟ / เครื่องดื่ม</p>
+    <div class="shop t-cafe">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">☕</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">☕</div>
+        <span class="cat">ร้านกาแฟ</span>
+        <h2>ร้านกาแฟบ้านสวน</h2>
+        <p class="desc">กาแฟคั่วสดทุกวัน บรรยากาศร่มรื่น มีที่จอดรถ</p>
+      </div>
+      <div class="meta">
+        <span>📍 ลาดพร้าว 71</span>
+        <span>🕐 07:00–18:00</span>
+        <span>📞 081-234-5678</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">แลกเลย</button>
+      </div>
+      <div class="sec"><h3>แลกด้วยแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">🥤</div><div class="tx"><b>กาแฟเย็น แก้วใหญ่</b><small>ทุกเมนู ยกเว้นเมนูพิเศษ</small></div><div class="pt"><div class="n">450</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🍰</div><div class="tx"><b>เค้กชิ้น + อเมริกาโน่</b><small>เซ็ตคู่ คุ้มกว่า</small></div><div class="pt"><div class="n">700</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🎟️</div><div class="tx"><b>ส่วนลด 50 บาท</b><small>ใช้ได้ทั้งร้าน ขั้นต่ำ 150.-</small></div><div class="pt"><div class="n">300</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="sec"><h3>บรรยากาศร้าน</h3></div>
+      <div class="gal"><div>🏡</div><div>☕</div><div>🍮</div><div>🌿</div></div>
+      <div class="cta">
+        <button class="ghost">แผนที่</button>
+        <button class="primary">แลกแต้มที่ร้าน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2. ร้านอาหาร ============ -->
+  <div class="slot t-food" style="--t:#F04800">
+    <p class="cap"><i></i>ร้านอาหาร</p>
+    <div class="shop t-food">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">🍜</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">🍜</div>
+        <span class="cat">ร้านอาหารตามสั่ง</span>
+        <h2>ครัวคุณแม่</h2>
+        <p class="desc">อาหารไทยรสจัดจ้าน วัตถุดิบสดใหม่ทุกวัน รับจัดเลี้ยง</p>
+      </div>
+      <div class="meta">
+        <span>📍 สุขุมวิท 31</span>
+        <span>🕐 10:00–21:00</span>
+        <span>🚚 มีเดลิเวอรี</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">แลกเลย</button>
+      </div>
+      <div class="sec"><h3>เมนูแลกแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">🍚</div><div class="tx"><b>ข้าวกะเพราไข่ดาว</b><small>ฟรี 1 จาน</small></div><div class="pt"><div class="n">500</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🥘</div><div class="tx"><b>ต้มยำกุ้งน้ำข้น</b><small>หม้อเล็ก 2-3 ที่</small></div><div class="pt"><div class="n">1,200</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🎁</div><div class="tx"><b>ส่วนลด 100 บาท</b><small>ทานที่ร้าน ขั้นต่ำ 300.-</small></div><div class="pt"><div class="n">600</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="sec"><h3>รีวิวจากลูกค้า</h3></div>
+      <div class="rev">
+        <div class="r"><div class="who"><span>คุณสมชาย</span><i>★★★★★</i></div>รสชาติเหมือนทำเอง ราคาไม่แพง แลกแต้มได้ด้วยดีมาก</div>
+      </div>
+      <div class="cta">
+        <button class="ghost">ดูเมนู</button>
+        <button class="primary">แลกแต้มที่ร้าน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3. ล้างรถ / คาร์แคร์ ============ -->
+  <div class="slot t-wash" style="--t:#0A7EA4">
+    <p class="cap"><i></i>ล้างรถ / คาร์แคร์ (มีระบบจอง)</p>
+    <div class="shop t-wash">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">🚿</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">🚗</div>
+        <span class="cat">คาร์แคร์</span>
+        <h2>คาร์แคร์ ลาดพร้าว</h2>
+        <p class="desc">ล้าง–ดูดฝุ่น–เคลือบสี ทีมงานมืออาชีพ รอรับได้เลย</p>
+      </div>
+      <div class="meta">
+        <span>📍 ลาดพร้าว 101</span>
+        <span>🕐 08:00–19:00</span>
+        <span>⏱ ประมาณ 45 นาที</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">จองคิว</button>
+      </div>
+      <div class="sec"><h3>บริการแลกแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">🚿</div><div class="tx"><b>ล้างรถ ฟรี 1 ครั้ง</b><small>เก๋ง / กระบะ</small></div><div class="pt"><div class="n">1,000</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">✨</div><div class="tx"><b>เคลือบสีเงา</b><small>ใช้เวลา 2 ชม.</small></div><div class="pt"><div class="n">2,500</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="sec"><h3>เลือกเวลาจอง · วันนี้</h3></div>
+      <div class="slots">
+        <button disabled>09:00</button>
+        <button>10:30</button>
+        <button class="on">13:00</button>
+        <button>15:30</button>
+      </div>
+      <div class="cta">
+        <button class="ghost">โทรหาร้าน</button>
+        <button class="primary">ยืนยันจองคิว</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 4. เสริมสวย / ตัดผม ============ -->
+  <div class="slot t-beauty" style="--t:#C2185B">
+    <p class="cap"><i></i>เสริมสวย / ตัดผม (เลือกช่าง)</p>
+    <div class="shop t-beauty">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">💇</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">💇</div>
+        <span class="cat">ร้านเสริมสวย</span>
+        <h2>ร้านเสริมสวยพี่แหม่ม</h2>
+        <p class="desc">ตัด–ทำสี–ยืด–ดัด ช่างมากประสบการณ์ 15 ปี</p>
+      </div>
+      <div class="meta">
+        <span>📍 รัชดา 32</span>
+        <span>🕐 09:00–20:00</span>
+        <span>💺 3 ที่นั่ง</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">จองคิว</button>
+      </div>
+      <div class="sec"><h3>บริการแลกแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">✂️</div><div class="tx"><b>ตัดผม + สระไดร์</b><small>ชาย / หญิง</small></div><div class="pt"><div class="n">2,000</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">💅</div><div class="tx"><b>ทำเล็บเจล</b><small>มือ หรือ เท้า</small></div><div class="pt"><div class="n">1,800</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="sec"><h3>เลือกช่าง</h3></div>
+      <div class="slots" style="grid-template-columns:repeat(3,1fr)">
+        <button class="on">พี่แหม่ม</button>
+        <button>พี่นก</button>
+        <button>ใครก็ได้</button>
+      </div>
+      <div class="cta">
+        <button class="ghost">ดูผลงาน</button>
+        <button class="primary">จองคิวเลย</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 5. ร้านยา ============ -->
+  <div class="slot t-pharm" style="--t:#006018">
+    <p class="cap"><i></i>ร้านยา (มีเภสัชกร)</p>
+    <div class="shop t-pharm">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">💊</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">💊</div>
+        <span class="cat">ร้านขายยา</span>
+        <h2>ฟาร์มาแคร์</h2>
+        <p class="desc">มีเภสัชกรประจำร้าน ให้คำปรึกษาฟรี วัดความดันฟรี</p>
+      </div>
+      <div class="meta">
+        <span>📍 พระราม 9</span>
+        <span>🕐 08:00–22:00</span>
+        <span>💉 มีเภสัชกร</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">แลกเลย</button>
+      </div>
+      <div class="sec"><h3>แลกด้วยแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">🎫</div><div class="tx"><b>ส่วนลด 100 บาท</b><small>ยาสามัญ · ไม่รวมยาควบคุม</small></div><div class="pt"><div class="n">1,500</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🩺</div><div class="tx"><b>ตรวจสุขภาพเบื้องต้น</b><small>ความดัน · น้ำตาล · BMI</small></div><div class="pt"><div class="n">800</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🧴</div><div class="tx"><b>วิตามินซี 1 ขวด</b><small>60 เม็ด</small></div><div class="pt"><div class="n">1,200</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="cta">
+        <button class="ghost">ปรึกษาเภสัช</button>
+        <button class="primary">แลกแต้มที่ร้าน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 6. ค้าปลีกทั่วไป ============ -->
+  <div class="slot t-retail" style="--t:#7A6A00">
+    <p class="cap"><i></i>ค้าปลีกทั่วไป / มินิมาร์ท</p>
+    <div class="shop t-retail">
+      <div class="cover">
+        <span class="badge-open"><b></b>เปิดอยู่</span>
+        <span class="emoji">🏪</span>
+      </div>
+      <div class="shophead">
+        <div class="avatar">🏪</div>
+        <span class="cat">มินิมาร์ท</span>
+        <h2>ร้านลุงหมี มินิมาร์ท</h2>
+        <p class="desc">ของกินของใช้ครบ เปิด 24 ชม. รับชำระบิลทุกประเภท</p>
+      </div>
+      <div class="meta">
+        <span>📍 อ่อนนุช 17</span>
+        <span>🕐 24 ชั่วโมง</span>
+        <span>💳 รับบัตร</span>
+      </div>
+      <div class="ptsbar">
+        <div><div class="l">แต้มของคุณที่ร้านนี้</div><div class="v">1,250</div></div>
+        <button class="btn-s">แลกเลย</button>
+      </div>
+      <div class="sec"><h3>แลกด้วยแต้ม</h3></div>
+      <div class="items">
+        <div class="item"><div class="th">🥤</div><div class="tx"><b>เครื่องดื่มเย็น 1 ขวด</b><small>เลือกได้ในตู้แช่</small></div><div class="pt"><div class="n">350</div><div class="u">แต้ม</div></div></div>
+        <div class="item"><div class="th">🎫</div><div class="tx"><b>ส่วนลด 50 บาท</b><small>ซื้อครบ 200.-</small></div><div class="pt"><div class="n">400</div><div class="u">แต้ม</div></div></div>
+      </div>
+      <div class="sec"><h3>สินค้าแนะนำ</h3></div>
+      <div class="gal"><div>🍫</div><div>🥛</div><div>🧻</div><div>🍜</div></div>
+      <div class="cta">
+        <button class="ghost">แผนที่</button>
+        <button class="primary">แลกแต้มที่ร้าน</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ ส่วนตั้งค่าหลังบ้านของเจ้าของร้าน ============ -->
+<div class="builder">
+  <h2>หน้าตั้งค่าร้าน (เจ้าของร้านแก้ไขเองได้)</h2>
+  <p>
+    เทมเพลตทั้ง 6 แบบเป็น <b>เทมเพลตกลาง</b> เจ้าของร้านเลือกแล้วปรับต่อได้เอง
+    โดยไม่ต้องเขียนโค้ด · ถ้ามีธุรกิจประเภทใหม่ ค่อยเพิ่มเทมเพลตทีหลังได้
+  </p>
+
+  <div class="swatches">
+    <div class="sw on"><em style="background:#8B5A2B"></em>ร้านกาแฟ</div>
+    <div class="sw"><em style="background:#F04800"></em>ร้านอาหาร</div>
+    <div class="sw"><em style="background:#0A7EA4"></em>ล้างรถ</div>
+    <div class="sw"><em style="background:#C2185B"></em>เสริมสวย</div>
+    <div class="sw"><em style="background:#006018"></em>ร้านยา</div>
+    <div class="sw"><em style="background:#7A6A00"></em>ค้าปลีก</div>
+    <div class="sw"><em style="background:linear-gradient(135deg,#F04800,#006018)"></em>กำหนดสีเอง</div>
+  </div>
+
+  <div class="opts">
+    <div class="opt">
+      <b>ข้อมูลร้าน</b>
+      <label><input type="checkbox" checked> ชื่อร้าน + คำโปรย</label>
+      <label><input type="checkbox" checked> โลโก้ / รูปปก</label>
+      <label><input type="checkbox" checked> ที่อยู่ + แผนที่</label>
+      <label><input type="checkbox" checked> เวลาทำการ</label>
+      <label><input type="checkbox" checked> เบอร์โทร / LINE</label>
+    </div>
+    <div class="opt">
+      <b>บล็อกเนื้อหา (เปิด/ปิดได้)</b>
+      <label><input type="checkbox" checked> รายการแลกแต้ม</label>
+      <label><input type="checkbox"> ระบบจองคิว</label>
+      <label><input type="checkbox"> เลือกพนักงาน/ช่าง</label>
+      <label><input type="checkbox" checked> แกลเลอรีรูปภาพ</label>
+      <label><input type="checkbox"> รีวิวลูกค้า</label>
+      <label><input type="checkbox"> เมนู / แคตตาล็อก</label>
+    </div>
+    <div class="opt">
+      <b>การแลกแต้ม</b>
+      <label><input type="checkbox" checked> ให้ลูกค้าแลกเองผ่านแอป</label>
+      <label><input type="checkbox" checked> พนักงานสแกน QR ยืนยัน</label>
+      <label><input type="checkbox"> ต้องจองล่วงหน้า</label>
+      <label><input type="checkbox" checked> แจ้งเตือนเข้า LINE ร้าน</label>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
