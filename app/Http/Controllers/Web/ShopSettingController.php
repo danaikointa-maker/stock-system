@@ -214,6 +214,59 @@ class ShopSettingController extends Controller
         ]);
     }
 
+    /**
+     * ดาวน์โหลด QR ร้านค้าเป็นไฟล์ SVG (สำหรับสั่งพิมพ์สติ๊กเกอร์)
+     *
+     * สร้าง QR Code แบบ SVG ที่ encode URL ของหน้า QR ร้านค้า
+     * ลูกค้าสแกน QR นี้ → เปิดหน้าแลกของรางวัลของร้าน
+     */
+    public function downloadShopQr(Request $request): \Illuminate\Http\Response
+    {
+        $this->authorizeShop();
+
+        $shop = $this->currentShop();
+        $profile = $this->profileFor($shop);
+        $url = $profile->shopQrUrl();
+
+        // สร้าง QR Code SVG โดยใช้ Google Charts API fallback
+        // สำหรับ production ควรใช้ library เช่น simplesoftwareio/simple-qrcode
+        $qrSize = 300;
+        $shopName = e($profile->display_name);
+        $qrData = urlencode($url);
+
+        $svg = $this->generateQrSvg($url, $qrSize, $shopName);
+
+        return response($svg, 200, [
+            'Content-Type' => 'image/svg+xml',
+            'Content-Disposition' => 'inline; filename="shop-qr-' . ($profile->slug ?: $shop->id) . '.svg"',
+        ]);
+    }
+
+    /** สร้าง QR Code เป็น SVG โดยใช้ API ภายนอก */
+    private function generateQrSvg(string $data, int $size, string $label): string
+    {
+        // สร้าง QR matrix แบบง่าย (ใช้ API สำหรับ demo)
+        // สำหรับ production ควร install: composer require simplesoftwareio/simple-qrcode
+        $encodedData = urlencode($data);
+        $qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data={$encodedData}&format=svg";
+
+        // สร้าง SVG ที่ประกอบด้วย QR image + label
+        $labelEscaped = htmlspecialchars($label, ENT_XML1, 'UTF-8');
+        $dataEscaped = htmlspecialchars($data, ENT_XML1, 'UTF-8');
+
+        return <<<SVG
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="{$size}" height="{$size}">
+  <rect width="100%" height="100%" fill="white"/>
+  <!-- QR Data: {$dataEscaped} -->
+  <!-- Shop: {$labelEscaped} -->
+  <!-- เปิด URL นี้เพื่อใช้ QR: {$dataEscaped} -->
+  <image xlink:href="{$qrImageUrl}" width="{$size}" height="{$size}"/>
+</svg>
+SVG;
+    }
+
     // ────────────────────────────────────────────────────────────
 
     private function authorizeShop(): void

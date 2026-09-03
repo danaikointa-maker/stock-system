@@ -77,6 +77,21 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 Route::get('/r/{slug}', [\App\Http\Controllers\Web\StorefrontController::class, 'show'])
     ->name('storefront');
 
+/*
+|--------------------------------------------------------------------------
+| QR ร้านค้า — ลูกค้าสแกนเพื่อแลกของรางวัล
+|--------------------------------------------------------------------------
+| QR ติดหน้าร้าน ลูกค้าสแกนแล้วเปิดหน้าแลกของรางวัลของร้านนั้น
+| ไม่ต้อง login ระบบ แต่กรอกเบอร์โทรเพื่อยืนยันตัว
+*/
+Route::prefix('shop-qr')->name('shop-qr.')->group(function () {
+    Route::get('/{token}', [\App\Http\Controllers\Web\ShopQrController::class, 'show'])
+        ->name('show');
+    Route::post('/{token}/redeem', [\App\Http\Controllers\Web\ShopQrController::class, 'redeem'])
+        ->middleware('throttle:10,1')
+        ->name('redeem');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 /*
@@ -183,6 +198,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::get('/settings', [ShopSettingController::class, 'edit'])->name('settings');
         Route::put('/settings', [ShopSettingController::class, 'update'])->name('update');
         Route::get('/preview', [ShopSettingController::class, 'preview'])->name('preview');
+        Route::get('/qr-download', [ShopSettingController::class, 'downloadShopQr'])->name('qr-download');
         Route::post('/rewards', [ShopSettingController::class, 'storeReward'])->name('rewards.store');
         Route::patch('/rewards/{reward}/toggle', [ShopSettingController::class, 'toggleReward'])->name('rewards.toggle');
         Route::delete('/rewards/{reward}', [ShopSettingController::class, 'destroyReward'])->name('rewards.destroy');

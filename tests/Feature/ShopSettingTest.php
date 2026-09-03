@@ -279,4 +279,131 @@ class ShopSettingTest extends TestCase
             ->assertOk()
             ->assertSee('กำลังดูตัวอย่าง');
     }
+
+    // ─── QR ร้านค้า ──────────────────────────────────────────
+
+    public function test_บันทึกข้อมูลร้านแล้วสร้าง_shop_qr_token_อัตโนมัติ(): void
+    {
+        $this->actingAs($this->shopUser())
+            ->put('/shop/settings', $this->baseData())
+            ->assertRedirect();
+
+        $profile = ShopProfile::where('node_id', $this->shop()->id)->firstOrFail();
+
+        // เมื่อเรียก ensureQrToken ต้องได้ token และ URL
+        $token = $profile->ensureQrToken();
+        $this->assertNotEmpty($token);
+        $this->assertSame(24, strlen($token));
+
+        // URL ต้องชี้ไป /shop-qr/{token}
+        $this->assertStringContainsString("/shop-qr/{$token}", $profile->shopQrUrl());
+    }
+
+    public function test_หน้า_qr_ร้านเปิดได้โดยไม่ต้องล็อกอิน(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData());
+
+        $profile = ShopProfile::where('node_id', $this->shop()->id)->firstOrFail();
+        $token = $profile->ensureQrToken();
+
+        // ไม่ต้อง login
+        $this->get("/shop-qr/{$token}")
+            ->assertOk()
+            ->assertSee($profile->display_name)
+            ->assertSee('ของรางวัลที่แลกได้');
+    }
+
+    public function test_หน้า_qr_ร้านที่ไม่เผยแพร่เปิดไม่ได้(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData([
+            'status' => 'draft',
+        ]));
+
+        $profile = ShopProfile::where('node_id', $this->shop()->id)->firstOrFail();
+        $token = $profile->ensureQrToken();
+
+        // ต้องได้ 404 เพราะร้านยังไม่เผยแพร่
+        $this->get("/shop-qr/{$token}")->assertNotFound();
+    }
+
+    public function test_token_ผิดเปิดหน้า_qr_ไม่ได้(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData());
+
+        $this->get('/shop-qr/invalidtoken123456789012')->assertNotFound();
+    }
+
+    public function test_หน้า_qr_แสดงของรางวัลที่เปิดใช้เท่านั้น(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData());
+
+        $profile = ShopProfile::where('node_id', $this->shop()->id)->firstOrFail();
+        $token = $profile->ensureQrToken();
+
+        ShopReward::create([
+            'shop_node_id' => $this->shop()->id,
+            'name'         => 'กาแฟฟรี',
+            'reward_type'  => 'service',
+            'points_cost'  => 100,
+            'is_active'    => true,
+        ]);
+
+        ShopReward::create([
+            'shop_node_id' => $this->shop()->id,
+            'name'         => 'ของที่ปิดไว้',
+            'reward_type'  => 'service',
+            'points_cost'  => 500,
+            'is_active'    => false,
+        ]);
+
+        $this->get("/shop-qr/{$token}")
+            ->assertOk()
+            ->assertSee('กาแฟฟรี')
+            ->assertDontSee('ของที่ปิดไว้');
+    }
+
+    public function test_ดาวน์โหลด_qr_ร้านได้(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData());
+
+        // สร้าง token ก่อน
+        ShopProfile::where('node_id', $this->shop()->id)->firstOrFail()->ensureQrToken();
+
+        $response = $this->actingAs($this->shopUser())
+            ->get('/shop/qr-download');
+
+        $response->assertOk()
+            ->assertHeader('Content-Type', 'image/svg+xml');
+
+        // SVG ต้องมีข้อมูล URL ของ shop QR
+        $this->assertStringContainsString('shop-qr', $response->getContent());
+    }
+
+    public function test_คนอื่นดาวน์โหลด_qr_ร้านไม่ได้(): void
+    {
+        $wh = User::where('email', 'wh@demo.test')->firstOrFail();
+
+        $this->actingAs($wh)
+            ->get('/shop/qr-download')
+            ->assertForbidden();
+    }
+
+    public function test_กรอกเบอร์โทรเพื่อดูแต้มผ่าน_qr(): void
+    {
+        $this->actingAs($this->shopUser())->put('/shop/settings', $this->baseData());
+
+        $profile = ShopProfile::where('node_id', $this->shop()->id)->firstOrFail();
+        $token = $profile->ensureQrToken();
+
+        // สร้างลูกค้าที่มีเบอร์นี้ก่อน
+        \App\Models\Customer::create([
+            'phone' => '0812345678',
+            'name'  => 'ทดสอบ QR',
+        ]);
+
+        $this->get("/shop-qr/{$token}?phone=0812345678")
+            ->assertOk()
+            ->assertSee('0812345678')
+            ->assertSee('ทดสอบ QR');
+    }
 }

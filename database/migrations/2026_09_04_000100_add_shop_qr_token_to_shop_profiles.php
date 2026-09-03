@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('shop_profiles', function (Blueprint $table) {
+            // โทเคนสุ่มสำหรับ QR ร้านค้า — ลูกค้าสแกนแล้วเปิดหน้าแลกของรางวัล
+            $table->string('shop_qr_token', 32)->unique()->nullable()->after('slug');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('shop_profiles', function (Blueprint $table) {
+            $table->dropColumn('shop_qr_token');
+        });
+    }
+};

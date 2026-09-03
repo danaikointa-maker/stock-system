@@ -278,6 +278,35 @@
         </div>
       </div>
 
+      {{-- QR ร้านค้า --}}
+      <div class="card" style="margin-bottom:16px">
+        <div class="body">
+          <h3 style="margin:0 0 6px;font-size:14px">📱 QR ร้านค้า</h3>
+          <p class="hint" style="margin-bottom:12px">
+            พิมพ์สติ๊กเกอร์ติดหน้าร้าน ลูกค้าสแกนเพื่อแลกของรางวัลได้ทันที
+          </p>
+          @if($profile->shop_qr_token)
+            <div style="background:#FFF9F6;border:1.5px solid #FFE0CC;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+              <div style="width:160px;height:160px;margin:0 auto 10px;background:#fff;border-radius:10px;display:grid;place-items:center;border:1px solid #EEE">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($profile->shopQrUrl()) }}"
+                     alt="QR {{ $profile->display_name }}" style="width:140px;height:140px">
+              </div>
+              <p style="margin:0;font-size:11px;color:var(--muted);word-break:break-all">
+                {{ $profile->shopQrUrl() }}
+              </p>
+            </div>
+            <a href="{{ route('shop.qr-download') }}" target="_blank"
+               class="btn btn-p" style="width:100%;text-align:center;display:block">
+              ⬇ ดาวน์โหลด QR (SVG)
+            </a>
+          @else
+            <p class="hint" style="text-align:center;padding:20px 0">
+              QR จะถูกสร้างอัตโนมัติเมื่อบันทึกข้อมูลร้านครั้งแรก
+            </p>
+          @endif
+        </div>
+      </div>
+
       <button type="submit" class="btn btn-p" style="width:100%;padding:14px;font-size:15px">
         บันทึกการตั้งค่า
       </button>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ShopProfile extends Model
 {
     protected $fillable = [
-        'node_id', 'slug', 'display_name', 'tagline', 'description',
+        'node_id', 'slug', 'shop_qr_token', 'display_name', 'tagline', 'description',
         'business_type', 'template_key', 'logo_path', 'cover_path',
         'color_primary', 'color_secondary', 'phone', 'line_id', 'address',
         'lat', 'lng', 'open_hours', 'blocks', 'gallery', 'status',
@@ -21,6 +21,23 @@ class ShopProfile extends Model
     ];
 
     public function node() { return $this->belongsTo(OrgNode::class, 'node_id'); }
+
+    /** สร้างหรือดึง shop QR token */
+    public function ensureQrToken(): string
+    {
+        if (! $this->shop_qr_token) {
+            $this->shop_qr_token = \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(24));
+            $this->save();
+        }
+
+        return $this->shop_qr_token;
+    }
+
+    /** URL สำหรับ QR ร้านค้า — ลูกค้าสแกนแล้วเปิดหน้าแลกของรางวัล */
+    public function shopQrUrl(): string
+    {
+        return url('/shop-qr/' . $this->ensureQrToken());
+    }
 
     /** ชุดสีตามประเภทธุรกิจ (ใช้เมื่อร้านไม่ได้กำหนดสีเอง) */
     public function themeColors(): array
