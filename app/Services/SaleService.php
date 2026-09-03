@@ -71,16 +71,18 @@ class SaleService
 
                     // เปิดใช้งาน QR ของชิ้นที่ขายออก -> ลูกค้าถึงจะสแกนรับคะแนนได้
                     $this->activateQrcodes($node->id, $product->id, $pick['lot_id'], $pick['qty']);
-                }
 
-                $sale->items()->create([
-                    'product_id' => $product->id,
-                    'lot_id'     => $picks[0]['lot_id'] ?? null,
-                    'qty'        => $qty,
-                    'unit_price' => $price,
-                    'discount'   => $lineDiscount,
-                    'line_total' => $lineTotal,
-                ]);
+                    // สร้าง sale_item แยกแต่ละล็อต เพื่อให้ยกเลิกบิลคืนสต๊อกได้ถูกต้องทุกล็อต
+                    $pickDiscount = $qty > 0 ? ($lineDiscount * $pick['qty'] / $qty) : 0;
+                    $sale->items()->create([
+                        'product_id' => $product->id,
+                        'lot_id'     => $pick['lot_id'],
+                        'qty'        => $pick['qty'],
+                        'unit_price' => $price,
+                        'discount'   => round($pickDiscount, 2),
+                        'line_total' => ($pick['qty'] * $price) - round($pickDiscount, 2),
+                    ]);
+                }
 
                 $subtotal += $lineTotal;
             }

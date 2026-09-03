@@ -45,6 +45,11 @@ PHP
 echo "==> ตั้งค่า middleware (trustProxies + relative URL)"
 cp "$SRC/bootstrap-app.php.example" bootstrap/app.php
 
+echo "==> สร้าง storage directories"
+mkdir -p storage/framework/{views,sessions,cache,data}
+mkdir -p storage/logs
+chmod -R 775 storage/
+
 echo "==> ตั้งค่าฐานข้อมูล SQLite"
 cp "$SRC/setup-env.php" .
 php setup-env.php
