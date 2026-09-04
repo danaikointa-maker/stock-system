@@ -5,22 +5,20 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 
 class BrandController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('can:manage-packages');
-    }
-
     public function index()
     {
+        Gate::authorize('manage-packages');
         $currentLogo = $this->getCurrentLogo();
         return view('admin.brand', compact('currentLogo'));
     }
 
     public function update(Request $request)
     {
+        Gate::authorize('manage-packages');
         $request->validate([
             'logo' => 'required|file|mimes:svg,png,jpg,jpeg,webp,ico|max:2048',
         ], [
@@ -53,6 +51,7 @@ class BrandController extends Controller
 
     public function destroy()
     {
+        Gate::authorize('manage-packages');
         $this->clearOldLogos();
 
         // ไม่ copy default กลับ → ให้ brand_logo() return transparent PNG
