@@ -129,7 +129,7 @@ function selectDb(type) {
     @csrf
     <div class="field">
       <label>ชื่อระบบ</label>
-      <input class="input" name="name" value="{{ old('name', $app['name']) }}" placeholder="RoaMembers" required>
+      <input class="input" name="name" value="{{ old('name', $app['name']) }}" placeholder="RaoMembers" required>
       <p class="hint">แสดงที่ header และ title ของทุกหน้า</p>
     </div>
     <div class="field">

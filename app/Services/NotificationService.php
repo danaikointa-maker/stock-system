@@ -52,12 +52,12 @@ class NotificationService
                 . "ได้รับ: +" . number_format($points) . " แต้ม\n"
                 . "แต้มสะสมทั้งหมด: " . number_format($totalBalance) . " แต้ม"
                 . $expireText
-                . "\n\nดูแต้มและแลกของรางวัลได้ที่หน้าเว็บ RoaMembers";
+                . "\n\nดูแต้มและแลกของรางวัลได้ที่หน้าเว็บ " . config('app.name', 'RaoMembers');
 
             $this->queueForCustomer(
                 $customer,
                 'points_earned',
-                'RoaMembers: ได้รับ ' . number_format($points) . ' แต้ม',
+                config('app.name', 'RaoMembers') . ': ได้รับ ' . number_format($points) . ' แต้ม',
                 $body,
                 ['points' => $points, 'balance' => $totalBalance, 'product' => $productName],
             );
@@ -89,7 +89,7 @@ class NotificationService
             $this->queueForCustomer(
                 $customer,
                 'redemption_confirmed',
-                'RoaMembers: ใช้แต้ม ' . number_format($redemption->points_used) . ' แต้ม',
+                config('app.name', 'RaoMembers') . ': ใช้แต้ม ' . number_format($redemption->points_used) . ' แต้ม',
                 $body,
                 ['redemption_id' => $redemption->id],
                 'PointRedemption',
@@ -100,7 +100,7 @@ class NotificationService
             $this->notifyShopUsers(
                 $redemption->accepting_node_id,
                 'shop_redeem_received',
-                'RoaMembers: มีลูกค้าแลกแต้ม',
+                config('app.name', 'RaoMembers') . ': มีลูกค้าแลกแต้ม',
                 "มีลูกค้าแลกแต้มที่ร้านคุณ\n\n"
                     . "รายการ: {$redemption->reward_name}\n"
                     . "แต้ม: " . number_format($redemption->points_used) . "\n"
@@ -117,26 +117,26 @@ class NotificationService
         $this->safely(function () use ($claim, $event) {
             [$subject, $body] = match ($event) {
                 'approved' => [
-                    'RoaMembers: ใบเบิกได้รับอนุมัติ',
+                    config('app.name', 'RaoMembers') . ': ใบเบิกได้รับอนุมัติ',
                     "ใบเบิก {$claim->code} ได้รับอนุมัติแล้ว\n\n"
                         . "งวด: {$claim->period_ym}\n"
                         . "จำนวนเงิน: " . number_format($claim->total_amount, 2) . " บาท\n\n"
                         . "รอรับเงินโอนตามรอบการจ่าย",
                 ],
                 'paid' => [
-                    'RoaMembers: จ่ายเงินใบเบิกแล้ว',
+                    config('app.name', 'RaoMembers') . ': จ่ายเงินใบเบิกแล้ว',
                     "จ่ายเงินใบเบิก {$claim->code} เรียบร้อยแล้ว\n\n"
                         . "จำนวนเงิน: " . number_format($claim->total_amount, 2) . " บาท\n"
                         . ($claim->payment_ref ? "อ้างอิง: {$claim->payment_ref}\n" : '')
                         . "\nขอบคุณที่ร่วมโครงการ",
                 ],
                 'rejected' => [
-                    'RoaMembers: ใบเบิกถูกปฏิเสธ',
+                    config('app.name', 'RaoMembers') . ': ใบเบิกถูกปฏิเสธ',
                     "ใบเบิก {$claim->code} ถูกปฏิเสธ\n\n"
                         . "เหตุผล: {$claim->reject_reason}\n\n"
                         . "รายการถูกปลดแล้ว คุณสามารถยื่นใบเบิกใหม่ได้",
                 ],
-                default => ['RoaMembers: อัปเดตใบเบิก', "ใบเบิก {$claim->code} มีการเปลี่ยนแปลง"],
+                default => [config('app.name', 'RaoMembers') . ': อัปเดตใบเบิก', "ใบเบิก {$claim->code} มีการเปลี่ยนแปลง"],
             };
 
             $this->notifyShopUsers(
@@ -160,7 +160,7 @@ class NotificationService
             $this->notifyShopUsers(
                 $shopNodeId,
                 'allowance_low',
-                'RoaMembers: วงเงินรับแลกใกล้หมด',
+                config('app.name', 'RaoMembers') . ': วงเงินรับแลกใกล้หมด',
                 "วงเงินรับแลกแต้มเดือนนี้ใกล้หมดแล้ว\n\n"
                     . "คงเหลือ: " . number_format($remaining) . " จาก " . number_format($total) . " แต้ม ({$pct}%)\n\n"
                     . "เมื่อหมดจะรับแลกไม่ได้จนกว่าจะขึ้นเดือนใหม่",
@@ -281,7 +281,7 @@ class NotificationService
     private function sendEmail(NotificationQueue $row): ?string
     {
         Mail::raw($row->body, function ($m) use ($row) {
-            $m->to($row->destination)->subject($row->subject ?: 'RoaMembers');
+            $m->to($row->destination)->subject($row->subject ?: config('app.name', 'RaoMembers'));
         });
 
         return null;

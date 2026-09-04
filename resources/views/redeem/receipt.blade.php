@@ -98,7 +98,7 @@
   @endif
 
   <p style="text-align:center;font-size:11px;color:#9E9E9E;margin:16px 0 0;line-height:1.7">
-    RoaMembers · เก็บใบเสร็จนี้ไว้เป็นหลักฐาน<br>
+    {{ config('app.name', 'RaoMembers') }} · เก็บใบเสร็จนี้ไว้เป็นหลักฐาน<br>
     ร้านค้าใช้ยอดนี้ยื่นเบิกเงินคืนจากเจ้าของระบบ
   </p>
 </div>

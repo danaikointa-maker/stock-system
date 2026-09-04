@@ -1,12 +1,12 @@
 @extends('layouts.public')
-@section('title', 'สแกนรับแต้ม · RoaMembers')
+@section('title', 'สแกนรับแต้ม · ' . config('app.name', 'RaoMembers'))
 
 @section('body')
 <div class="hero">
   <div class="brandbar">
-    <img src="{{ asset('brand/logo.svg') }}" alt="RoaMembers">
+    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
     <div>
-      <span class="name">RoaMembers</span>
+      <span class="name">{{ config('app.name', 'RaoMembers') }}</span>
       <span class="sub">สะสมแต้ม · แลกของรางวัล</span>
     </div>
   </div>

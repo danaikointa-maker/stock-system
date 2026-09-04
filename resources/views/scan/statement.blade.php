@@ -61,7 +61,7 @@
       ออกรายงานเมื่อ {{ $printedAt->format('j M Y เวลา H:i น.') }}
     </div>
   </div>
-  <img class="logo" src="{{ asset('brand/logo.svg') }}" alt="RoaMembers">
+  <img class="logo" src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
 </div>
 
 <div class="cards">
@@ -150,7 +150,7 @@
 </table>
 
 <div class="foot">
-  เอกสารนี้ออกโดยระบบ RoaMembers อัตโนมัติ<br>
+  เอกสารนี้ออกโดยระบบ {{ config('app.name', 'RaoMembers') }} อัตโนมัติ<br>
   ใช้เพื่อการตรวจสอบส่วนบุคคลเท่านั้น · หากพบข้อมูลไม่ถูกต้องกรุณาติดต่อผู้ดูแลระบบ
 </div>
 

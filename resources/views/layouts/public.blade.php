@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <meta name="theme-color" content="#F04800">
-<title>@yield('title', 'RoaMembers — สะสมแต้ม')</title>
+<title>@yield('title', config('app.name', 'RaoMembers') . ' — สะสมแต้ม')</title>
 
 {{-- ป้องกันการฝังหน้านี้ในเว็บอื่น --}}
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="{{ asset('brand/logo.svg') }}">
 
 <style>
-  /* ===== สีแบรนด์ RoaMembers (ดึงจากโลโก้จริง) ===== */
+  /* ===== สีแบรนด์ (ดึงจาก APP_NAME) ===== */
   :root{
     --brand:#F04800;        /* ส้ม */
     --brand-dark:#C23800;
@@ -126,7 +126,7 @@
   @yield('body')
 
   <div class="foot">
-    RoaMembers · ระบบสะสมแต้ม<br>
+    {{ config('app.name', 'RaoMembers') }} · ระบบสะสมแต้ม<br>
     @if(!empty($customer))
       <form method="POST" action="{{ route('scan.forget') }}" style="display:inline">
         @csrf

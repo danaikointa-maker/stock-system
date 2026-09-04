@@ -69,7 +69,7 @@ class ScanPageTest extends TestCase
     {
         $this->get('/scan')
             ->assertOk()
-            ->assertSee('RoaMembers')
+            ->assertSee(config('app.name', 'RaoMembers'))
             ->assertSee('เบอร์โทรศัพท์');
     }
 

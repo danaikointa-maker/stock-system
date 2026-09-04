@@ -1,5 +1,5 @@
 @extends('layouts.public')
-@section('title', 'กระเป๋าแต้ม · RoaMembers')
+@section('title', 'กระเป๋าแต้ม · ' . config('app.name', 'RaoMembers'))
 
 @push('head')
 <style>
@@ -47,8 +47,8 @@
 @section('body')
 <div class="wallet-top">
   <div class="brandbar" style="margin-bottom:14px">
-    <img src="{{ asset('brand/logo.svg') }}" alt="RoaMembers">
-    <div><span class="name">RoaMembers</span></div>
+    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
+    <div><span class="name">{{ config('app.name', 'RaoMembers') }}</span></div>
   </div>
   <div class="who">สวัสดี คุณ{{ $customer->name }} 👋</div>
   <div class="pts">{{ number_format($total) }}</div>

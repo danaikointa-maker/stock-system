@@ -136,7 +136,7 @@ class HelpController extends Controller
                 'label' => 'เริ่มต้นใช้งาน',
                 'abilities' => [],
                 'content' => '
-                    <h3>🎯 ยินดีต้อนรับสู่ระบบ RoaMembers</h3>
+                    <h3>🎯 ยินดีต้อนรับสู่ระบบ ' . config('app.name', 'RaoMembers') . '</h3>
                     <p>ระบบบริหารคลังสินค้า ขาย และ Loyalty Program แบบครบวงจร — คู่มือนี้จะช่วยให้คุณเริ่มต้นใช้งานได้อย่างรวดเร็ว</p>
 
                     <div class="info-box">

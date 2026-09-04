@@ -18,7 +18,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="base-url" content="{{ $__bp }}">
-<title>ติดตั้งระบบ · RoaMembers</title>
+<title>ติดตั้งระบบ · {{ config('app.name', 'RaoMembers') }}</title>
 <style>
 :root{--brand:#F04800;--brand-dark:#C23800;--ok:#006018;--warn:#C77700;--bad:#C62828;--bg:#F6F5F0;--card:#fff;--ink:#1A1A14;--muted:#6E6E63;--line:#E6E4DA}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -81,7 +81,7 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
 <div class="wizard">
   <div class="logo">
     <img src="{{ asset('brand/logo.svg') }}" alt="">
-    <b>RoaMembers</b>
+    <b>{{ config('app.name', 'RaoMembers') }}</b>
     <span>ระบบติดตั้งครั้งแรก · Step {{ $step }}/{{ $totalSteps }}</span>
   </div>
 

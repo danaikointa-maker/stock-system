@@ -1,5 +1,5 @@
 @extends('layouts.public')
-@section('title', $result['ok'] ? 'รับแต้มสำเร็จ · RoaMembers' : 'สแกนไม่สำเร็จ · RoaMembers')
+@section('title', $result['ok'] ? 'รับแต้มสำเร็จ · ' . config('app.name', 'RaoMembers') : 'สแกนไม่สำเร็จ · ' . config('app.name', 'RaoMembers'))
 
 @push('head')
 <style>

@@ -131,7 +131,7 @@ class SetupController extends Controller
             'step'       => 3,
             'totalSteps' => 6,
             'app'        => [
-                'name'     => $this->env->get('APP_NAME', 'RoaMembers'),
+                'name'     => $this->env->get('APP_NAME', 'RaoMembers'),
                 'url'      => $this->env->get('APP_URL', url('/')),
                 'timezone' => $this->env->get('APP_TIMEZONE', 'Asia/Bangkok'),
                 'debug'    => $this->env->get('APP_DEBUG', 'false'),

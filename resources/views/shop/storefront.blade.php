@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <meta name="theme-color" content="{{ $colors['primary'] }}">
-<title>{{ $profile->display_name }} · RoaMembers</title>
+<title>{{ $profile->display_name }} · {{ config('app.name', 'RaoMembers') }}</title>
 <link rel="icon" href="{{ asset('brand/logo.svg') }}">
 
 <style>
@@ -146,7 +146,7 @@
     @if($profile->cover_path)
       <img src="{{ Storage::url($profile->cover_path) }}" alt="">
     @endif
-    <span class="badge-open">เข้าร่วม RoaMembers</span>
+    <span class="badge-open">เข้าร่วม {{ config('app.name', 'RaoMembers') }}</span>
     <span class="emoji">{{ $icon }}</span>
   </div>
 
@@ -252,8 +252,8 @@
   </div>
 
   <div class="foot">
-    <img src="{{ asset('brand/logo.svg') }}" alt="RoaMembers"><br>
-    ร้านนี้เข้าร่วมโครงการสะสมแต้ม RoaMembers<br>
+    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}"><br>
+    ร้านนี้เข้าร่วมโครงการสะสมแต้ม {{ config('app.name', 'RaoMembers') }}<br>
     สแกน QR บนสินค้าเพื่อรับแต้ม แล้วนำมาแลกที่ร้านนี้ได้
   </div>
 </div>

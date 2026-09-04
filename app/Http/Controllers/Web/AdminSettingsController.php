@@ -22,7 +22,7 @@ class AdminSettingsController extends Controller
         'app' => [
             'title'  => '🏢 ตั้งค่าแอป',
             'fields' => [
-                'APP_NAME'     => ['label' => 'ชื่อระบบ',       'type' => 'text',     'hint' => 'เช่น RoaMembers, ร้านป้าสมจิตร'],
+                'APP_NAME'     => ['label' => 'ชื่อระบบ',       'type' => 'text',     'hint' => 'เช่น RaoMembers, ร้านป้าสมจิตร'],
                 'APP_URL'      => ['label' => 'URL ของเว็บ',    'type' => 'url',      'hint' => 'เช่น https://members.myshop.com'],
                 'APP_TIMEZONE' => ['label' => 'เขตเวลา',        'type' => 'select',   'options' => ['Asia/Bangkok' => 'Bangkok (GMT+7)', 'Asia/Singapore' => 'Singapore (GMT+8)', 'UTC' => 'UTC']],
                 'APP_DEBUG'    => ['label' => 'โหมดดีบั๊ก',     'type' => 'toggle',   'hint' => 'เปิดเฉพาะตอนพัฒนา — ปิดเมื่อใช้งานจริง'],
