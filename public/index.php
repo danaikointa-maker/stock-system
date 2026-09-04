@@ -9,22 +9,16 @@ define('LARAVEL_START', microtime(true));
 |--------------------------------------------------------------------------
 | Pre-flight Checks — ก่อน Laravel boot
 |--------------------------------------------------------------------------
-| ตรวจสอบว่าพร้อมใช้งานไหม ก่อนที่ Laravel จะ boot
-| ถ้าไม่พร้อม → redirect ไปหน้า Setup Wizard
-|
-| ทำไมไม่ใช้ middleware?
-| เพราะ middleware ทำงานหลัง Laravel boot แล้ว
-| ถ้า .env หรือ vendor/ ไม่มี → Laravel crash ก่อน middleware จะทำงาน (504)
 */
 
-$setupRedirect = null;
+$setupRedirect = false;
 
-// 1. ตรวจสอบ vendor/autoload.php
+// 1. vendor
 if (! file_exists(__DIR__ . '/../vendor/autoload.php')) {
     $setupRedirect = true;
 }
 
-// 2. ตรวจสอบ .env — ถ้าไม่มี สร้างจาก .env.example
+// 2. .env
 if (! file_exists(__DIR__ . '/../.env')) {
     if (file_exists(__DIR__ . '/../.env.example')) {
         copy(__DIR__ . '/../.env.example', __DIR__ . '/../.env');
@@ -32,7 +26,8 @@ if (! file_exists(__DIR__ . '/../.env')) {
     $setupRedirect = true;
 }
 
-// 3. ตรวจสอบ APP_KEY — ถ้าว่าง ต้อง setup
+// 3. APP_KEY
+$envContent = '';
 if (file_exists(__DIR__ . '/../.env')) {
     $envContent = file_get_contents(__DIR__ . '/../.env');
     if (! preg_match('/^APP_KEY=.+$/m', $envContent)) {
@@ -40,25 +35,20 @@ if (file_exists(__DIR__ . '/../.env')) {
     }
 }
 
-// 4. ตรวจสอบ database — ถ้ายังไม่มี table ต้อง setup
-if (file_exists(__DIR__ . '/../.env') && ! $setupRedirect) {
-    $envContent = file_get_contents(__DIR__ . '/../.env');
-
-    // ดึง DB_CONNECTION
+// 4. Database
+$dbReady = false;
+if (! $setupRedirect && $envContent) {
     $dbDriver = 'sqlite';
     if (preg_match('/^DB_CONNECTION=(.+)$/m', $envContent, $m)) {
         $dbDriver = trim($m[1]);
     }
-
-    $dbReady = false;
-
     try {
         if ($dbDriver === 'sqlite') {
             $dbPath = __DIR__ . '/../database/database.sqlite';
             if (file_exists($dbPath) && filesize($dbPath) > 0) {
                 $pdo = new PDO('sqlite:' . $dbPath);
-                $result = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'");
-                $dbReady = $result && $result->fetch() !== false;
+                $r = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'");
+                $dbReady = $r && $r->fetch() !== false;
             }
         } elseif ($dbDriver === 'mysql') {
             $host = '127.0.0.1'; $port = '3306'; $dbname = ''; $user = 'root'; $pass = '';
@@ -67,33 +57,74 @@ if (file_exists(__DIR__ . '/../.env') && ! $setupRedirect) {
             if (preg_match('/^DB_DATABASE=(.+)$/m', $envContent, $m)) $dbname = trim($m[1]);
             if (preg_match('/^DB_USERNAME=(.+)$/m', $envContent, $m)) $user   = trim($m[1]);
             if (preg_match('/^DB_PASSWORD=(.+)$/m', $envContent, $m)) $pass   = trim($m[1]);
-
             if ($dbname) {
                 $pdo = new PDO("mysql:host={$host};port={$port};dbname={$dbname}", $user, $pass, [PDO::ATTR_TIMEOUT => 3]);
-                $result = $pdo->query("SHOW TABLES LIKE 'sessions'");
-                $dbReady = $result && $result->fetch() !== false;
+                $r = $pdo->query("SHOW TABLES LIKE 'sessions'");
+                $dbReady = $r && $r->fetch() !== false;
             }
         }
     } catch (\Throwable $e) {
         $dbReady = false;
     }
-
     if (! $dbReady) {
         $setupRedirect = true;
     }
 }
 
-// ถ้าต้อง redirect → ทำ raw PHP redirect (ไม่พึ่ง Laravel)
+// ── แสดงหน้า pre-check ถ้ายังไม่พร้อม ─────────────────────────
 if ($setupRedirect) {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-    $requestPath = parse_url($requestUri, PHP_URL_PATH);
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
-    // อนุญาตให้เข้า /setup ได้ (เพื่อติดตั้ง)
-    // แต่ทุกหน้าอื่น → redirect ไป /setup
     if ($requestPath !== '/setup' && ! str_starts_with($requestPath, '/setup/')) {
-        // แสดงหน้า setup pre-check (ไม่พึ่ง Laravel)
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
+
+        // ตรวจสอบสถานะ
+        $checks = [];
+        $phpOk = version_compare(PHP_VERSION, '8.2.0', '>=');
+        $checks[] = ['PHP ' . PHP_VERSION, $phpOk];
+
+        $vendorOk = file_exists(__DIR__ . '/../vendor/autoload.php');
+        $checks[] = ['Composer dependencies', $vendorOk];
+
+        $envOk = file_exists(__DIR__ . '/../.env');
+        $checks[] = ['.env file', $envOk];
+
+        $appKeyOk = $envOk && (bool) preg_match('/^APP_KEY=.+$/m', $envContent);
+        $checks[] = ['APP_KEY (encryption key)', $appKeyOk];
+
+        $checks[] = ["Database ({$dbDriver})", $dbReady];
+
+        foreach (['mbstring', 'xml', 'curl', 'zip', 'pdo', 'openssl'] as $ext) {
+            $checks[] = ["ext-{$ext}", extension_loaded($ext)];
+        }
+        foreach (['storage', 'bootstrap/cache'] as $dir) {
+            $path = __DIR__ . '/../' . $dir;
+            $checks[] = ["เขียนได้: {$dir}/", is_dir($path) && is_writable($path)];
+        }
+
+        $allOk = true;
+        $checksHtml = '';
+        foreach ($checks as [$label, $ok]) {
+            if (! $ok) $allOk = false;
+            $icon = $ok ? '✅' : '❌';
+            $cls  = $ok ? 'ok' : 'fail';
+            $checksHtml .= "<div class=\"check\"><span class=\"{$cls}\">{$icon}</span> {$label}</div>\n";
+        }
+
+        // Action area
+        $actionHtml = '';
+        if (! $vendorOk) {
+            $actionHtml = '<div class="alert warn">⚠️ <b>ยังไม่ได้ติดตั้ง dependencies</b><br>รันคำสั่ง: <code>composer install</code><br>หรือ <code>bash install.sh</code></div>';
+        } elseif ($vendorOk && $envOk && $appKeyOk && ! $dbReady) {
+            $actionHtml = '<div class="alert ok">✅ ไฟล์พร้อมแล้ว — ❌ ฐานข้อมูลยังไม่ได้สร้าง</div>';
+            $actionHtml .= '<button class="btn" onclick="goSetup()">🚀 เริ่มติดตั้ง →</button>';
+        } elseif ($allOk) {
+            $actionHtml .= '<button class="btn" onclick="goSetup()">เริ่มติดตั้ง →</button>';
+        } else {
+            $actionHtml = '<p style="font-size:12px;color:#C62828">❌ กรุณาแก้ไขรายการที่ ❌ ด้านบน แล้วรีเฟรชหน้านี้</p>';
+        }
+
         echo <<<HTML
 <!DOCTYPE html>
 <html lang="th">
@@ -110,13 +141,14 @@ h1{font-size:22px;margin-bottom:8px}
 p{font-size:14px;color:#6E6E63;margin-bottom:20px;line-height:1.7}
 .checks{text-align:left;background:#F6F5F0;border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px}
 .check{padding:6px 0;display:flex;align-items:center;gap:8px}
-.check .ok{color:#006018}
-.check .fail{color:#C62828}
-.btn{display:inline-block;padding:14px 32px;background:#F04800;color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;transition:.15s}
+.check .ok{color:#006018}.check .fail{color:#C62828}
+.btn{display:inline-block;padding:14px 32px;background:#F04800;color:#fff;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:.15s;font-family:inherit}
 .btn:hover{background:#C23800}
+.alert{padding:12px;border-radius:10px;font-size:13px;margin-bottom:16px}
+.alert.ok{background:#E8F5E9;border:1px solid #A5D6A7;color:#1B5E20}
+.alert.warn{background:#FFF3E0;border:1px solid #FFE0B2;color:#E65100}
 .note{font-size:12px;color:#6E6E63;margin-top:16px}
-.loader{display:inline-block;width:16px;height:16px;border:2px solid #E6E4DA;border-top-color:#F04800;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
+code{background:#1A1A14;color:#4CAF50;padding:4px 8px;border-radius:6px;font-size:12px}
 </style>
 </head>
 <body>
@@ -124,126 +156,36 @@ p{font-size:14px;color:#6E6E63;margin-bottom:20px;line-height:1.7}
   <div class="icon">🚀</div>
   <h1>ยินดีต้อนรับสู่ RoaMembers</h1>
   <p>ระบบตรวจพบว่ายังไม่ได้ติดตั้ง<br>กรุณาติดตั้งระบบก่อนใช้งาน</p>
-  <div class="checks">
+  <div class="checks">{$checksHtml}</div>
+  {$actionHtml}
+  <p class="note">RoaMembers Stock & Loyalty System</p>
+</div>
+<script>
+function goSetup() {
+    var base = window.location.origin;
+    if (!base || base === 'null' || base === 'about:blank') {
+        var m = window.location.href.match(/^(https?:\/\/[^\/]+)/);
+        base = m ? m[1] : '';
+    }
+    window.location.href = base + '/setup';
+}
+</script>
+</body></html>
 HTML;
-
-        // ตรวจสอบสถานะ
-        $checks = [];
-
-        // PHP Version
-        $phpOk = version_compare(PHP_VERSION, '8.2.0', '>=');
-        $checks[] = ['php', 'PHP ' . PHP_VERSION, $phpOk];
-
-        // vendor
-        $vendorOk = file_exists(__DIR__ . '/../vendor/autoload.php');
-        $checks[] = ['vendor', 'Composer dependencies', $vendorOk];
-
-        // .env
-        $envOk = file_exists(__DIR__ . '/../.env');
-        $checks[] = ['env', '.env file', $envOk];
-
-        // APP_KEY
-        $appKeyOk = false;
-        if ($envOk) {
-            $envContent = file_get_contents(__DIR__ . '/../.env');
-            $appKeyOk = (bool) preg_match('/^APP_KEY=.+$/m', $envContent);
-        }
-        $checks[] = ['key', 'APP_KEY (encryption key)', $appKeyOk];
-
-        // Database
-        $dbReady = false;
-        if ($envOk && $appKeyOk) {
-            $dbDriver = 'sqlite';
-            if (preg_match('/^DB_CONNECTION=(.+)$/m', $envContent, $m)) {
-                $dbDriver = trim($m[1]);
-            }
-            try {
-                if ($dbDriver === 'sqlite') {
-                    $dbPath = __DIR__ . '/../database/database.sqlite';
-                    if (file_exists($dbPath) && filesize($dbPath) > 0) {
-                        $pdo = new PDO('sqlite:' . $dbPath);
-                        $r = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'");
-                        $dbReady = $r && $r->fetch() !== false;
-                    }
-                } else {
-                    $dbReady = true; // MySQL assumed OK if credentials exist
-                }
-            } catch (\Throwable $e) {}
-        }
-        $checks[] = ['db', "Database ({$dbDriver})", $dbReady];
-
-        // extensions
-        $exts = ['mbstring', 'xml', 'curl', 'zip', 'pdo', 'openssl'];
-        foreach ($exts as $ext) {
-            $checks[] = ['ext', "ext-{$ext}", extension_loaded($ext)];
-        }
-
-        // writable dirs
-        $dirs = ['storage', 'bootstrap/cache'];
-        foreach ($dirs as $dir) {
-            $path = __DIR__ . '/../' . $dir;
-            $ok = is_dir($path) && is_writable($path);
-            $checks[] = ['dir', "เขียนได้: {$dir}/", $ok];
-        }
-
-        $allOk = true;
-        foreach ($checks as $c) {
-            if (! $c[2]) $allOk = false;
-            $icon = $c[2] ? '✅' : '❌';
-            $class = $c[2] ? 'ok' : 'fail';
-            echo "<div class=\"check\"><span class=\"{$class}\">{$icon}</span> {$c[1]}</div>\n";
-        }
-
-        echo '</div>';
-
-        if (! $vendorOk) {
-            // vendor ไม่มี → แสดงปุ่มติดตั้ง + คำแนะนำ
-            echo '<p style="background:#FFF3E0;border:1px solid #FFE0B2;border-radius:10px;padding:12px;font-size:13px;color:#E65100;margin-bottom:16px">';
-            echo '⚠️ <b>ยังไม่ได้ติดตั้ง dependencies</b><br>';
-            echo 'กรุณารันคำสั่งนี้ก่อน:<br>';
-            echo '<code style="background:#1A1A14;color:#4CAF50;padding:8px 12px;border-radius:8px;display:block;margin-top:8px;font-size:12px">composer install</code>';
-            echo '</p>';
-            echo '<p style="font-size:12px;color:#6E6E63">หรือรัน <code>bash install.sh</code> เพื่อติดตั้งทั้งหมดอัตโนมัติ</p>';
-        } elseif ($vendorOk && $envOk && $appKeyOk && ! $dbReady) {
-            // vendor + .env + APP_KEY พร้อม แต่ database ยังไม่ได้ migrate → ไป /setup
-            $setupUrl = rtrim(str_replace('\\', '', parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: ''), '/');
-            // สร้าง base URL จาก request ปัจจุบัน
-            $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $baseUrl = $proto . '://' . $host;
-            echo '<p style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:12px;font-size:13px;color:#1B5E20;margin-bottom:16px">';
-            echo '✅ ไฟล์และ dependencies พร้อมแล้ว<br>';
-            echo '❌ ฐานข้อมูลยังไม่ได้สร้าง — กดปุ่มด้านล่างเพื่อติดตั้ง';
-            echo '</p>';
-            echo '<a href="' . $baseUrl . '/setup" class="btn" id="setupLink">🚀 เริ่มติดตั้ง →</a>';
-            echo '<script>';
-            echo 'document.getElementById("setupLink").href = window.location.origin + "/setup";';
-            echo '</script>';
-        } elseif ($allOk) {
-            echo '<a href="#" class="btn" id="setupLink" onclick="window.location.href=window.location.origin+\'/setup\';return false;">เริ่มติดตั้ง →</a>';
-        } else {
-            echo '<p style="font-size:12px;color:#C62828">❌ กรุณาแก้ไขรายการที่ ❌ ด้านบน แล้วรีเฟรชหน้านี้</p>';
-        }
-
-        echo '<p class="note">RoaMembers Stock & Loyalty System</p>';
-        echo '</div></body></html>';
         exit;
     }
 }
 
-// Determine if the application is in maintenance mode...
+// ── Laravel boot ─────────────────────────────────────────────
+
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }
 
-// Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 
-// ถ้า database ยังไม่พร้อม → ใช้ file session (ไม่พึ่ง database)
-// ป้องกัน 500 error ตอนเข้า /setup
-// ใช้ 'file' แทน 'array' เพื่อให้ session persist ข้าม request (CSRF ทำงาน)
+// ถ้า database ยังไม่พร้อม → ใช้ file session
 if (isset($dbReady) && ! $dbReady) {
-    // สร้าง storage/framework/sessions ถ้ายังไม่มี
     $sessionDir = __DIR__ . '/../storage/framework/sessions';
     if (! is_dir($sessionDir)) {
         @mkdir($sessionDir, 0775, true);
@@ -252,8 +194,5 @@ if (isset($dbReady) && ! $dbReady) {
     putenv('SESSION_DRIVER=file');
 }
 
-// Bootstrap Laravel and handle the request...
-/** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
-
 $app->handleRequest(Request::capture());
