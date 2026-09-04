@@ -10,9 +10,10 @@ class DocSequenceService
      * สร้างเลขที่เอกสารอัตโนมัติ
      * รูปแบบ: {TYPE}{YY}{MM}{NNNN} เช่น INV2609-0001
      */
-    public function next(string $type, int $orgNodeId, ?string $date = null): string
+    public function next(string $type, ?int $orgNodeId, ?string $date = null): string
     {
         $date = $date ? \Carbon\Carbon::parse($date) : now();
+        $orgNodeId = $orgNodeId ?? 0;
 
         $seq = DocSequence::firstOrCreate(
             ['type' => $type, 'org_node_id' => $orgNodeId, 'year' => $date->year, 'month' => $date->month],
