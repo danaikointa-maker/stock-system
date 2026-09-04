@@ -156,18 +156,7 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
       <p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>
     </div>
     <div style="padding:12px 24px;border-top:1px solid var(--line);text-align:center">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
-        <button class="btn btn-sm help-nav" data-page="dashboard">📊 ภาพรวม</button>
-        <button class="btn btn-sm help-nav" data-page="pos">💰 ขาย</button>
-        <button class="btn btn-sm help-nav" data-page="products">📦 สินค้า</button>
-        <button class="btn btn-sm help-nav" data-page="transfers">📋 โอน</button>
-        <button class="btn btn-sm help-nav" data-page="redeem">⭐ แลกแต้ม</button>
-        <button class="btn btn-sm help-nav" data-page="customers">👥 ลูกค้า</button>
-        <button class="btn btn-sm help-nav" data-page="members">🏢 สมาชิก</button>
-        <button class="btn btn-sm help-nav" data-page="reports">📈 รายงาน</button>
-        <button class="btn btn-sm help-nav" data-page="shop">🏪 หน้าร้าน</button>
-        <button class="btn btn-sm help-nav" data-page="admin">⚙️ แอดมิน</button>
-      </div>
+      <div id="helpNavBtns" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>
     </div>
   </div>
 </div>
@@ -196,51 +185,57 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   var modal = document.getElementById('helpModal');
   var helpTitle = document.getElementById('helpTitle');
   var helpContent = document.getElementById('helpContent');
+  var helpNavBtns = document.getElementById('helpNavBtns');
   var helpBtn = document.getElementById('helpBtn');
   var helpClose = document.getElementById('helpClose');
-
-  function detectPage() {
-    var path = window.location.pathname.replace(B, '').replace(/^\/+/, '');
-    if (path.startsWith('pos')) return 'pos';
-    if (path.startsWith('products')) return 'products';
-    if (path.startsWith('transfers')) return 'transfers';
-    if (path.startsWith('redeem')) return 'redeem';
-    if (path.startsWith('customers')) return 'customers';
-    if (path.startsWith('members') || path.startsWith('nodes') || path.startsWith('subscriptions') || path.startsWith('claims')) return 'members';
-    if (path.startsWith('reports') || path.startsWith('stock')) return 'reports';
-    if (path.startsWith('shop')) return 'shop';
-    if (path.startsWith('admin')) return 'admin';
-    return 'dashboard';
-  }
+  var currentPage = '';
+  var cachedPages = [];
 
   function loadHelp(page) {
     helpContent.innerHTML = '<p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>';
-    fetch(B + '/help?page=' + page, { headers: { 'Accept': 'application/json' } })
+    var url = B + '/help?url=' + encodeURIComponent(window.location.pathname);
+    if (page) url += '&page=' + encodeURIComponent(page);
+    fetch(url, { headers: { 'Accept': 'application/json' } })
       .then(function(r) { return r.json(); })
       .then(function(data) {
         helpTitle.textContent = data.title || '📖 คู่มือ';
         helpContent.innerHTML = data.content || '<p>ไม่มีเนื้อหา</p>';
+        currentPage = data.current || '';
+        cachedPages = data.pages || [];
+        renderNav();
       })
       .catch(function() {
-        helpContent.innerHTML = '<p style="color:var(--bad)">โหลดคู่มือไม่สำเร็จ</p>';
+        helpContent.innerHTML = '<p style="color:var(--bad)">โหลดคู่มือไม่สำเร็จ กรุณาลองใหม่</p>';
       });
   }
 
-  function openHelp(page) {
+  function renderNav() {
+    helpNavBtns.innerHTML = '';
+    cachedPages.forEach(function(p) {
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-sm';
+      if (p.key === currentPage) {
+        btn.style.background = 'var(--brand)';
+        btn.style.color = '#fff';
+        btn.style.borderColor = 'var(--brand)';
+      }
+      btn.textContent = (p.icon || '') + ' ' + (p.label || p.key);
+      btn.addEventListener('click', function() { loadHelp(p.key); });
+      helpNavBtns.appendChild(btn);
+    });
+  }
+
+  function openHelp() {
     modal.classList.add('show');
-    loadHelp(page || detectPage());
+    loadHelp();
   }
 
   function closeHelp() { modal.classList.remove('show'); }
 
-  helpBtn.addEventListener('click', function() { openHelp(); });
+  helpBtn.addEventListener('click', openHelp);
   helpClose.addEventListener('click', closeHelp);
   modal.addEventListener('click', function(e) { if (e.target === modal) closeHelp(); });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeHelp(); });
-
-  document.querySelectorAll('.help-nav').forEach(function(btn) {
-    btn.addEventListener('click', function() { loadHelp(this.dataset.page); });
-  });
 })();
 </script>
 
