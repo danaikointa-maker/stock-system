@@ -254,7 +254,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-p" style="width:100%;padding:15px;font-size:16px">
+          <button type="submit" class="btn btn-p" style="width:100%;padding:15px;font-size:16px">⭐
             ยืนยันการแลกแต้ม
           </button>
         </form>
@@ -282,7 +282,7 @@
           <div class="empty" style="padding:20px 0">ยังไม่มีรายการ</div>
         @endforelse
 
-        <a href="{{ route('redeem.history') }}" class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center">
+        <a href="{{ route('redeem.history') }}" class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center">📋
           ดูประวัติทั้งหมด
         </a>
       </div>

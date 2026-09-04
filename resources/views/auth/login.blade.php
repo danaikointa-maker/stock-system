@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>เข้าสู่ระบบ · ระบบสต๊อกสินค้า</title>
+<title>🔐 เข้าสู่ระบบ · ระบบสต๊อกสินค้า</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Noto Sans Thai","Sarabun",-apple-system,"Segoe UI",sans-serif;
@@ -38,7 +38,7 @@ input:focus{outline:2px solid #bfd2fa;border-color:#2c5fd4}
 <body>
 <div class="box">
   <div class="logo">
-    <b>ระบบสต๊อกสินค้า</b>
+    <b>🏪 ระบบสต๊อกสินค้า</b>
     <span>บริหารคลังและสายงานจัดจำหน่าย</span>
   </div>
 
@@ -53,22 +53,22 @@ input:focus{outline:2px solid #bfd2fa;border-color:#2c5fd4}
   <form method="POST" action="{{ route('login.attempt') }}">
     @csrf
     <div class="field">
-      <label for="login">อีเมล หรือ เบอร์โทรศัพท์</label>
+      <label for="login">📧 อีเมล หรือ เบอร์โทรศัพท์</label>
       <input type="text" id="login" name="login" value="{{ old('login') }}"
              autocomplete="username" required autofocus>
     </div>
 
     <div class="field">
-      <label for="password">รหัสผ่าน</label>
+      <label for="password">🔒 รหัสผ่าน</label>
       <input type="password" id="password" name="password"
              autocomplete="current-password" required>
     </div>
 
     <label class="remember">
-      <input type="checkbox" name="remember" value="1"> จดจำการเข้าสู่ระบบ
+      <input type="checkbox" name="remember" value="1"> 💾 จดจำการเข้าสู่ระบบ
     </label>
 
-    <button type="submit" class="btn">เข้าสู่ระบบ</button>
+    <button type="submit" class="btn">🔓 เข้าสู่ระบบ</button>
   </form>
 
   <div class="levels">

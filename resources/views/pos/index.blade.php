@@ -32,7 +32,7 @@
             @endforeach
           </select>
         </div>
-        <a href="{{ route('pos.history') }}" class="btn">ประวัติการขาย</a>
+        <a href="{{ route('pos.history') }}" class="btn">📋 ประวัติการขาย</a>
       </form>
     </div>
   </div>
@@ -74,7 +74,7 @@
             <td class="num"><span class="badge b-green">{{ number_format($b->qty_on_hand - $b->qty_reserved) }}</span></td>
             <td class="num">{{ number_format($b->product->retail_price, 2) }}</td>
             <td class="num">
-              <button type="button" class="btn btn-sm btn-p addBtn"
+              <button type="button" class="btn btn-sm btn-p addBtn" title="เพิ่มสินค้า"
                       data-id="{{ $b->product->id }}"
                       data-sku="{{ $b->product->sku }}"
                       data-name="{{ $b->product->name }}"
@@ -136,7 +136,7 @@
 
         <button type="submit" class="btn btn-p" id="submitBtn" disabled
                 style="width:100%;margin-top:13px;padding:11px;font-size:15px;font-weight:600">
-          บันทึกบิลขาย
+          💾 บันทึกบิลขาย
         </button>
       </div>
     </div>
@@ -146,7 +146,7 @@
 
 @if($recentSales->isNotEmpty())
 <div class="card">
-  <h3>บิลล่าสุดของหน่วยงานนี้ <a href="{{ route('pos.history') }}" class="btn btn-sm">ดูทั้งหมด</a></h3>
+  <h3>🧾 บิลล่าสุดของหน่วยงานนี้ <a href="{{ route('pos.history') }}" class="btn btn-sm">📋 ดูทั้งหมด</a></h3>
   <table>
     <thead><tr><th>เลขที่</th><th>เวลา</th><th class="num">รายการ</th><th class="num">ยอด</th><th>สถานะ</th><th></th></tr></thead>
     <tbody>
@@ -160,7 +160,7 @@
           @if($s->status === 'completed')<span class="badge b-green">สำเร็จ</span>
           @else<span class="badge b-red">ยกเลิกแล้ว</span>@endif
         </td>
-        <td class="num"><a href="{{ route('pos.receipt', $s) }}" class="btn btn-sm">ใบเสร็จ</a></td>
+        <td class="num"><a href="{{ route('pos.receipt', $s) }}" class="btn btn-sm">🧾 ใบเสร็จ</a></td>
       </tr>
     @endforeach
     </tbody>
@@ -194,7 +194,7 @@
         '<td class="num"><input type="number" min="1" max="' + it.max + '" value="' + it.qty +
         '" data-id="' + id + '" class="qtyInput" style="width:64px;padding:4px 6px;text-align:right"></td>' +
         '<td class="num"><b>' + fmt(line) + '</b></td>' +
-        '<td class="num"><button type="button" class="btn btn-sm btn-d rmBtn" data-id="' + id + '">×</button></td>' +
+        '<td class="num"><button type="button" class="btn btn-sm btn-d rmBtn" data-id="' + id + '" title="ลบรายการ">🗑️</button></td>' +
         '<input type="hidden" name="items[' + id + '][product_id]" value="' + id + '">' +
         '<input type="hidden" name="items[' + id + '][qty]" value="' + it.qty + '">' +
         '<input type="hidden" name="items[' + id + '][unit_price]" value="' + it.price + '">';

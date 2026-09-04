@@ -20,7 +20,7 @@
           <option value="voided" @selected(request('status')==='voided')>ยกเลิกแล้ว</option>
         </select>
       </div>
-      <button class="btn btn-p">ค้นหา</button>
+      <button class="btn btn-p">🔍 ค้นหา</button>
       <a href="{{ route('pos.history') }}" class="btn">ล้าง</a>
     </form>
   </div>

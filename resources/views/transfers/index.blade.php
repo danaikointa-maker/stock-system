@@ -18,14 +18,14 @@
   <h3>
     ใบโอนสินค้า
     @can('create', App\Models\Transfer::class)
-      <a href="{{ route('transfers.create') }}" class="btn btn-p btn-sm">+ สร้างใบโอน</a>
+      <a href="{{ route('transfers.create') }}" class="btn btn-p btn-sm">📋 สร้างใบโอน</a>
     @endcan
   </h3>
 
   <div class="body">
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
       <a href="{{ route('transfers.index') }}"
-         class="btn btn-sm {{ ! $tab ? 'btn-p' : '' }}">ทั้งหมด</a>
+         class="btn btn-sm {{ ! $tab ? 'btn-p' : '' }}">📋 ทั้งหมด</a>
       <a href="{{ route('transfers.index', ['tab' => 'approve']) }}"
          class="btn btn-sm {{ $tab === 'approve' ? 'btn-p' : '' }}">
         รอฉันอนุมัติ
@@ -54,7 +54,7 @@
           </select>
         </div>
       @endunless
-      <button class="btn btn-p">ค้นหา</button>
+      <button class="btn btn-p">🔍 ค้นหา</button>
     </form>
   </div>
 </div>
@@ -88,7 +88,7 @@
           <td style="font-size:12px;color:var(--muted);white-space:nowrap">
             {{ $t->updated_at?->format('d/m/y H:i') }}
           </td>
-          <td class="num"><a href="{{ route('transfers.show', $t) }}" class="btn btn-sm">จัดการ</a></td>
+          <td class="num"><a href="{{ route('transfers.show', $t) }}" class="btn btn-sm btn-view">👁️ จัดการ</a></td>
         </tr>
       @endforeach
       </tbody>

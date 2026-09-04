@@ -67,9 +67,9 @@
   @endif
 
   <div class="tabbar">
-    <button class="on" data-tab="wallets">แต้มของฉัน</button>
-    <button data-tab="history">ประวัติ</button>
-    <button data-tab="me">บัญชีฉัน</button>
+    <button class="on" data-tab="wallets">💰 แต้มของฉัน</button>
+    <button data-tab="history">📜 ประวัติ</button>
+    <button data-tab="me">👤 บัญชีฉัน</button>
   </div>
 
   {{-- แต้มแยกตามร้าน --}}
@@ -89,7 +89,7 @@
     @endforelse
 
     <a href="{{ route('scan.form') }}" class="btn btn-main" style="margin-top:14px">
-      สแกนรับแต้มเพิ่ม
+      📷 สแกนรับแต้มเพิ่ม
     </a>
   </div>
 
@@ -131,7 +131,7 @@
     @endforelse
 
     @if($timeline->isNotEmpty())
-      <a href="{{ route('scan.statement') }}" class="btn btn-ghost" style="margin-top:16px">
+      <a href="{{ route('scan.statement') }}" class="btn btn-ghost" style="margin-top:16px">📄
         ดาวน์โหลดประวัติ (PDF)
       </a>
     @endif
@@ -147,12 +147,12 @@
     </div>
     <div class="wallet-row">
       <div>
-        <div class="n">LINE</div>
-        <div class="s">{{ $customer->line_user_id ? 'ผูกแล้ว' : 'ยังไม่ได้ผูก' }}</div>
+        <div class="n">💬 LINE</div>
+        <div class="s">{{ $customer->line_user_id ? '✅ ผูกแล้ว' : '❌ ยังไม่ได้ผูก' }}</div>
       </div>
       @unless($customer->line_user_id)
         <a href="{{ route('social.redirect', 'line') }}"
-           style="font-size:12.5px;color:#06C755;font-weight:700">ผูกเลย</a>
+           style="font-size:12.5px;color:#06C755;font-weight:700">🔗 ผูกเลย</a>
       @endunless
     </div>
 

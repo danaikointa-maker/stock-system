@@ -102,13 +102,13 @@
         <div style="display:flex;gap:9px;flex-wrap:wrap">
           <form method="POST" action="{{ route('transfers.approve', $transfer) }}">
             @csrf @method('PATCH')
-            <button class="btn btn-p">อนุมัติใบโอน</button>
+            <button class="btn btn-approve">✅ อนุมัติใบโอน</button>
           </form>
           <form method="POST" action="{{ route('transfers.reject', $transfer) }}"
                 style="display:flex;gap:7px;flex:1;min-width:280px">
             @csrf @method('PATCH')
             <input type="text" name="reason" placeholder="เหตุผลที่ปฏิเสธ" style="flex:1">
-            <button class="btn btn-d">ปฏิเสธ</button>
+            <button class="btn btn-d">❌ ปฏิเสธ</button>
           </form>
         </div>
       </div>
@@ -136,7 +136,7 @@
           @endforeach
           </tbody>
         </table>
-        <button class="btn btn-p">ยืนยันส่งสินค้า</button>
+        <button class="btn btn-ship">📤 ยืนยันส่งสินค้า</button>
       </form>
     @endcan
 
@@ -162,7 +162,7 @@
           @endforeach
           </tbody>
         </table>
-        <button class="btn btn-p">ยืนยันรับสินค้าเข้าคลัง</button>
+        <button class="btn btn-receive">📥 ยืนยันรับสินค้าเข้าคลัง</button>
       </form>
     @endcan
 
@@ -171,7 +171,7 @@
             style="margin-top:13px;padding-top:13px;border-top:1px solid var(--line)"
             onsubmit="return confirm('ยกเลิกใบโอนนี้? สินค้าที่จองไว้จะถูกปลดคืน')">
         @csrf @method('PATCH')
-        <button class="btn btn-d btn-sm">ยกเลิกใบโอนนี้</button>
+        <button class="btn btn-d btn-sm">🚫 ยกเลิกใบโอนนี้</button>
       </form>
     @endcan
 
@@ -211,6 +211,6 @@
   </table>
 </div>
 
-<a href="{{ route('transfers.index') }}" class="btn">← กลับรายการใบโอน</a>
+<a href="{{ route('transfers.index') }}" class="btn">⬅️ กลับรายการใบโอน</a>
 
 @endsection

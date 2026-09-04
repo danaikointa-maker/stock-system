@@ -28,7 +28,7 @@
           @endforeach
         </select>
       </div>
-      <button class="btn btn-p">ค้นหา</button>
+      <button class="btn btn-p">🔍 ค้นหา</button>
       <a href="{{ route('nodes.index') }}" class="btn">ล้าง</a>
     </form>
   </div>

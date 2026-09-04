@@ -113,10 +113,10 @@
     @endif
 
     <a href="{{ route('scan.wallet') }}" class="btn btn-main" style="margin-top:18px">
-      ดูกระเป๋าแต้ม 🎁
+      💰 ดูกระเป๋าแต้ม 🎁
     </a>
     <a href="{{ route('scan.form') }}" class="btn btn-ghost" style="margin-top:10px">
-      สแกนซองถัดไป
+      📷 สแกนซองถัดไป
     </a>
   @else
     <div class="alert a-info">กรุณายืนยันเบอร์โทรเพื่อเก็บแต้ม</div>

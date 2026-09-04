@@ -131,7 +131,7 @@
       <form method="POST" action="{{ route('scan.forget') }}" style="display:inline">
         @csrf
         <button type="submit" style="background:none;border:none;color:#9E9E9E;font-family:inherit;font-size:11.5px;text-decoration:underline;cursor:pointer;padding:6px">
-          ออกจากระบบ
+          🚪 ออกจากระบบ
         </button>
       </form>
     @endif

@@ -7,7 +7,7 @@
 <div class="card">
   <h3>
     รายการสินค้า
-    <a href="{{ route('products.create') }}" class="btn btn-p btn-sm">+ เพิ่มสินค้า</a>
+    <a href="{{ route('products.create') }}" class="btn btn-p btn-sm">🏷️ เพิ่มสินค้า</a>
   </h3>
   <div class="body">
     <form method="GET" class="filters">

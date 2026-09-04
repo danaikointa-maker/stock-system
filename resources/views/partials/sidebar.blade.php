@@ -228,7 +228,7 @@
     <span>{{ $u->email ?? $u->phone }}</span>
     <form method="POST" action="{{ route('logout') }}" style="margin-top:9px">
       @csrf
-      <button class="btn btn-sm" style="width:100%">ออกจากระบบ</button>
+      <button class="btn btn-sm" style="width:100%">🚪 ออกจากระบบ</button>
     </form>
   </div>
 </aside>

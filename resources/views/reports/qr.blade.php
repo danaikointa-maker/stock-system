@@ -21,7 +21,7 @@
     <form method="GET" class="filters">
       <div class="field"><label>ตั้งแต่</label><input type="date" name="from" value="{{ $from }}"></div>
       <div class="field"><label>ถึง</label><input type="date" name="to" value="{{ $to }}"></div>
-      <button class="btn btn-p">แสดงรายงาน</button>
+      <button class="btn btn-p">📊 แสดงรายงาน</button>
     </form>
   </div>
 </div>

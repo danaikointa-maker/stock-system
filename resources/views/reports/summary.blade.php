@@ -15,7 +15,7 @@
         <label>ถึงวันที่</label>
         <input type="date" name="to" value="{{ $to }}">
       </div>
-      <button class="btn btn-p">แสดงรายงาน</button>
+      <button class="btn btn-p">📊 แสดงรายงาน</button>
       <a href="{{ route('reports.export', ['type' => 'sales', 'from' => $from, 'to' => $to]) }}" class="btn">
         ส่งออกยอดขาย CSV
       </a>

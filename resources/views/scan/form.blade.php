@@ -226,7 +226,7 @@
     </div>
 
     <button type="submit" class="btn btn-main" id="submitBtn" style="margin-top:16px">
-      รับแต้มเลย →
+      ⭐ รับแต้มเลย →
     </button>
   </form>
 
@@ -238,18 +238,18 @@
     @endphp
 
     @if($lineConfigured)
-      <a href="{{ route('social.redirect', 'line') }}" class="btn btn-line">เข้าสู่ระบบด้วย LINE</a>
+      <a href="{{ route('social.redirect', 'line') }}" class="btn btn-line">💬 เข้าสู่ระบบด้วย LINE</a>
     @else
       <button type="button" class="btn btn-line" disabled style="opacity:.5;cursor:not-allowed">
-        LINE (ยังไม่ได้ตั้งค่า)
+        💬 LINE (ยังไม่ได้ตั้งค่า)
       </button>
     @endif
 
     @if($googleConfigured)
-      <a href="{{ route('social.redirect', 'google') }}" class="btn btn-goog">เข้าสู่ระบบด้วย Google</a>
+      <a href="{{ route('social.redirect', 'google') }}" class="btn btn-goog">📧 เข้าสู่ระบบด้วย Google</a>
     @else
       <button type="button" class="btn btn-goog" disabled style="opacity:.5;cursor:not-allowed">
-        Google (ยังไม่ได้ตั้งค่า)
+        📧 Google (ยังไม่ได้ตั้งค่า)
       </button>
     @endif
   </div>
@@ -629,7 +629,7 @@
     }
     setTimeout(function () {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'กำลังบันทึก...';
+      submitBtn.textContent = '⏳ กำลังบันทึก...';
     }, 0);
   });
 

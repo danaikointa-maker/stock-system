@@ -8,7 +8,7 @@
   <h3>
     ค้นหาสมาชิก
     @can('create', App\Models\User::class)
-      <a href="{{ route('members.create') }}" class="btn btn-p btn-sm">+ เพิ่มสมาชิก</a>
+      <a href="{{ route('members.create') }}" class="btn btn-p btn-sm">👤 เพิ่มสมาชิก</a>
     @endcan
   </h3>
   <div class="body">
@@ -45,8 +45,8 @@
           <option value="inactive" @selected(request('status') === 'inactive')>ถูกระงับ</option>
         </select>
       </div>
-      <button class="btn btn-p">ค้นหา</button>
-      <a href="{{ route('members.index') }}" class="btn">ล้าง</a>
+      <button class="btn btn-p">🔍 ค้นหา</button>
+      <a href="{{ route('members.index') }}" class="btn">🔄 ล้าง</a>
     </form>
   </div>
 </div>
@@ -91,17 +91,17 @@
           </td>
           <td style="text-align:right">
             @can('update', $m)
-              <a href="{{ route('members.edit', $m) }}" class="btn btn-sm">แก้ไข</a>
+              <a href="{{ route('members.edit', $m) }}" class="btn btn-sm btn-edit">✏️ แก้ไข</a>
 
               <form method="POST" action="{{ route('members.toggle', $m) }}" style="display:inline">
                 @csrf @method('PATCH')
-                <button class="btn btn-sm">{{ $m->is_active ? 'ระงับ' : 'เปิดใช้' }}</button>
+                <button class="btn btn-sm btn-d">{{ $m->is_active ? '⛔ ระงับ' : '✅ เปิดใช้' }}</button>
               </form>
 
               <form method="POST" action="{{ route('members.reset-password', $m) }}" style="display:inline"
                     onsubmit="return confirm('รีเซ็ตรหัสผ่านของ {{ $m->name }}?')">
                 @csrf @method('PATCH')
-                <button class="btn btn-sm">รีเซ็ตรหัส</button>
+                <button class="btn btn-sm btn-approve">🔑 รีเซ็ตรหัส</button>
               </form>
             @else
               <span style="color:var(--muted);font-size:12px">ไม่มีสิทธิ์จัดการ</span>
