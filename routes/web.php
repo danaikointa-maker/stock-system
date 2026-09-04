@@ -291,6 +291,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::delete('/', [\App\Http\Controllers\Web\BrandController::class, 'destroy'])->name('destroy');
     });
 
+    // คู่มือขั้นตอนการทำงาน (Workflow Guide)
+    Route::get('/workflow', [\App\Http\Controllers\Web\WorkflowController::class, 'index'])->name('workflow');
+
     // คู่มือออนไลน์
     Route::get('/help', [\App\Http\Controllers\Web\HelpController::class, 'show'])->name('help');
 });

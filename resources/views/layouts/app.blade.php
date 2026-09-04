@@ -246,6 +246,9 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:5px;font-size:12px;color:#
         <div class="crumb">@yield('crumb')</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
+        <a href="{{ route('workflow') }}" class="btn btn-sm btn-blue" title="คู่มือขั้นตอนการทำงาน">
+          📋 ขั้นตอนการทำงาน
+        </a>
         <button type="button" id="helpBtn" class="btn btn-sm" style="color:var(--muted);border-color:var(--line)" title="ดูคู่มือการใช้งาน">
           📖 คู่มือ
         </button>
