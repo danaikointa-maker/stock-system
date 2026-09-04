@@ -242,6 +242,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('index');
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::get('/quick-stock', [\App\Http\Controllers\Web\QuickStockController::class, 'index'])->name('quick-stock');
+        Route::get('/quick-stock/lookup', [\App\Http\Controllers\Web\QuickStockController::class, 'lookup'])->name('quick-stock.lookup');
+        Route::post('/quick-stock/add', [\App\Http\Controllers\Web\QuickStockController::class, 'addLot'])->name('quick-stock.add');
         Route::get('/{product}', [ProductController::class, 'show'])->name('show');
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
         Route::put('/{product}', [ProductController::class, 'update'])->name('update');
@@ -280,6 +283,9 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::get('/', [AdminSettingsController::class, 'index'])->name('index');
         Route::post('/', [AdminSettingsController::class, 'update'])->name('update');
     });
+
+    // คู่มือออนไลน์
+    Route::get('/help', [\App\Http\Controllers\Web\HelpController::class, 'show'])->name('help');
 });
 
 /*

@@ -116,8 +116,11 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
         <h1>@yield('title', 'RoaMembers')</h1>
         <div class="crumb">@yield('crumb')</div>
       </div>
-      <div style="text-align:right;font-size:12px;color:var(--muted)">
-        {{ auth()->user()->node?->name }}
+      <div style="text-align:right;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:10px">
+        <button type="button" id="helpBtn" style="background:none;border:1px solid var(--line);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--muted)" title="ดูคู่มือการใช้งาน">
+          📖 คู่มือ
+        </button>
+        <span>{{ auth()->user()->node?->name }}</span>
         <span class="badge b-blue">{{ auth()->user()->role->label() }}</span>
       </div>
     </div>
@@ -142,6 +145,104 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
     </div>
   </div>
 </div>
+{{-- ═══ Help Modal ═══ --}}
+<div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;justify-content:center;align-items:flex-start;padding:30px 16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;max-width:700px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)">
+      <h2 id="helpTitle" style="font-size:17px;margin:0">📖 คู่มือการใช้งาน</h2>
+      <button type="button" id="helpClose" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px 8px">✕</button>
+    </div>
+    <div id="helpContent" style="padding:24px;font-size:14px;line-height:1.8;max-height:70vh;overflow-y:auto">
+      <p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>
+    </div>
+    <div style="padding:12px 24px;border-top:1px solid var(--line);text-align:center">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-sm help-nav" data-page="dashboard">📊 ภาพรวม</button>
+        <button class="btn btn-sm help-nav" data-page="pos">💰 ขาย</button>
+        <button class="btn btn-sm help-nav" data-page="products">📦 สินค้า</button>
+        <button class="btn btn-sm help-nav" data-page="transfers">📋 โอน</button>
+        <button class="btn btn-sm help-nav" data-page="redeem">⭐ แลกแต้ม</button>
+        <button class="btn btn-sm help-nav" data-page="customers">👥 ลูกค้า</button>
+        <button class="btn btn-sm help-nav" data-page="members">🏢 สมาชิก</button>
+        <button class="btn btn-sm help-nav" data-page="reports">📈 รายงาน</button>
+        <button class="btn btn-sm help-nav" data-page="shop">🏪 หน้าร้าน</button>
+        <button class="btn btn-sm help-nav" data-page="admin">⚙️ แอดมิน</button>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+#helpContent h3{font-size:15px;margin:16px 0 8px;color:var(--brand)}
+#helpContent h3:first-child{margin-top:0}
+#helpContent ul,#helpContent ol{margin:8px 0 12px 20px}
+#helpContent li{margin-bottom:4px}
+#helpContent b{color:var(--ink)}
+#helpContent code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
+#helpModal.show{display:flex}
+</style>
+
+<script>
+(function(){
+  var B = (function(){
+    var sn = '{{ $_SERVER["SCRIPT_NAME"] ?? "" }}';
+    var m = sn.match(/^(.+)\/public\/index\.php$/);
+    if (m) return m[1].replace(/\/+$/, '');
+    m = sn.match(/^(.+)\/index\.php$/);
+    if (m) { var b = m[1].replace(/\/+$/, ''); return (b && b !== '/public') ? b : ''; }
+    return '';
+  })();
+
+  var modal = document.getElementById('helpModal');
+  var helpTitle = document.getElementById('helpTitle');
+  var helpContent = document.getElementById('helpContent');
+  var helpBtn = document.getElementById('helpBtn');
+  var helpClose = document.getElementById('helpClose');
+
+  function detectPage() {
+    var path = window.location.pathname.replace(B, '').replace(/^\/+/, '');
+    if (path.startsWith('pos')) return 'pos';
+    if (path.startsWith('products')) return 'products';
+    if (path.startsWith('transfers')) return 'transfers';
+    if (path.startsWith('redeem')) return 'redeem';
+    if (path.startsWith('customers')) return 'customers';
+    if (path.startsWith('members') || path.startsWith('nodes') || path.startsWith('subscriptions') || path.startsWith('claims')) return 'members';
+    if (path.startsWith('reports') || path.startsWith('stock')) return 'reports';
+    if (path.startsWith('shop')) return 'shop';
+    if (path.startsWith('admin')) return 'admin';
+    return 'dashboard';
+  }
+
+  function loadHelp(page) {
+    helpContent.innerHTML = '<p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>';
+    fetch(B + '/help?page=' + page, { headers: { 'Accept': 'application/json' } })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        helpTitle.textContent = data.title || '📖 คู่มือ';
+        helpContent.innerHTML = data.content || '<p>ไม่มีเนื้อหา</p>';
+      })
+      .catch(function() {
+        helpContent.innerHTML = '<p style="color:var(--bad)">โหลดคู่มือไม่สำเร็จ</p>';
+      });
+  }
+
+  function openHelp(page) {
+    modal.classList.add('show');
+    loadHelp(page || detectPage());
+  }
+
+  function closeHelp() { modal.classList.remove('show'); }
+
+  helpBtn.addEventListener('click', function() { openHelp(); });
+  helpClose.addEventListener('click', closeHelp);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeHelp(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeHelp(); });
+
+  document.querySelectorAll('.help-nav').forEach(function(btn) {
+    btn.addEventListener('click', function() { loadHelp(this.dataset.page); });
+  });
+})();
+</script>
+
 @stack('scripts')
 </body>
 </html>

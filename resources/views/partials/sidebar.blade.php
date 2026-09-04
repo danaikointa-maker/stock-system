@@ -82,8 +82,11 @@
     @endcan
 
     @can('manage-products')
-      <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'on' : '' }}">
+      <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') && !request()->routeIs('products.quick-stock*') ? 'on' : '' }}">
         สินค้าและล็อต QR
+      </a>
+      <a href="{{ route('products.quick-stock') }}" class="{{ request()->routeIs('products.quick-stock*') ? 'on' : '' }}">
+        📱 เพิ่มสต๊อกด่วน
       </a>
     @endcan
 
