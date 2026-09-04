@@ -99,24 +99,20 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
   @yield('content')
 
 <script>
-// รองรับ subdirectory — เพิ่ม base path ให้ทุก form action และ link
+// Base path จาก SCRIPT_NAME — เชื่อถือได้กว่า JavaScript detection
 (function() {
-    // หา base path: ลบ /setup... ออกจาก pathname
-    var base = window.location.pathname.replace(/\/+$/, '').replace(/\/setup.*$/, '');
-    if (base === '/') base = '';
-    
-    // แก้ form actions
+    var scriptName = '{{ $_SERVER["SCRIPT_NAME"] ?? "" }}';
+    var m = scriptName.match(/^(.+)\/public\/index\.php$/);
+    var base = m ? m[1].replace(/\/+$/, '') : '';
+    window.__baseUrl = base;
+
+    // เพิ่ม base path ให้ทุก form action และ link ที่เริ่มด้วย /
     document.querySelectorAll('form[action^="/"]').forEach(function(form) {
         form.setAttribute('action', base + form.getAttribute('action'));
     });
-    
-    // แก้ links
     document.querySelectorAll('a[href^="/"]').forEach(function(a) {
         a.setAttribute('href', base + a.getAttribute('href'));
     });
-    
-    // เก็บ base ไว้ใน window สำหรับ JavaScript อื่นใช้
-    window.__baseUrl = base;
 })();
 </script>
 </div>

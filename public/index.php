@@ -7,6 +7,19 @@ define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
+| Detect Base Path (subdirectory)
+|--------------------------------------------------------------------------
+| SCRIPT_NAME = /stock-system/public/index.php → base = /stock-system
+| SCRIPT_NAME = /public/index.php              → base = (ว่าง)
+*/
+$__basePath = '';
+$__scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+if (preg_match('#^(.+)/public/index\.php$#', $__scriptName, $__m)) {
+    $__basePath = rtrim($__m[1], '/');
+}
+
+/*
+|--------------------------------------------------------------------------
 | Pre-flight Checks — ก่อน Laravel boot
 |--------------------------------------------------------------------------
 */
@@ -37,8 +50,8 @@ if (file_exists(__DIR__ . '/../.env')) {
 
 // 4. Database
 $dbReady = false;
+$dbDriver = 'sqlite';
 if (! $setupRedirect && $envContent) {
-    $dbDriver = 'sqlite';
     if (preg_match('/^DB_CONNECTION=(.+)$/m', $envContent, $m)) {
         $dbDriver = trim($m[1]);
     }
@@ -74,15 +87,16 @@ if (! $setupRedirect && $envContent) {
 // ── แสดงหน้า pre-check ถ้ายังไม่พร้อม ─────────────────────────
 if ($setupRedirect) {
     $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    // ลบ base path ออกจาก request path
+    $appPath = $__basePath ? substr($requestPath, strlen($__basePath)) : $requestPath;
 
-    if ($requestPath !== '/setup' && ! str_starts_with($requestPath, '/setup/')) {
+    if ($appPath !== '/setup' && ! str_starts_with($appPath, '/setup/')) {
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
 
         // ตรวจสอบสถานะ
         $checks = [];
-        $phpOk = version_compare(PHP_VERSION, '8.2.0', '>=');
-        $checks[] = ['PHP ' . PHP_VERSION, $phpOk];
+        $checks[] = ['PHP ' . PHP_VERSION, version_compare(PHP_VERSION, '8.2.0', '>=')];
 
         $vendorOk = file_exists(__DIR__ . '/../vendor/autoload.php');
         $checks[] = ['Composer dependencies', $vendorOk];
@@ -99,8 +113,8 @@ if ($setupRedirect) {
             $checks[] = ["ext-{$ext}", extension_loaded($ext)];
         }
         foreach (['storage', 'bootstrap/cache'] as $dir) {
-            $path = __DIR__ . '/../' . $dir;
-            $checks[] = ["เขียนได้: {$dir}/", is_dir($path) && is_writable($path)];
+            $p = __DIR__ . '/../' . $dir;
+            $checks[] = ["เขียนได้: {$dir}/", is_dir($p) && is_writable($p)];
         }
 
         $allOk = true;
@@ -124,6 +138,9 @@ if ($setupRedirect) {
         } else {
             $actionHtml = '<p style="font-size:12px;color:#C62828">❌ กรุณาแก้ไขรายการที่ ❌ ด้านบน แล้วรีเฟรชหน้านี้</p>';
         }
+
+        // Embed base path ลงใน JS โดยตรง
+        $setupUrl = $__basePath . '/setup';
 
         echo <<<HTML
 <!DOCTYPE html>
@@ -161,13 +178,7 @@ code{background:#1A1A14;color:#4CAF50;padding:4px 8px;border-radius:6px;font-siz
   <p class="note">RoaMembers Stock & Loyalty System</p>
 </div>
 <script>
-function goSetup() {
-    // รองรับ subdirectory เช่น /stock-system/
-    var path = window.location.pathname.replace(/\/+$/, '');
-    // ลบ /public หรือ /index.php ออกจาก path
-    path = path.replace(/\/(public|index\.php)$/, '');
-    window.location.href = window.location.origin + path + '/setup';
-}
+function goSetup(){window.location.href="{$setupUrl}";}
 </script>
 </body></html>
 HTML;
@@ -191,6 +202,11 @@ if (isset($dbReady) && ! $dbReady) {
     }
     $_ENV['SESSION_DRIVER'] = 'file';
     putenv('SESSION_DRIVER=file');
+}
+
+// ส่ง base path ให้ Laravel รู้ (สำหรับ URL generation)
+if ($__basePath) {
+    $_ENV['APP_BASE_PATH'] = $__basePath;
 }
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
