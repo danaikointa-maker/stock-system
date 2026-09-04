@@ -279,7 +279,7 @@ function runInstall() {
   log.innerHTML = '';
   backBtn.style.display = 'none';
 
-  fetch('/setup/install', {
+  fetch((window.__baseUrl || '') + '/setup/install', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -97,6 +97,28 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 
   @yield('content')
+
+<script>
+// รองรับ subdirectory — เพิ่ม base path ให้ทุก form action และ link
+(function() {
+    // หา base path: ลบ /setup... ออกจาก pathname
+    var base = window.location.pathname.replace(/\/+$/, '').replace(/\/setup.*$/, '');
+    if (base === '/') base = '';
+    
+    // แก้ form actions
+    document.querySelectorAll('form[action^="/"]').forEach(function(form) {
+        form.setAttribute('action', base + form.getAttribute('action'));
+    });
+    
+    // แก้ links
+    document.querySelectorAll('a[href^="/"]').forEach(function(a) {
+        a.setAttribute('href', base + a.getAttribute('href'));
+    });
+    
+    // เก็บ base ไว้ใน window สำหรับ JavaScript อื่นใช้
+    window.__baseUrl = base;
+})();
+</script>
 </div>
 </body>
 </html>

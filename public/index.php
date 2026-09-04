@@ -162,12 +162,11 @@ code{background:#1A1A14;color:#4CAF50;padding:4px 8px;border-radius:6px;font-siz
 </div>
 <script>
 function goSetup() {
-    var base = window.location.origin;
-    if (!base || base === 'null' || base === 'about:blank') {
-        var m = window.location.href.match(/^(https?:\/\/[^\/]+)/);
-        base = m ? m[1] : '';
-    }
-    window.location.href = base + '/setup';
+    // รองรับ subdirectory เช่น /stock-system/
+    var path = window.location.pathname.replace(/\/+$/, '');
+    // ลบ /public หรือ /index.php ออกจาก path
+    path = path.replace(/\/(public|index\.php)$/, '');
+    window.location.href = window.location.origin + path + '/setup';
 }
 </script>
 </body></html>

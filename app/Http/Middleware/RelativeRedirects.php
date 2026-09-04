@@ -62,7 +62,10 @@ class RelativeRedirects
             return;
         }
 
+        $basePath = $this->detectBasePath();
+
         // ตัด scheme+host ของตัวเองออกจาก href/action/src ให้เหลือแต่ path
+        // ถ้ามี subdirectory (เช่น /stock-system) ให้เติมเข้าไปด้วย
         foreach ($this->ownRoots($request) as $root) {
             $content = str_replace(
                 [
@@ -74,9 +77,9 @@ class RelativeRedirects
                     "src='" . $root . '/',
                 ],
                 [
-                    'href="/', "href='/",
-                    'action="/', "action='/",
-                    'src="/', "src='/",
+                    'href="' . $basePath . '/', "href='" . $basePath . '/',
+                    'action="' . $basePath . '/', "action='" . $basePath . '/',
+                    'src="' . $basePath . '/', "src='" . $basePath . '/',
                 ],
                 $content
             );
@@ -84,7 +87,7 @@ class RelativeRedirects
             // กรณีชี้มาที่ root พอดี ไม่มี path ต่อท้าย
             $content = str_replace(
                 ['href="' . $root . '"', 'action="' . $root . '"'],
-                ['href="/"', 'action="/"'],
+                ['href="' . $basePath . '/"', 'action="' . $basePath . '/"'],
                 $content
             );
         }
@@ -120,8 +123,28 @@ class RelativeRedirects
             return null;
         }
 
-        return ($parts['path'] ?? '/')
+        $path = ($parts['path'] ?? '/')
             . (isset($parts['query']) ? '?' . $parts['query'] : '')
             . (isset($parts['fragment']) ? '#' . $parts['fragment'] : '');
+
+        // รองรับ subdirectory: หา base path จาก SCRIPT_NAME
+        // เช่น /stock-system/public/index.php → base = /stock-system
+        $basePath = $this->detectBasePath();
+        if ($basePath && str_starts_with($path, '/')) {
+            $path = $basePath . $path;
+        }
+
+        return $path;
+    }
+
+    /** หา base path ของ app (subdirectory) */
+    private function detectBasePath(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        // /stock-system/public/index.php → /stock-system
+        if (preg_match('#^(.+)/public/index\.php$#', $scriptName, $m)) {
+            return rtrim($m[1], '/');
+        }
+        return '';
     }
 }
