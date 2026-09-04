@@ -291,6 +291,42 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::delete('/', [\App\Http\Controllers\Web\BrandController::class, 'destroy'])->name('destroy');
     });
 
+    // ═══ บัญชีและการเงิน ═══
+    Route::prefix('accounting')->name('accounting.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\AccountingController::class, 'dashboard'])->name('dashboard');
+        Route::get('/reports', [\App\Http\Controllers\Web\AccountingController::class, 'reports'])->name('reports');
+        Route::get('/chart-of-accounts', [\App\Http\Controllers\Web\AccountingController::class, 'chartOfAccounts'])->name('chart');
+
+        // Invoices
+        Route::get('/invoices', [\App\Http\Controllers\Web\AccountingController::class, 'invoices'])->name('invoices');
+        Route::get('/invoices/create', [\App\Http\Controllers\Web\AccountingController::class, 'createInvoice'])->name('invoices.create');
+        Route::post('/invoices', [\App\Http\Controllers\Web\AccountingController::class, 'storeInvoice'])->name('invoices.store');
+        Route::get('/invoices/{invoice}', [\App\Http\Controllers\Web\AccountingController::class, 'showInvoice'])->name('invoices.show');
+        Route::delete('/invoices/{invoice}/void', [\App\Http\Controllers\Web\AccountingController::class, 'voidInvoice'])->name('invoices.void');
+
+        // Receipts
+        Route::get('/receipts', [\App\Http\Controllers\Web\AccountingController::class, 'receipts'])->name('receipts');
+        Route::get('/receipts/create/{invoice?}', [\App\Http\Controllers\Web\AccountingController::class, 'createReceipt'])->name('receipts.create');
+        Route::post('/receipts', [\App\Http\Controllers\Web\AccountingController::class, 'storeReceipt'])->name('receipts.store');
+        Route::get('/receipts/{receipt}', [\App\Http\Controllers\Web\AccountingController::class, 'showReceipt'])->name('receipts.show');
+
+        // Payments
+        Route::get('/payments', [\App\Http\Controllers\Web\AccountingController::class, 'payments'])->name('payments');
+        Route::get('/payments/create', [\App\Http\Controllers\Web\AccountingController::class, 'createPayment'])->name('payments.create');
+        Route::post('/payments', [\App\Http\Controllers\Web\AccountingController::class, 'storePayment'])->name('payments.store');
+        Route::get('/payments/{payment}', [\App\Http\Controllers\Web\AccountingController::class, 'showPayment'])->name('payments.show');
+
+        // Tax Invoices
+        Route::get('/tax-invoices', [\App\Http\Controllers\Web\AccountingController::class, 'taxInvoices'])->name('tax-invoices');
+        Route::get('/tax-invoices/create/{invoice?}', [\App\Http\Controllers\Web\AccountingController::class, 'createTaxInvoice'])->name('tax-invoices.create');
+        Route::post('/tax-invoices', [\App\Http\Controllers\Web\AccountingController::class, 'storeTaxInvoice'])->name('tax-invoices.store');
+        Route::get('/tax-invoices/{taxInvoice}', [\App\Http\Controllers\Web\AccountingController::class, 'showTaxInvoice'])->name('tax-invoices.show');
+
+        // Withholding Tax
+        Route::get('/withholding-taxes', [\App\Http\Controllers\Web\AccountingController::class, 'withholdingTaxes'])->name('withholding-taxes');
+        Route::get('/withholding-taxes/{wht}', [\App\Http\Controllers\Web\AccountingController::class, 'showWithholdingTax'])->name('wht.show');
+    });
+
     // คู่มือขั้นตอนการทำงาน (Workflow Guide)
     Route::get('/workflow', [\App\Http\Controllers\Web\WorkflowController::class, 'index'])->name('workflow');
 

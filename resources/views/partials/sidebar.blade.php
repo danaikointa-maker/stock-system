@@ -212,7 +212,35 @@
     @endif
 
     {{-- ═══════════════════════════════════════════════════
-         9. บัญชีของฉัน (ส่วนตัว)
+         9. บัญชีและการเงิน
+    ═══════════════════════════════════════════════════ --}}
+    @if($u->hasAbility('view-reports'))
+      <div class="group">📒 บัญชีและการเงิน</div>
+      <a href="{{ route('accounting.dashboard') }}" class="{{ request()->routeIs('accounting.dashboard') ? 'on' : '' }}">
+        📒 บัญชี
+      </a>
+      <a href="{{ route('accounting.invoices') }}" class="{{ request()->routeIs('accounting.invoices*') ? 'on' : '' }}">
+        📄 บิลเรียกเก็บ
+      </a>
+      <a href="{{ route('accounting.receipts') }}" class="{{ request()->routeIs('accounting.receipts*') ? 'on' : '' }}">
+        💰 บิลรับ
+      </a>
+      <a href="{{ route('accounting.payments') }}" class="{{ request()->routeIs('accounting.payments*') ? 'on' : '' }}">
+        💸 บิลจ่าย
+      </a>
+      <a href="{{ route('accounting.tax-invoices') }}" class="{{ request()->routeIs('accounting.tax-invoices*') ? 'on' : '' }}">
+        🧾 ใบกำกับภาษี
+      </a>
+      <a href="{{ route('accounting.withholding-taxes') }}" class="{{ request()->routeIs('accounting.wht*') || request()->routeIs('accounting.withholding*') ? 'on' : '' }}">
+        📋 หัก ณ ที่จ่าย
+      </a>
+      <a href="{{ route('accounting.reports') }}" class="{{ request()->routeIs('accounting.reports') ? 'on' : '' }}">
+        📈 รายงานบัญชี
+      </a>
+    @endif
+
+    {{-- ═══════════════════════════════════════════════════
+         10. บัญชีของฉัน (ส่วนตัว)
     ═══════════════════════════════════════════════════ --}}
     <div class="group">👤 บัญชีของฉัน</div>
     <a href="{{ route('profile') }}" class="{{ request()->routeIs('profile') ? 'on' : '' }}">

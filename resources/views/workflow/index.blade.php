@@ -315,6 +315,26 @@
     <div class="wf-result"><b>✅ ผลลัพธ์:</b><ul><li>ส่ง SMS อัตโนมัติ (OTP, แจ้งเตือน, โปรโมชั่น)</li></ul></div>
     <div class="wf-tip"><b>💡 คำแนะนำ:</b><br>• ไทย → Thai Bulk SMS (ถูก, รองรับภาษาไทย)<br>• ตปท. → Twilio (ทั่วโลก)<br>• ประหยัด → ใช้ LINE Notify แทน (ฟรี!) — ดู Process 5</div>
   </div>
+
+  {{-- 8. ACCOUNTING --}}
+  <div class="wf-process">
+    <div class="wf-ptitle"><span class="num">8</span>📒 ระบบบัญชีและการเงิน</div>
+    <div class="wf-steps">
+      <div class="wf-step"><div class="lbl">📄 ออกบิลเรียกเก็บเงินลูกค้า</div><div class="dsc">สร้างบิล → ระบุรายการ + ภาษี + หัก ณ ที่จ่าย → ส่งบิลให้ลูกค้า</div><div class="wf-links"><a href="{{ route('accounting.invoices.create') }}" class="wf-link">📄 สร้างบิลเรียกเก็บ</a></div></div>
+      <div class="wf-step"><div class="lbl">💰 รับเงิน + ออกใบเสร็จ</div><div class="dsc">ลูกค้าจ่าย → ออกบิลรับ → อัพเดทลูกหนี้คงค้าง</div><div class="wf-links"><a href="{{ route('accounting.receipts.create') }}" class="wf-link">💰 ออกใบเสร็จ</a></div></div>
+      <div class="wf-step"><div class="lbl">🧾 ออกใบกำกับภาษี</div><div class="dsc">กรณีนิติบุคคล → ออกใบกำกับภาษี → ยื่น VAT ภ.พ.30</div><div class="wf-links"><a href="{{ route('accounting.tax-invoices') }}" class="wf-link">🧾 ใบกำกับภาษี</a></div></div>
+      <div class="wf-step"><div class="lbl">💸 จ่ายค่าใช้จ่าย + หัก ณ ที่จ่าย</div><div class="dsc">รับบิลผู้ขาย → จ่ายเงิน → ระบบคำนวณ WHT อัตโนมัติ → ออกใบหัก ณ ที่จ่าย</div><div class="wf-links"><a href="{{ route('accounting.payments.create') }}" class="wf-link">💸 สร้างบิลจ่าย</a></div></div>
+      <div class="wf-step"><div class="lbl">📋 ใบหัก ณ ที่จ่าย</div><div class="dsc">ดูรายการ WHT ทั้งหมด → ยื่น ภ.ง.ด.3/53 ภายในวันที่ 7</div><div class="wf-links"><a href="{{ route('accounting.withholding-taxes') }}" class="wf-link">📋 ดู WHT ทั้งหมด</a></div></div>
+      <div class="wf-step"><div class="lbl">📈 รายงานทางบัญชี</div><div class="dsc">ยอดขาย, รายจ่าย, กำไร, ลูกหนี้, VAT, รายเดือน</div><div class="wf-links"><a href="{{ route('accounting.reports') }}" class="wf-link">📈 รายงาน</a></div></div>
+    </div>
+    <div class="wf-result"><b>✅ ผลลัพธ์:</b><ul><li>ระบบบัญชีครบวงจร: บิลเรียกเก็บ, บิลรับ, บิลจ่าย, ใบกำกับภาษี, WHT</li><li>Generate เลขที่เอกสารอัตโนมัติ (INV/RCP/PAY/TXI/WHT)</li><li>รายงานยอดขาย/รายจ่าย/กำไร/ลูกหนี้/VAT</li></ul></div>
+    <div class="wf-next"><h4>🔗 ทางลัด:</h4><ul>
+      <li>📊 <a href="{{ route('accounting.dashboard') }}" class="wf-link">Dashboard บัญชี</a></li>
+      <li>📄 <a href="{{ route('accounting.invoices') }}" class="wf-link">บิลเรียกเก็บทั้งหมด</a></li>
+      <li>💰 <a href="{{ route('accounting.receipts') }}" class="wf-link">บิลรับทั้งหมด</a></li>
+      <li>💸 <a href="{{ route('accounting.payments') }}" class="wf-link">บิลจ่ายทั้งหมด</a></li>
+    </ul></div>
+  </div>
 </div>
 @endif
 
