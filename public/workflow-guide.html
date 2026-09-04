@@ -269,6 +269,207 @@ h1 span{color:#f97316}
         <div class="desc">สรุปผลประกอบการ, QR และคะแนน → วิเคราะห์แนวโน้ม</div></div>
     </div>
   </div>
+
+  <div class="connector">▼</div>
+
+  <!-- ═══ Process 5: LINE OA ═══ -->
+  <div class="process">
+    <div class="process-title"><span class="num">5</span> 💬 ตั้งค่า LINE OA (LINE Login + Notify)</div>
+
+    <div class="tip" style="margin-bottom:16px">
+      <b>📌 ทำไมต้องตั้งค่า LINE?</b><br>
+      • <b>LINE Login</b> — ลูกค้าเข้าระบบด้วย LINE ได้ทันที ไม่ต้องกรอกข้อมูล<br>
+      • <b>LINE Notify</b> — แจ้งเตือนพนักงานเมื่อมีใบโอนใหม่, ใบเบิกใหม่<br>
+      • ระบบจะส่งข้อความหาลูกค้าอัตโนมัติเมื่อได้รับแต้ม/แลกแต้ม
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:14px;color:#06C755">📋 ส่วน A: สร้าง LINE Login Channel</h4>
+    <div class="steps">
+      <div class="step"><div class="label">1️⃣ เข้า LINE Developers</div>
+        <div class="desc">เปิด <b>https://developers.line.biz</b> → Login ด้วย LINE ส่วนตัว</div></div>
+      <div class="step"><div class="label">2️⃣ สร้าง Provider</div>
+        <div class="desc">กด <b>Create a new provider</b> → ตั้งชื่อ (เช่น ชื่อบริษัทของคุณ) → กด Create</div></div>
+      <div class="step"><div class="label">3️⃣ สร้าง LINE Login Channel</div>
+        <div class="desc">กด <b>Create a LINE Login channel</b> → เลือก Provider ที่สร้าง → ตั้งชื่อ Channel → กด Create</div></div>
+      <div class="step"><div class="label">4️⃣ คัดลอก Channel ID + Secret</div>
+        <div class="desc">หน้า Basic settings → คัดลอก <b>Channel ID</b><br>
+          หน้า Messaging API → คัดลอก <b>Channel secret</b></div>
+        <div class="goto">⚠️ เก็บ Secret ไว้เป็นความลับ — อย่าแชร์ให้ใคร</div></div>
+      <div class="step"><div class="label">5️⃣ ตั้งค่า Callback URL</div>
+        <div class="desc">หน้า LINE Login → <b>Callback URL</b> → ใส่:
+          <br><code style="background:#f1f5f9;padding:4px 8px;border-radius:4px;font-size:12px">https://your-domain.com/social/callback/line</code>
+          <br>(เปลี่ยน your-domain.com เป็น domain จริงของคุณ)</div></div>
+      <div class="step"><div class="label">6️⃣ เปิด Email address permission</div>
+        <div class="desc">หน้า LINE Login → <b>OpenID Connect</b> → Apply → ติ๊ก <b>email</b> → Submit</div></div>
+      <div class="step"><div class="label">7️⃣ กรอกค่าในระบบ</div>
+        <div class="desc">ไปที่ <b>⚙️ ตั้งค่าระบบ</b> → หมวด Social Login → ใส่:
+          <br>• <b>LINE Channel ID:</b> (จากขั้น 4)
+          <br>• <b>LINE Channel Secret:</b> (จากขั้น 4)
+          <br>→ กด <b>💾 บันทึก</b></div></div>
+      <div class="step done"><div class="label">✅ ทดสอบ</div>
+        <div class="desc">Logout → เข้าหน้าสแกน QR → กดปุ่ม <b>💬 เข้าสู่ระบบด้วย LINE</b> → ถ้า login ได้ = สำเร็จ!</div></div>
+    </div>
+
+    <h4 style="margin:20px 0 10px;font-size:14px;color:#06C755">📋 ส่วน B: ตั้งค่า LINE Notify (แจ้งเตือนพนักงาน)</h4>
+    <div class="steps">
+      <div class="step"><div class="label">1️⃣ สร้าง LINE Notify Token</div>
+        <div class="desc">เปิด <b>https://notify-bot.line.me</b> → Login → <b>My page</b> → <b>Generate token</b></div></div>
+      <div class="step"><div class="label">2️⃣ เลือกกลุ่ม/ส่วนตัว</div>
+        <div class="desc">เลือก <b>ส่งหาตัวเอง</b> (ทดสอบ) หรือ <b>เลือกกลุ่ม LINE</b> ที่ต้องการรับแจ้งเตือน</div></div>
+      <div class="step"><div class="label">3️⃣ คัดลอก Token</div>
+        <div class="desc">คัดลอก Access Token (ขึ้นต้นด้วย ...)</div>
+        <div class="goto">⚠️ Token แสดงครั้งเดียว — คัดลอกเก็บไว้!</div></div>
+      <div class="step done"><div class="label">4️⃣ พนักงานเชื่อมต่อ LINE Notify</div>
+        <div class="desc">แต่ละพนักงานไปที่ <b>👤 การแจ้งเตือน</b> → กดเชื่อมต่อ LINE → อนุญาต → ได้รับแจ้งเตือนอัตโนมัติ</div></div>
+    </div>
+
+    <div class="result">
+      <b>✅ ผลลัพธ์:</b>
+      <ul style="margin:6px 0 0 18px">
+        <li>ลูกค้า login ด้วย LINE ได้ → สะดวก ไม่ต้องจำรหัส</li>
+        <li>พนักงานได้รับการแจ้งเตือนทาง LINE เมื่อมีงานใหม่</li>
+        <li>ลูกค้าได้รับข้อความเมื่อได้แต้ม/แลกแต้ม</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- ═══ Process 6: Gmail SMTP ═══ -->
+  <div class="process">
+    <div class="process-title"><span class="num">6</span> 📧 ตั้งค่า Gmail (SMTP อีเมล)</div>
+
+    <div class="tip" style="margin-bottom:16px">
+      <b>📌 ทำไมต้องตั้งค่า Gmail?</b><br>
+      • ระบบส่งอีเมลแจ้งเตือนอัตโนมัติ (ใบโอนใหม่, ใบเบิก, รหัสผ่านชั่วคราว)<br>
+      • ส่งใบเสร็จ/Statement ให้ลูกค้าทางอีเมล<br>
+      • ใช้ Gmail ฟรี ไม่ต้องเสียค่าใช้จ่าย
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:14px;color:#D44638">📋 ขั้นตอนที่ 1: สร้าง App Password ของ Google</h4>
+    <div class="steps">
+      <div class="step"><div class="label">1️⃣ เข้า Google Account</div>
+        <div class="desc">เปิด <b>https://myaccount.google.com</b> → Login ด้วย Gmail ที่ต้องการใช้ส่งอีเมล</div></div>
+      <div class="step"><div class="label">2️⃣ เปิด 2-Step Verification</div>
+        <div class="desc"><b>Security</b> → <b>2-Step Verification</b> → เปิดใช้งาน (ถ้ายังไม่เปิด)
+          <br>ต้องใช้เบอร์โทรหรือ Authenticator App</div>
+        <div class="goto">⚠️ ต้องเปิด 2FA ก่อน ถึงจะสร้าง App Password ได้</div></div>
+      <div class="step"><div class="label">3️⃣ สร้าง App Password</div>
+        <div class="desc"><b>Security</b> → <b>App passwords</b> → เลือก <b>Mail</b> → เลือก <b>Other (custom name)</b>
+          <br>→ พิมพ์ชื่อ <b>RaoMembers</b> → กด <b>Generate</b></div></div>
+      <div class="step"><div class="label">4️⃣ คัดลอกรหัสผ่าน 16 ตัว</div>
+        <div class="desc">Google จะแสดงรหัสผ่าน 16 ตัวอักษร (เช่น <code>abcd efgh ijkl mnop</code>)
+          <br><b>คัดลอกเก็บไว้ทันที!</b> — Google จะไม่แสดงอีก</div>
+        <div class="goto">⚠️ เอาระยะว่างออก → ใช้ <code>abcdefghijklmnop</code> (ไม่มีช่องว่าง)</div></div>
+    </div>
+
+    <h4 style="margin:20px 0 10px;font-size:14px;color:#D44638">📋 ขั้นตอนที่ 2: กรอกค่าในระบบ</h4>
+    <div class="steps">
+      <div class="step"><div class="label">5️⃣ ไปที่ตั้งค่าระบบ</div>
+        <div class="desc">ไปที่ <b>⚙️ ตั้งค่าระบบ</b> → หมวด <b>อีเมล (SMTP)</b></div></div>
+      <div class="step"><div class="label">6️⃣ กรอกค่า SMTP</div>
+        <div class="desc">
+          <table style="font-size:12px;border-collapse:collapse;width:100%;margin-top:6px">
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_MAILER</td><td style="padding:4px 8px;border:1px solid #e2e8f0"><code>smtp</code></td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_HOST</td><td style="padding:4px 8px;border:1px solid #e2e8f0"><code>smtp.gmail.com</code></td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_PORT</td><td style="padding:4px 8px;border:1px solid #e2e8f0"><code>587</code></td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_USERNAME</td><td style="padding:4px 8px;border:1px solid #e2e8f0">อีเมล Gmail ของคุณ (เช่น <code>shop@gmail.com</code>)</td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_PASSWORD</td><td style="padding:4px 8px;border:1px solid #e2e8f0">App Password 16 ตัว (จากขั้น 4)</td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_ENCRYPTION</td><td style="padding:4px 8px;border:1px solid #e2e8f0"><code>tls</code></td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_FROM_ADDRESS</td><td style="padding:4px 8px;border:1px solid #e2e8f0">อีเมล Gmail เดียวกัน</td></tr>
+            <tr><td style="padding:4px 8px;border:1px solid #e2e8f0;font-weight:700">MAIL_FROM_NAME</td><td style="padding:4px 8px;border:1px solid #e2e8f0">ชื่อร้านของคุณ (เช่น RaoMembers)</td></tr>
+          </table>
+        </div></div>
+      <div class="step"><div class="label">7️⃣ บันทึก</div>
+        <div class="desc">กด <b>💾 บันทึกการตั้งค่า</b></div></div>
+      <div class="step done"><div class="label">✅ ทดสอบส่งอีเมล</div>
+        <div class="desc">ลองเพิ่มสมาชิกใหม่ → ระบบจะส่งอีเมลรหัสผ่านชั่วคราว → เช็ค Gmail ว่าได้รับหรือไม่</div></div>
+    </div>
+
+    <div class="result">
+      <b>✅ ผลลัพธ์:</b>
+      <ul style="margin:6px 0 0 18px">
+        <li>ระบบส่งอีเมลอัตโนมัติ (แจ้งเตือน, รหัสผ่าน, ใบเสร็จ)</li>
+        <li>ใช้ Gmail ฟรี — ไม่ต้องเสียค่า SMTP server</li>
+        <li>อีเมลออกจาก Gmail ของคุณ → ดูน่าเชื่อถือ</li>
+      </ul>
+    </div>
+
+    <div class="tip">
+      <b>⚠️ ปัญหาที่พบบ่อย:</b><br>
+      • <b>ส่งไม่ได้:</b> เช็คว่าเปิด 2FA แล้ว + ใช้ App Password (ไม่ใช่รหัสผ่าน Gmail ปกติ)<br>
+      • <b>Port 587 ไม่ทำงาน:</b> ลอง <code>465</code> + encryption <code>ssl</code><br>
+      • <b>Gmail บล็อก:</b> เข้า <b>Security Checkup</b> → อนุญาตการเข้าถึง
+    </div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- ═══ Process 7: SMS ═══ -->
+  <div class="process">
+    <div class="process-title"><span class="num">7</span> 📱 ตั้งค่า SMS แจ้งเตือน</div>
+
+    <div class="tip" style="margin-bottom:16px">
+      <b>📌 ทำไมต้องตั้งค่า SMS?</b><br>
+      • ส่ง OTP / ยืนยันตัวตนทาง SMS<br>
+      • แจ้งเตือนพนักงานเมื่อมีงานด่วน (ใบโอน, ใบเบิก)<br>
+      • ส่งข้อความหาลูกค้า (โปรโมชั่น, แต้มใกล้หมดอายุ)
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:14px;color:#6366f1">📋 ตัวเลือก A: Thai Bulk SMS (แนะนำสำหรับไทย)</h4>
+    <div class="steps">
+      <div class="step"><div class="label">1️⃣ สมัครสมาชิก Thai Bulk SMS</div>
+        <div class="desc">เปิด <b>https://www.thaibulksms.com</b> → สมัครสมาชิก → ยืนยันตัวตน</div></div>
+      <div class="step"><div class="label">2️⃣ เติมเงิน</div>
+        <div class="desc">เติมเงินเข้าบัญชี → ราคาประมาณ <b>0.50 - 1.50 บาท/SMS</b> (แล้วแต่แพ็กเกจ)</div></div>
+      <div class="step"><div class="label">3️⃣ ขอ API Key</div>
+        <div class="desc">Login → <b>API / Developer</b> → คัดลอก <b>API Key</b> + <b>API Secret</b></div></div>
+      <div class="step"><div class="label">4️⃣ ตั้งชื่อ Sender</div>
+        <div class="desc">ยื่นขอ Sender Name (เช่น ชื่อร้าน) → รออนุมัติ 1-3 วันทำการ
+          <br>หรือใช้ <b>Sender เริ่มต้น</b> ของ Thai Bulk SMS ได้เลย</div></div>
+      <div class="step"><div class="label">5️⃣ กรอกค่าในระบบ</div>
+        <div class="desc">ไปที่ <b>⚙️ ตั้งค่าระบบ</b> → หมวด SMS → ใส่ API Key + Secret + Sender Name → บันทึก</div></div>
+      <div class="step done"><div class="label">✅ ทดสอบ</div>
+        <div class="desc">กดปุ่ม <b>📱 ส่ง SMS ทดสอบ</b> → ใส่เบอร์ตัวเอง → เช็ค SMS ที่ได้รับ</div></div>
+    </div>
+
+    <h4 style="margin:20px 0 10px;font-size:14px;color:#6366f1">📋 ตัวเลือก B: Twilio (นานาชาติ)</h4>
+    <div class="steps">
+      <div class="step"><div class="label">1️⃣ สมัคร Twilio</div>
+        <div class="desc">เปิด <b>https://www.twilio.com</b> → Sign up → ยืนยันเบอร์โทร</div></div>
+      <div class="step"><div class="label">2️⃣ ซื้อเบอร์ Twilio</div>
+        <div class="desc">Console → <b>Phone Numbers</b> → Buy a number → เลือกประเทศ Thailand (+66)
+          <br>ราคา ~$1/เดือน + ค่าส่ง SMS ~0.015 USD/ข้อความ</div></div>
+      <div class="step"><div class="label">3️⃣ คัดลอก Credentials</div>
+        <div class="desc">Console → Dashboard → คัดลอก:
+          <br>• <b>Account SID</b>
+          <br>• <b>Auth Token</b>
+          <br>• <b>Phone Number</b> (เบอร์ Twilio)</div></div>
+      <div class="step"><div class="label">4️⃣ กรอกค่าในระบบ</div>
+        <div class="desc">ไปที่ <b>⚙️ ตั้งค่าระบบ</b> → หมวด SMS → เลือก <b>Twilio</b> → ใส่:
+          <br>• TWILIO_SID, TWILIO_TOKEN, TWILIO_FROM (เบอร์ Twilio)
+          <br>→ บันทึก</div></div>
+      <div class="step done"><div class="label">✅ ทดสอบ</div>
+        <div class="desc">กดปุ่ม <b>📱 ส่ง SMS ทดสอบ</b> → เช็ค SMS ที่ได้รับ</div></div>
+    </div>
+
+    <div class="result">
+      <b>✅ ผลลัพธ์:</b>
+      <ul style="margin:6px 0 0 18px">
+        <li>ระบบส่ง SMS อัตโนมัติ (OTP, แจ้งเตือน, โปรโมชั่น)</li>
+        <li>พนักงานได้รับ SMS เมื่องานด่วน</li>
+        <li>ลูกค้าได้รับ SMS เมื่อแต้มใกล้หมดอายุ</li>
+      </ul>
+    </div>
+
+    <div class="tip">
+      <b>💡 คำแนะนำ:</b><br>
+      • <b>สำหรับไทย:</b> ใช้ Thai Bulk SMS — ถูกกว่า, รองรับภาษาไทย, ส่งเร็ว<br>
+      • <b>สำหรับต่างชาติ:</b> ใช้ Twilio — รองรับทั่วโลก<br>
+      • <b>ประหยัด:</b> ใช้ LINE Notify แทน SMS — ฟรี! (ตั้งค่าใน Process 5)<br>
+      • ⚠️ ต้องลงทะเบียน <b>PDPA</b> ก่อนส่ง SMS โปรโมชั่นให้ลูกค้า
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
