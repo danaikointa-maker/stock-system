@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class StockLedger extends Model
 {
+    protected $table = 'stock_ledger';
     public $timestamps = false;
     const UPDATED_AT = null;
 
