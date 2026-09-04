@@ -1,10 +1,10 @@
-install-state*.cmd
-composer.phar
-node_modules/
-vendor/
+/node_modules/
+/vendor/
 .env
 .env.*
 !.env.example
+
+# Storage (generated files)
 storage/logs/*
 !storage/logs/.gitignore
 storage/framework/cache/*
@@ -14,5 +14,13 @@ storage/framework/sessions/*
 storage/framework/testing/
 storage/framework/views/*
 !storage/framework/views/.gitignore
+storage/app/qr_print_*.csv
+
+# Bootstrap cache
 bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# Build artifacts
+/public/build/
 .phpunit.result.cache
+database/database.sqlite
