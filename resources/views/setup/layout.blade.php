@@ -1,9 +1,23 @@
+@php
+    // Detect base path จาก SCRIPT_NAME (เชื่อถือได้ 100% — render จาก PHP)
+    $__bp = '';
+    $__sn = $_SERVER['SCRIPT_NAME'] ?? '';
+    if (preg_match('#^(.+)/public/index\.php$#', $__sn, $__m)) {
+        $__bp = rtrim($__m[1], '/');
+    } elseif (preg_match('#^(.+)/index\.php$#', $__sn, $__m)) {
+        $maybe = rtrim($__m[1], '/');
+        if ($maybe !== '' && $maybe !== '/public') {
+            $__bp = $maybe;
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="base-url" content="{{ $__bp }}">
 <title>ติดตั้งระบบ · RoaMembers</title>
 <style>
 :root{--brand:#F04800;--brand-dark:#C23800;--ok:#006018;--warn:#C77700;--bad:#C62828;--bg:#F6F5F0;--card:#fff;--ink:#1A1A14;--muted:#6E6E63;--line:#E6E4DA}
@@ -14,19 +28,13 @@ body{font-family:"Noto Sans Thai","Sarabun",-apple-system,sans-serif;background:
 .logo img{width:60px;height:60px;border-radius:14px;margin-bottom:8px}
 .logo b{font-size:20px;display:block;color:var(--ink)}
 .logo span{font-size:12px;color:var(--muted)}
-
-/* Progress */
 .progress{display:flex;gap:4px;margin-bottom:24px}
 .progress .step{flex:1;height:6px;border-radius:3px;background:var(--line)}
 .progress .step.done{background:var(--ok)}
 .progress .step.active{background:var(--brand)}
-
-/* Card */
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .card h2{font-size:18px;margin-bottom:4px}
 .card .sub{font-size:13px;color:var(--muted);margin-bottom:20px}
-
-/* Form */
 .field{margin-bottom:16px}
 .field label{font-weight:600;font-size:13px;margin-bottom:4px;display:block}
 .field .hint{font-size:12px;color:var(--muted);margin-top:2px}
@@ -35,15 +43,11 @@ body{font-family:"Noto Sans Thai","Sarabun",-apple-system,sans-serif;background:
 .input:focus{border-color:var(--brand);outline:none}
 .input.err{border-color:var(--bad)}
 select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236E6E63' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") right 12px center no-repeat #fff}
-
-/* Toggle */
 .toggle{display:flex;align-items:center;gap:10px}
 .toggle input{width:42px;height:24px;appearance:none;background:var(--line);border-radius:12px;position:relative;cursor:pointer;transition:.2s}
 .toggle input:checked{background:var(--ok)}
 .toggle input::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
 .toggle input:checked::after{left:21px}
-
-/* Buttons */
 .btns{display:flex;gap:10px;margin-top:20px}
 .btn{padding:12px 24px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
 .btn-main{background:var(--brand);color:#fff;flex:1}
@@ -51,15 +55,11 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
 .btn-back{background:var(--line);color:var(--ink)}
 .btn-back:hover{background:#d5d3ca}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-
-/* Checks table */
 .checks{width:100%;border-collapse:collapse;font-size:13px}
 .checks td{padding:8px 10px;border-bottom:1px solid var(--line)}
 .checks .pass{color:var(--ok);font-weight:700}
 .checks .fail{color:var(--bad);font-weight:700}
 .checks .warn{color:var(--warn);font-weight:700}
-
-/* Radio cards */
 .radio-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .radio-card{border:2px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;text-align:center;transition:.15s}
 .radio-card:hover{border-color:var(--brand)}
@@ -68,13 +68,9 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
 .radio-card .icon{font-size:28px;margin-bottom:6px}
 .radio-card b{display:block;font-size:14px}
 .radio-card span{font-size:12px;color:var(--muted)}
-
-/* Install log */
 #installLog{background:#1A1A14;color:#CFD8CF;border-radius:12px;padding:16px;font-family:"SF Mono",Consolas,monospace;font-size:12px;max-height:400px;overflow-y:auto;margin:16px 0;display:none;line-height:1.8}
 #installLog .ok{color:#4CAF50}
 #installLog .fail{color:#EF5350}
-
-/* Alert */
 .alert{padding:12px 16px;border-radius:12px;margin-bottom:16px;font-size:13px}
 .alert-ok{background:#E8F5E9;border:1px solid #A5D6A7;color:#1B5E20}
 .alert-bad{background:#FFEBEE;border:1px solid #EF9A9A;color:#B71C1C}
@@ -89,7 +85,6 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
     <span>ระบบติดตั้งครั้งแรก · Step {{ $step }}/{{ $totalSteps }}</span>
   </div>
 
-  {{-- Progress bar --}}
   <div class="progress">
     @for($i = 1; $i <= $totalSteps; $i++)
       <div class="step {{ $i < $step ? 'done' : ($i === $step ? 'active' : '') }}"></div>
@@ -97,24 +92,24 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 
   @yield('content')
+</div>
 
 <script>
-// Base path จาก SCRIPT_NAME — เชื่อถือได้กว่า JavaScript detection
-(function() {
-    var scriptName = '{{ $_SERVER["SCRIPT_NAME"] ?? "" }}';
-    var m = scriptName.match(/^(.+)\/public\/index\.php$/);
-    var base = m ? m[1].replace(/\/+$/, '') : '';
-    window.__baseUrl = base;
+(function(){
+    // Base path จาก PHP — เชื่อถือได้ 100%
+    var B = '{{ $__bp }}';
 
     // เพิ่ม base path ให้ทุก form action และ link ที่เริ่มด้วย /
-    document.querySelectorAll('form[action^="/"]').forEach(function(form) {
-        form.setAttribute('action', base + form.getAttribute('action'));
+    document.querySelectorAll('form[action^="/"]').forEach(function(el){
+        el.setAttribute('action', B + el.getAttribute('action'));
     });
-    document.querySelectorAll('a[href^="/"]').forEach(function(a) {
-        a.setAttribute('href', base + a.getAttribute('href'));
+    document.querySelectorAll('a[href^="/"]').forEach(function(el){
+        el.setAttribute('href', B + el.getAttribute('href'));
     });
+
+    // เก็บไว้ให้ JavaScript อื่นใช้
+    window.__baseUrl = B;
 })();
 </script>
-</div>
 </body>
 </html>
