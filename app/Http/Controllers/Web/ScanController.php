@@ -37,11 +37,23 @@ class ScanController extends Controller
     ) {
     }
 
+    private const SESSION_SCAN_TOKEN = 'roamembers.scan_token';
+    private const SESSION_SCAN_EXPIRY = 'roamembers.scan_expiry';
+    private const SESSION_SCAN_QR = 'roamembers.scan_qr';
+    private const SCAN_TTL_SECONDS = 300; // 5 นาที
+
     /** หน้าแรกหลังสแกน QR */
     public function form(Request $request, ?string $token = null): View
     {
         $token = $token ?? $request->query('token');
         $customer = $this->currentCustomer($request);
+
+        // สร้าง scan session token ใหม่ทุกครั้งที่เปิดหน้า
+        // ใช้ตรวจตอน submit ว่าไม่ได้ refresh หรือใช้ QR เดิมซ้ำ
+        $scanToken = bin2hex(random_bytes(16));
+        $request->session()->put(self::SESSION_SCAN_TOKEN, $scanToken);
+        $request->session()->put(self::SESSION_SCAN_EXPIRY, now()->addSeconds(self::SCAN_TTL_SECONDS)->timestamp);
+        $request->session()->put(self::SESSION_SCAN_QR, $token);
 
         // ดูข้อมูลสินค้าให้ลูกค้าเห็นก่อนกดรับแต้ม
         $preview = null;
@@ -59,16 +71,39 @@ class ScanController extends Controller
         }
 
         return view('scan.form', [
-            'token'    => $token,
-            'customer' => $customer,
-            'preview'  => $preview,
-            'wallets'  => $customer ? $this->earning->wallets($customer) : collect(),
+            'token'      => $token,
+            'customer'   => $customer,
+            'preview'    => $preview,
+            'wallets'    => $customer ? $this->earning->wallets($customer) : collect(),
+            'scanToken'  => $scanToken,
+            'scanExpiry' => self::SCAN_TTL_SECONDS,
         ]);
     }
 
     /** ยิงสแกนจริง */
     public function submit(Request $request): RedirectResponse
     {
+        // ตรวจ scan session token — กัน refresh/reuse QR เดิม
+        $submittedToken = $request->input('_scan_token');
+        $sessionToken = $request->session()->get(self::SESSION_SCAN_TOKEN);
+        $sessionExpiry = $request->session()->get(self::SESSION_SCAN_EXPIRY);
+
+        if (! $submittedToken || $submittedToken !== $sessionToken) {
+            return redirect()->route('scan.form')
+                ->withErrors(['token' => 'เซสชันไม่ถูกต้อง กรุณาสแกน QR ใหม่อีกครั้ง']);
+        }
+
+        if ($sessionExpiry && now()->timestamp > $sessionExpiry) {
+            // ลบ token ที่ใช้แล้ว
+            $request->session()->forget([self::SESSION_SCAN_TOKEN, self::SESSION_SCAN_EXPIRY, self::SESSION_SCAN_QR]);
+
+            return redirect()->route('scan.form')
+                ->withErrors(['token' => 'เซสชันหมดอายุ กรุณาสแกน QR ใหม่อีกครั้ง']);
+        }
+
+        // ใช้แล้วลบทิ้ง — กัน submit ซ้ำ
+        $request->session()->forget([self::SESSION_SCAN_TOKEN, self::SESSION_SCAN_EXPIRY, self::SESSION_SCAN_QR]);
+
         $data = $request->validate([
             'token'      => ['required', 'string', 'max:120'],
             'phone'      => ['required', 'string', 'regex:/^0[0-9]{8,9}$/'],
