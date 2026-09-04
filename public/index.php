@@ -231,11 +231,17 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
 
-// ถ้า database ยังไม่พร้อม → ใช้ array session (ไม่พึ่ง database)
+// ถ้า database ยังไม่พร้อม → ใช้ file session (ไม่พึ่ง database)
 // ป้องกัน 500 error ตอนเข้า /setup
+// ใช้ 'file' แทน 'array' เพื่อให้ session persist ข้าม request (CSRF ทำงาน)
 if (isset($dbReady) && ! $dbReady) {
-    $_ENV['SESSION_DRIVER'] = 'array';
-    putenv('SESSION_DRIVER=array');
+    // สร้าง storage/framework/sessions ถ้ายังไม่มี
+    $sessionDir = __DIR__ . '/../storage/framework/sessions';
+    if (! is_dir($sessionDir)) {
+        @mkdir($sessionDir, 0775, true);
+    }
+    $_ENV['SESSION_DRIVER'] = 'file';
+    putenv('SESSION_DRIVER=file');
 }
 
 // Bootstrap Laravel and handle the request...

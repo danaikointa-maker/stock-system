@@ -32,9 +32,9 @@
   @endif
 
   <div class="btns">
-    <a href="{{ route('setup.wizard') }}" class="btn btn-back">🔄 ตรวจสอบใหม่</a>
+    <a href="/setup" class="btn btn-back">🔄 ตรวจสอบใหม่</a>
     @if($allPassed)
-      <a href="{{ route('setup.database') }}" class="btn btn-main">ถัดไป →</a>
+      <a href="/setup/database" class="btn btn-main">ถัดไป →</a>
     @endif
   </div>
 </div>
@@ -52,7 +52,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('setup.saveDatabase') }}">
+  <form method="POST" action="/setup/database">
     @csrf
 
     <div class="radio-cards">
@@ -98,7 +98,7 @@
     </div>
 
     <div class="btns">
-      <a href="{{ route('setup.wizard') }}" class="btn btn-back">← ย้อนกลับ</a>
+      <a href="/setup" class="btn btn-back">← ย้อนกลับ</a>
       <button type="submit" class="btn btn-main">ถัดไป →</button>
     </div>
   </form>
@@ -125,7 +125,7 @@ function selectDb(type) {
     </div>
   @endif
 
-  <form method="POST" action="{{ route('setup.saveAppConfig') }}">
+  <form method="POST" action="/setup/app">
     @csrf
     <div class="field">
       <label>ชื่อระบบ</label>
@@ -153,7 +153,7 @@ function selectDb(type) {
       <p class="hint">⚠️ เปิดเฉพาะตอนพัฒนา — ปิดเมื่อใช้งานจริง</p>
     </div>
     <div class="btns">
-      <a href="{{ route('setup.database') }}" class="btn btn-back">← ย้อนกลับ</a>
+      <a href="/setup/database" class="btn btn-back">← ย้อนกลับ</a>
       <button type="submit" class="btn btn-main">ถัดไป →</button>
     </div>
   </form>
@@ -172,7 +172,7 @@ function selectDb(type) {
     </div>
   @endif
 
-  <form method="POST" action="{{ route('setup.saveAdmin') }}">
+  <form method="POST" action="/setup/admin">
     @csrf
     <div class="field">
       <label>ชื่อ</label>
@@ -194,7 +194,7 @@ function selectDb(type) {
       </div>
     </div>
     <div class="btns">
-      <a href="{{ route('setup.app') }}" class="btn btn-back">← ย้อนกลับ</a>
+      <a href="/setup/app" class="btn btn-back">← ย้อนกลับ</a>
       <button type="submit" class="btn btn-main">ถัดไป →</button>
     </div>
   </form>
@@ -207,7 +207,7 @@ function selectDb(type) {
   <h2>🔐 Social Login <span style="font-size:12px;color:var(--muted)">(ไม่บังคับ)</span></h2>
   <p class="sub">ให้ลูกค้าเข้าสู่ระบบด้วย LINE หรือ Google — ข้ามได้ ตั้งค่าทีหลังที่หน้า Admin</p>
 
-  <form method="POST" action="{{ route('setup.saveSocial') }}">
+  <form method="POST" action="/setup/social">
     @csrf
     <h3 style="font-size:14px;margin-bottom:10px;color:var(--ok)">🟢 LINE Login</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
@@ -234,7 +234,7 @@ function selectDb(type) {
     </div>
 
     <div class="btns">
-      <a href="{{ route('setup.admin') }}" class="btn btn-back">← ย้อนกลับ</a>
+      <a href="/setup/admin" class="btn btn-back">← ย้อนกลับ</a>
       <button type="submit" class="btn btn-main">ข้าม / ถัดไป →</button>
     </div>
   </form>
@@ -260,7 +260,7 @@ function selectDb(type) {
   </div>
 
   <div class="btns">
-    <a href="{{ route('setup.social') }}" class="btn btn-back" id="backBtn">← ย้อนกลับ</a>
+    <a href="/setup/social" class="btn btn-back" id="backBtn">← ย้อนกลับ</a>
     <button type="button" class="btn btn-main" id="installBtn" onclick="runInstall()">
       🔧 เริ่มติดตั้ง
     </button>
@@ -279,11 +279,12 @@ function runInstall() {
   log.innerHTML = '';
   backBtn.style.display = 'none';
 
-  fetch('{{ route("setup.runInstall") }}', {
+  fetch('/setup/install', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json'
     }
   })
   .then(r => r.json())

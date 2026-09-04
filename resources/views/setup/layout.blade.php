@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>ติดตั้งระบบ · RoaMembers</title>
 <style>
 :root{--brand:#F04800;--brand-dark:#C23800;--ok:#006018;--warn:#C77700;--bad:#C62828;--bg:#F6F5F0;--card:#fff;--ink:#1A1A14;--muted:#6E6E63;--line:#E6E4DA}
