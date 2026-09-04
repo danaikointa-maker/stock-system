@@ -20,6 +20,8 @@ use App\Http\Controllers\Web\SocialAuthController;
 use App\Http\Controllers\Web\StockCountController;
 use App\Http\Controllers\Web\ReportController;
 use App\Http\Controllers\Web\TransferWebController;
+use App\Http\Controllers\Web\SetupController;
+use App\Http\Controllers\Web\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -272,4 +274,30 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::get('/qr', [ReportController::class, 'qr'])->name('qr');
         Route::get('/export/{type}', [ReportController::class, 'export'])->name('export');
     });
+
+    // ตั้งค่าระบบ (Admin เท่านั้น)
+    Route::prefix('admin/settings')->name('admin.settings.')->group(function () {
+        Route::get('/', [AdminSettingsController::class, 'index'])->name('index');
+        Route::post('/', [AdminSettingsController::class, 'update'])->name('update');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Setup Wizard — ติดตั้งระบบครั้งแรก
+|--------------------------------------------------------------------------
+*/
+Route::prefix('setup')->name('setup.')->group(function () {
+    Route::get('/', [SetupController::class, 'wizard'])->name('wizard');
+    Route::get('/env', [SetupController::class, 'createEnv'])->name('createEnv');
+    Route::get('/database', [SetupController::class, 'database'])->name('database');
+    Route::post('/database', [SetupController::class, 'saveDatabase'])->name('saveDatabase');
+    Route::get('/app', [SetupController::class, 'appConfig'])->name('app');
+    Route::post('/app', [SetupController::class, 'saveAppConfig'])->name('saveAppConfig');
+    Route::get('/admin', [SetupController::class, 'admin'])->name('admin');
+    Route::post('/admin', [SetupController::class, 'saveAdmin'])->name('saveAdmin');
+    Route::get('/social', [SetupController::class, 'social'])->name('social');
+    Route::post('/social', [SetupController::class, 'saveSocial'])->name('saveSocial');
+    Route::get('/install', [SetupController::class, 'install'])->name('install');
+    Route::post('/install', [SetupController::class, 'runInstall'])->name('runInstall');
 });

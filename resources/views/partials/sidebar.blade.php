@@ -89,6 +89,10 @@
           @endif
         </a>
       @endif
+
+      <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'on' : '' }}">
+        ⚙️ ตั้งค่าระบบ
+      </a>
     @endif
 
     @php

@@ -14,9 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'active.user' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'active.user'  => \App\Http\Middleware\EnsureUserIsActive::class,
+            'setup.check'  => \App\Http\Middleware\CheckSetupComplete::class,
         ]);
         $middleware->redirectGuestsTo('/login');
+
+        // ตรวจสอบว่า setup แล้วหรือยัง (prepend ทุก web request)
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckSetupComplete::class,
+        ]);
 
         // ทำให้ redirect เป็น path เปล่า ๆ (/dashboard) แทน URL เต็ม
         // กัน error "Missing Traffic Access Token" ตอนรันหลัง proxy ที่ใช้ token
