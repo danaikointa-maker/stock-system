@@ -1,113 +1,243 @@
-# ระบบสต๊อกสินค้าหลายระดับ + QR สะสมคะแนน (Laravel + MySQL)
+# ระบบสต๊อกสินค้าหลายระดับ + QR สะสมคะแนน (Laravel)
 
-ไฟล์หลัก: `database/schema.sql` (รันได้ทันทีบน MySQL 8)
+ระบบจัดการสต๊อกสินค้า 6 ระดับสายงาน พร้อมระบบ QR สะสมแต้มและแลกของรางวัล
+สำหรับร้านค้า/ธุรกิจที่ต้องการ Track & Trace สินค้าตั้งแต่คลังใหญ่ถึงมือผู้บริโภค
 
-## 0. สถานะระบบ (พร้อมใช้งาน)
+## ✨ ฟีเจอร์หลัก
 
-ระบบถูกสร้างจริงครบทั้ง backend และหน้าเว็บ ผ่านชุดทดสอบอัตโนมัติ **47 เคส / 99 assertions**
-และทดสอบสิทธิ์ 22 หน้า × 6 บทบาท = 132 คู่ ไม่มี 5xx
+- **สายงาน 6 ระดับ**: เจ้าของ → คลังใหญ่ → คลังย่อย → ตัวแทน → ร้านค้า → ผู้ขาย
+- **POS เปิดบิลขาย** ตัดสต๊อกอัตโนมัติ ผูกเบอร์ลูกค้าสะสมแต้ม
+- **QR สะสมแต้ม**: ติดสินค้า → ลูกค้าสแกน → ได้แต้ม (กันโกง 5 ชั้น)
+- **QR ร้านค้า**: ติดหน้าร้าน → ลูกค้าสแกน → แลกของรางวัล
+- **ใบโอนสินค้า**: draft → approve → ship → receive (จอง/ตัด/รับครบ)
+- **ระบบแต้ม v3**: กระเป๋าแยกตามร้าน, วงเงินรายเดือน, FIFO
+- **เบิกเงินคืน**: ร้านยื่นใบเบิก → admin อนุมัติ → จ่ายเงิน
+- **ศูนย์ความปลอดภัย**: audit trail, rate limit, IP block
+- **แจ้งเตือน LINE/Email**: เข้าคิว ไม่ล่มตามบริการภายนอก
+- **169 automated tests** ครอบคลุมทุกกฎธุรกิจ
 
-| ส่วน | สถานะ |
+## 🚀 ติดตั้งเร็ว (Quick Start)
+
+### Linux / macOS
+
+```bash
+git clone https://github.com/danaikointa-maker/stock-system.git
+cd stock-system
+bash install.sh
+```
+
+### Windows
+
+```cmd
+git clone https://github.com/danaikointa-maker/stock-system.git
+cd stock-system
+install.bat
+```
+
+สคริปต์ติดตั้งจะทำ 7 ขั้นตอนอัตโนมัติ:
+1. ตรวจสอบ dependencies (PHP, Composer, Node.js)
+2. ตั้งค่า .env (SQLite สำหรับ dev)
+3. สร้าง storage directories
+4. `composer install` — PHP dependencies
+5. `php artisan key:generate`
+6. `php artisan migrate --seed` — สร้างตาราง + ข้อมูลตัวอย่าง
+7. Build frontend (ถ้ามี Node.js)
+
+### รันเซิร์ฟเวอร์
+
+```bash
+php artisan serve
+# เปิด http://localhost:8000/login
+```
+
+### บัญชีทดสอบ (รหัสผ่าน: `password` ทุกบัญชี)
+
+| อีเมล | ระดับ | สิทธิ์หลัก |
+|---|---|---|
+| `admin@demo.test` | เจ้าของระบบ | ทุกอย่าง |
+| `wh@demo.test` | คลังใหญ่ | จัดการสต๊อก โอนของ |
+| `swh@demo.test` | คลังย่อย | รับของ โอนต่อ |
+| `agent@demo.test` | ตัวแทนขาย | จัดการสมาชิก โอนของ |
+| `shop@demo.test` | ร้านค้า | POS + ตั้งค่าร้าน + QR |
+| `seller@demo.test` | ผู้ขาย | POS เท่านั้น |
+
+## 📋 ความต้องการของระบบ
+
+| รายการ | ขั้นต่ำ | แนะนำ |
+|---|---|---|
+| **PHP** | 8.2+ | 8.4 |
+| **Composer** | 2.x | 2.7+ |
+| **Node.js** | 18+ (ถ้า build frontend) | 20 LTS |
+| **Database** | SQLite (dev) | MySQL 8 (production) |
+
+### PHP Extensions ที่ต้องเปิด
+
+```
+mbstring, xml, curl, zip, pdo_sqlite, gd, openssl, bcmath
+```
+
+<details>
+<summary>วิธีติดตั้ง dependencies (ทีละ OS)</summary>
+
+#### Ubuntu / Debian
+
+```bash
+sudo apt update
+sudo apt install -y php php-cli php-mbstring php-xml php-curl \
+    php-zip php-sqlite3 php-mysql php-gd php-bcmath unzip curl
+
+# Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+# Node.js (optional)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+#### macOS (Homebrew)
+
+```bash
+brew install php composer node
+```
+
+#### Windows
+
+1. **PHP**: ดาวน์โหลดจาก https://windows.php.net/download
+   - Extract ไปที่ `C:\php`
+   - เพิ่ม `C:\php` ใน System PATH
+   - Copy `php.ini-development` → `php.ini`
+   - เปิด extensions: `extension=mbstring`, `extension=curl`, `extension=openssl`, `extension=pdo_sqlite`, `extension=gd`, `extension=zip`, `extension=fileinfo`
+
+2. **Composer**: ดาวน์โหลดจาก https://getcomposer.org/Composer-Setup.exe
+
+3. **Node.js**: ดาวน์โหลดจาก https://nodejs.org (LTS)
+
+</details>
+
+## 🏗️ โครงสร้างโปรเจค
+
+```
+stock-system/
+├── app/                          # Source code หลัก
+│   ├── Console/Commands/         # Artisan commands (3)
+│   ├── Enums/                    # Role, Status enums (5)
+│   ├── Exceptions/               # Custom exceptions (3)
+│   ├── Http/Controllers/         # Web (17) + API (3)
+│   ├── Http/Middleware/          # Security middleware (6)
+│   ├── Models/                   # Eloquent models (38)
+│   ├── Observers/                # Audit observer (1)
+│   ├── Policies/                 # Authorization (5)
+│   ├── Providers/                # App + Auth (2)
+│   └── Services/                 # Business logic (12)
+├── config/                       # Laravel config (11)
+├── database/
+│   ├── migrations/               # DB schema (12)
+│   ├── seeders/                  # Demo data (2)
+│   └── factories/                # Test factories (1)
+├── resources/views/              # Blade templates (45)
+├── routes/                       # Web + API + Console (3)
+├── tests/                        # 12 feature + 1 unit tests
+├── public/                       # Web root (brand logos)
+├── bootstrap/                    # App bootstrap
+├── storage/                      # Framework dirs
+├── install.sh                    # 🔧 Linux/macOS installer
+├── install.bat                   # 🔧 Windows installer
+├── composer.json + .lock         # PHP dependencies
+├── package.json + .lock          # JS dependencies
+├── phpunit.xml                   # Test config
+├── .env.example                  # Environment template
+└── README.md / INSTALL.md / PERMISSIONS.md
+```
+
+## 🧪 ทดสอบระบบ
+
+```bash
+# รันทุกเทสต์
+php artisan test
+
+# รันเฉพาะกลุ่ม
+php artisan test --filter=TransferWorkflowTest
+php artisan test --filter=SaleAndScanTest
+php artisan test --filter=ShopSettingTest
+```
+
+**169 tests, 419 assertions** ครอบคลุม:
+
+| ไฟล์ | ครอบคลุม |
 |---|---|
-| Migration 5 ไฟล์ + Seeder ข้อมูลตัวอย่าง | เสร็จ |
-| Model 20 ตัว + Service 6 ตัว (Stock/Transfer/Sale/Qr/Point/Report) | เสร็จ |
-| Policy 5 ตัว + 9 abilities คุมสิทธิ์ 2 แกน (บทบาท × ขอบเขตสายงาน) | เสร็จ |
-| หน้าเว็บผู้ดูแล 22 หน้า (dashboard, POS, ใบโอน, สินค้า/QR, นับสต๊อก, ลูกค้า, ของรางวัล, รายงาน) | เสร็จ |
-| **หน้าลูกค้าสแกน QR สะสมคะแนน + แลกของรางวัล** (มือถือ, ไม่ต้องล็อกอิน) | เสร็จ |
-| API สำหรับแอป (`routes/api.php`) | เสร็จ |
-| ชุดทดสอบอัตโนมัติ `php artisan test` | เสร็จ |
+| TransferWorkflowTest | วงจรใบโอน 8 เคส |
+| SaleAndScanTest | ขาย + QR scan |
+| PermissionTest | สิทธิ์ 17 คู่ |
+| CatalogAndPointsTest | สินค้า + แต้ม |
+| ClaimTest | ใบเบิก 18 เคส |
+| RedeemDeskTest | เคาน์เตอร์แลกแต้ม |
+| NotificationTest | แจ้งเตือน |
+| ShopSettingTest | ตั้งค่าร้าน + QR ร้านค้า |
+| SubscriptionTest | สมาชิกร้าน |
 
-ดูวิธีติดตั้งและตาราง URL ทั้งหมดที่ `INSTALL.md` · ดูรายละเอียดสิทธิ์ที่ `PERMISSIONS.md`
+## 🌐 Deploy ขึ้น Production
 
-## 1. โครงสร้างสายงาน (6 ระดับ)
+### Linux Server
 
+```bash
+git clone https://github.com/danaikointa-maker/stock-system.git /var/www/stock
+cd /var/www/stock
+
+# ตั้ง .env สำหรับ production
+cp .env.example .env
+nano .env    # แก้ DB_CONNECTION=mysql, DB_HOST, DB_DATABASE, ฯลฯ
+
+# ติดตั้งแบบ production
+bash install.sh prod
 ```
-Lv1 เจ้าของระบบ (HQ)
- └─ Lv2 คลังใหญ่
-     └─ Lv3 คลังย่อย
-         └─ Lv4 ตัวแทนขาย
-             └─ Lv5 ร้านค้า
-                 └─ Lv6 ผู้ขาย
+
+### ตั้งค่า Web Server (Nginx)
+
+```nginx
+server {
+    listen 80;
+    server_name stock.example.com;
+    root /var/www/stock/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
 ```
 
-ใช้ตารางเดียว `org_nodes` (self-referencing) + `org_levels`
-- `parent_id` = สังกัดใคร, `level_id` = อยู่ระดับไหน
-- `path` เช่น `/1/2/3/` → ดูลูกหลานทั้งสายด้วย `WHERE path LIKE '/1/2/%'` (เร็ว ไม่ต้อง recursive)
-- Trigger บังคับว่า parent ต้องเป็นระดับที่สูงกว่า 1 ขั้นเสมอ
+### ตั้งค่า Scheduler (Cron)
 
-**สิทธิ์การมองเห็น (Data Scope):** ผู้ใช้เห็นเฉพาะโหนดตัวเอง + ลูกหลาน
-```sql
-SELECT * FROM org_nodes
-WHERE id = :myNode OR path LIKE CONCAT((SELECT path FROM org_nodes WHERE id=:myNode), :myNode, '/%');
+```bash
+# เพิ่มใน crontab -e
+* * * * * cd /var/www/stock && php artisan schedule:run >> /dev/null 2>&1
 ```
-ใน Laravel ทำเป็น Global Scope ครอบทุก Model ที่มี `org_node_id`
 
-## 2. หลักการสต๊อก
-- **`stock_movements`** = แหล่งความจริง (append-only ห้ามแก้/ลบ)
-- **`stock_balances`** = ยอดสรุปต่อ (โหนด × สินค้า × ล็อต) อัปเดตใน DB transaction เดียวกับ movement
-- ยอดคงเหลือ 3 ช่อง: `qty_on_hand`, `qty_reserved` (จองในบิล), `qty_in_transit` (กำลังส่งมา)
-- Available = on_hand − reserved
+| Command | หน้าที่ | ความถี่ |
+|---|---|---|
+| `roamembers:reset-allowances` | รีเซตวงเงินเดือน + ปิดสมาชิกหมดอายุ | ทุกวันที่ 1 |
+| `roamembers:expire-points` | ตัดแต้มหมดอายุ | ทุกวัน 01:00 |
+| `roamembers:send-notifications` | ส่งแจ้งเตือนค้าง | ทุกนาที |
 
-### Flow การโอนของลงระดับล่าง (`transfers`)
-```
-draft → pending_approve → approved → shipped → received
-```
-| ขั้นตอน | ผลต่อสต๊อก |
-|---|---|
-| approved | ต้นทาง `qty_reserved +N` |
-| shipped  | ต้นทาง on_hand −N, reserved −N (movement `transfer_out`) / ปลายทาง `in_transit +N` |
-| received | ปลายทาง in_transit −N, on_hand +N (movement `transfer_in`) |
-| ส่วนต่างตอนรับ | ลงเป็น `adjust_out` / `damage` พร้อมหมายเหตุ |
+### Windows Server (IIS)
 
-ทิศทางที่อนุญาต: โอนลงหาลูกโดยตรง (`to.parent_id = from.id`) หรือคืนขึ้น (`type='return'`)
+1. ติดตั้ง PHP for IIS: https://php.iis.net
+2. ชี้ Site ไปที่ `public/` folder
+3. Import `web.config` (Laravel สร้างให้อัตโนมัติ)
+4. ตั้ง Task Scheduler สำหรับ artisan commands
 
-### ขาย (`sales`)
-ขายที่ Lv5/Lv6 → ตัด `on_hand` + สร้าง movement `sale` + ปั๊ม QR ของชิ้นที่ขายเป็น `sold` (activated)
+## 📖 เอกสารเพิ่มเติม
 
-## 3. ระบบ QR สะสมคะแนน
+- [INSTALL.md](INSTALL.md) — คู่มือติดตั้งละเอียด (step-by-step)
+- [PERMISSIONS.md](PERMISSIONS.md) — ตารางสิทธิ์ 6 บทบาท × ทุกหน้า
 
-`product_qrcodes` — 1 แถว = 1 ชิ้น
-- `qr_token` (32 ตัวสุ่ม) ใช้ใน URL: `https://app.example.com/s/{qr_token}`
-- `secret_hash` = SHA-256 ของรหัสใต้ฟิล์มขูด → กันคนถ่ายรูป QR บนชั้นวางแล้วสแกนชิงคะแนน
-- `status`: `created → in_stock → sold → redeemed`
+## 📄 License
 
-### Flow สแกน
-1. ลูกค้าสแกน → เปิดหน้าเว็บ/LIFF → ยืนยันเบอร์ด้วย OTP (สร้าง/ดึง `customers`)
-2. กรอกรหัสใต้ฟิล์ม → เทียบ `secret_hash`
-3. ตรวจเงื่อนไข → เขียน `qr_scan_logs` ทุกกรณี (สำเร็จ/ไม่สำเร็จ)
-4. ถ้าผ่าน: `UPDATE product_qrcodes SET status='redeemed'...` แบบมีเงื่อนไข (กัน race)
-   ```sql
-   UPDATE product_qrcodes SET status='redeemed', redeemed_at=NOW(), redeemed_by_customer_id=:c
-   WHERE id=:id AND status IN ('sold','in_stock');  -- affected_rows=0 แปลว่าโดนใช้ไปแล้ว
-   ```
-5. `INSERT point_transactions (earn_scan)` + `customers.points_balance += points`
-
-### กันโกง
-- 1 QR = 1 ครั้งตลอดกาล (unique + conditional update)
-- Rate limit: ต่อเบอร์/ต่อ IP/ต่อวัน → บันทึก `rate_limited` ใน log
-- แจ้งเตือนเมื่อมีการสแกนล็อตเดียวกันจำนวนมากจาก IP เดียว หรือสแกน QR ที่ยัง `in_stock` (ยังไม่ถูกขาย = ของหลุด/ปลอม)
-- เก็บ lat/lng เทียบกับตำแหน่งร้านที่จ่ายของล็อตนั้นออกไป
-
-### Track & Trace
-เพราะ QR ผูก `current_node_id` และมี `stock_movements` ครบ → ตรวจได้ว่าของชิ้นนี้ผ่านคลังไหน ตัวแทนใคร ร้านไหน (ใช้จับของหลุดโซน/สินค้าปลอม)
-
-## 4. คะแนน
-- `point_transactions` เป็น ledger (`earn_scan / earn_bonus / redeem / expire / adjust / reverse`)
-- `customers.points_balance` เป็นยอด denormalized → มี job กระทบยอดรายวัน
-- แลกของ: `rewards` + `reward_redemptions`
-
-## 5. สรุปตาราง
-| กลุ่ม | ตาราง |
-|---|---|
-| องค์กร | org_levels, org_nodes, users, customers |
-| สินค้า | categories, units, products, product_level_prices, product_lots |
-| สต๊อก | stock_balances, stock_movements |
-| เอกสาร | transfers, transfer_items, sales, sale_items |
-| QR/คะแนน | product_qrcodes, qr_scan_logs, point_transactions, rewards, reward_redemptions |
-| อื่นๆ | commission_rules, commission_entries, audit_logs |
-
-## 6. ข้อแนะนำการ implement (Laravel)
-- ทุกการตัด/รับสต๊อก ห่อด้วย `DB::transaction()` + `lockForUpdate()` บนแถว `stock_balances`
-- Service ควรมี: `StockService`, `TransferService`, `QrScanService`, `PointService`
-- ตาราง log ที่โตเร็ว (`stock_movements`, `qr_scan_logs`) → พิจารณา partition รายเดือน
-- generate QR ล่วงหน้าเป็น batch ตอนสร้าง `product_lots` (job แบบ chunk)
+Private — All rights reserved.
