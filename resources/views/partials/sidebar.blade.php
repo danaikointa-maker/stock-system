@@ -5,7 +5,7 @@
 <aside class="sidebar">
   <div class="brand">
     <b style="display:flex;align-items:center;gap:8px">
-      <img src="{{ asset('brand/logo.svg') }}" alt="" style="width:26px;height:26px;object-fit:contain;background:#fff;border-radius:7px;padding:2px">
+      <img src="{{ brand_logo() }}" alt="" style="width:26px;height:26px;object-fit:contain;background:#fff;border-radius:7px;padding:2px">
       {{ config('app.name', 'RaoMembers') }}
     </b>
     <span>{{ $lv?->label() ?? 'ไม่ระบุระดับ' }} · {{ $u->node?->code }}</span>
@@ -203,6 +203,10 @@
 
       <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'on' : '' }}">
         ตั้งค่าระบบ
+      </a>
+
+      <a href="{{ route('admin.brand.index') }}" class="{{ request()->routeIs('admin.brand.*') ? 'on' : '' }}">
+        🖼️ ตั้งค่าโลโก้
       </a>
     @endif
 

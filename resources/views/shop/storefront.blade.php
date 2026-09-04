@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <meta name="theme-color" content="{{ $colors['primary'] }}">
 <title>{{ $profile->display_name }} · {{ config('app.name', 'RaoMembers') }}</title>
-<link rel="icon" href="{{ asset('brand/logo.svg') }}">
+<link rel="icon" href="{{ brand_logo() }}">
 
 <style>
   /*
@@ -252,7 +252,7 @@
   </div>
 
   <div class="foot">
-    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}"><br>
+    <img src="{{ brand_logo() }}" alt="{{ config('app.name') }}"><br>
     ร้านนี้เข้าร่วมโครงการสะสมแต้ม {{ config('app.name', 'RaoMembers') }}<br>
     สแกน QR บนสินค้าเพื่อรับแต้ม แล้วนำมาแลกที่ร้านนี้ได้
   </div>

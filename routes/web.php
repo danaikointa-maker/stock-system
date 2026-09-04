@@ -284,6 +284,13 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::post('/', [AdminSettingsController::class, 'update'])->name('update');
     });
 
+    // ตั้งค่าโลโก้ (Admin เท่านั้น)
+    Route::prefix('admin/brand')->name('admin.brand.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\BrandController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Web\BrandController::class, 'update'])->name('update');
+        Route::delete('/', [\App\Http\Controllers\Web\BrandController::class, 'destroy'])->name('destroy');
+    });
+
     // คู่มือออนไลน์
     Route::get('/help', [\App\Http\Controllers\Web\HelpController::class, 'show'])->name('help');
 });

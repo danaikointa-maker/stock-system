@@ -61,7 +61,7 @@
       ออกรายงานเมื่อ {{ $printedAt->format('j M Y เวลา H:i น.') }}
     </div>
   </div>
-  <img class="logo" src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
+  <img class="logo" src="{{ brand_logo() }}" alt="{{ config('app.name') }}">
 </div>
 
 <div class="cards">

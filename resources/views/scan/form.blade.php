@@ -4,7 +4,7 @@
 @section('body')
 <div class="hero">
   <div class="brandbar">
-    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
+    <img src="{{ brand_logo() }}" alt="{{ config('app.name') }}">
     <div>
       <span class="name">{{ config('app.name', 'RaoMembers') }}</span>
       <span class="sub">สะสมแต้ม · แลกของรางวัล</span>

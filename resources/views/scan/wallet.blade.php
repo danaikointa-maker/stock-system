@@ -47,7 +47,7 @@
 @section('body')
 <div class="wallet-top">
   <div class="brandbar" style="margin-bottom:14px">
-    <img src="{{ asset('brand/logo.svg') }}" alt="{{ config('app.name') }}">
+    <img src="{{ brand_logo() }}" alt="{{ config('app.name') }}">
     <div><span class="name">{{ config('app.name', 'RaoMembers') }}</span></div>
   </div>
   <div class="who">สวัสดี คุณ{{ $customer->name }} 👋</div>

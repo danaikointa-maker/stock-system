@@ -80,7 +80,7 @@ select.input{appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='ht
 <body>
 <div class="wizard">
   <div class="logo">
-    <img src="{{ asset('brand/logo.svg') }}" alt="">
+    <img src="{{ brand_logo() }}" alt="">
     <b>{{ config('app.name', 'RaoMembers') }}</b>
     <span>ระบบติดตั้งครั้งแรก · Step {{ $step }}/{{ $totalSteps }}</span>
   </div>

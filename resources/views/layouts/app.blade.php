@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', config('app.name', 'RaoMembers'))</title>
-<link rel="icon" href="{{ asset('brand/logo.svg') }}">
+<link rel="icon" href="{{ brand_logo() }}">
+<link rel="apple-touch-icon" href="{{ brand_logo() }}">
 <style>
 :root{
   --bg:#f1f5f9; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;

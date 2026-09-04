@@ -9,8 +9,8 @@
 {{-- ป้องกันการฝังหน้านี้ในเว็บอื่น --}}
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
-<link rel="icon" href="{{ asset('brand/logo.svg') }}">
-<link rel="apple-touch-icon" href="{{ asset('brand/logo.svg') }}">
+<link rel="icon" href="{{ brand_logo() }}">
+<link rel="apple-touch-icon" href="{{ brand_logo() }}">
 
 <style>
   /* ===== สีแบรนด์ (ดึงจาก APP_NAME) ===== */
