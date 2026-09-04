@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RaoMembers — คู่มือขั้นตอนการทำงาน</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Noto Sans Thai',sans-serif;background:#f0f4f8;color:#1a202c;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+
+h1{text-align:center;font-size:28px;padding:30px 0 10px;color:#1e293b}
+h1 span{color:#f97316}
+.subtitle{text-align:center;color:#64748b;margin-bottom:30px;font-size:14px}
+
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:30px}
+.tab{padding:10px 18px;border-radius:10px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;
+  font-size:13px;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab:hover{border-color:#f97316;transform:translateY(-1px)}
+.tab.active{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border-color:#ea580c;
+  box-shadow:0 4px 12px rgba(249,115,22,.3)}
+.tab .emoji{font-size:18px}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Role header */
+.role-header{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;border-radius:16px;
+  padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden}
+.role-header::after{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;
+  background:rgba(249,115,22,.15);border-radius:50%}
+.role-header h2{font-size:22px;margin-bottom:6px}
+.role-header p{color:#94a3b8;font-size:13px;line-height:1.7}
+.role-header .badge{display:inline-block;background:rgba(249,115,22,.2);color:#fb923c;
+  padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px}
+
+/* Process cards */
+.process{margin-bottom:28px}
+.process-title{font-size:16px;font-weight:800;color:#1e293b;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;padding-left:4px}
+.process-title .num{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;
+  width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0}
+
+/* Steps */
+.steps{position:relative;padding-left:32px}
+.steps::before{content:'';position:absolute;left:13px;top:10px;bottom:10px;width:2px;
+  background:linear-gradient(180deg,#f97316,#10b981)}
+.step{position:relative;margin-bottom:12px;background:#fff;border:1px solid #e2e8f0;
+  border-radius:12px;padding:14px 18px;transition:all .2s}
+.step:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateX(4px)}
+.step::before{content:'';position:absolute;left:-25px;top:18px;width:12px;height:12px;
+  border-radius:50%;background:#f97316;border:3px solid #fff;box-shadow:0 0 0 2px #f97316}
+.step.done::before{background:#10b981;box-shadow:0 0 0 2px #10b981}
+.step .label{font-weight:700;font-size:13.5px;color:#1e293b;margin-bottom:3px}
+.step .desc{font-size:12.5px;color:#64748b;line-height:1.6}
+.step .goto{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;
+  color:#3b82f6;background:#eff6ff;padding:3px 10px;border-radius:6px}
+
+/* Connector */
+.connector{text-align:center;padding:8px 0;color:#f97316;font-size:22px;font-weight:800}
+
+/* Result box */
+.result{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;
+  border-radius:12px;padding:16px 20px;margin:12px 0;font-size:13px}
+.result b{color:#15803d}
+
+/* Next box */
+.next-box{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;
+  border-radius:12px;padding:16px 20px;margin-top:16px}
+.next-box h4{color:#1e40af;font-size:13px;margin-bottom:8px}
+.next-box ul{margin-left:18px;font-size:12.5px;color:#475569}
+.next-box li{margin-bottom:4px}
+.next-box li b{color:#1e40af}
+
+/* Flow overview */
+.flow-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:30px}
+.flow-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;
+  transition:all .2s;cursor:default;position:relative}
+.flow-card:hover{border-color:#f97316;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.flow-card .icon{font-size:28px;margin-bottom:6px}
+.flow-card .name{font-weight:800;font-size:13px;color:#1e293b}
+.flow-card .info{font-size:11px;color:#64748b;margin-top:4px}
+.flow-card .arrow{position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  color:#f97316;font-size:20px;font-weight:800}
+
+/* Tip */
+.tip{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;
+  margin:12px 0;font-size:12px;color:#92400e}
+.tip b{color:#78350f}
+
+@media print{
+  .tabs{display:none}
+  .panel{display:block!important;page-break-inside:avoid}
+}
+@media(max-width:600px){
+  .flow-overview{grid-template-columns:1fr 1fr}
+  .flow-card .arrow{display:none}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📋 คู่มือขั้นตอนการทำงาน <span>RaoMembers</span></h1>
+<p class="subtitle">เลือกบทบาทของคุณ เพื่อดูขั้นตอนการทำงานตั้งแต่ต้นจนจบ</p>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('overview')"><span class="emoji">🗺️</span> ภาพรวมทั้งหมด</div>
+  <div class="tab" onclick="showPanel('admin')"><span class="emoji">👑</span> เจ้าของระบบ</div>
+  <div class="tab" onclick="showPanel('warehouse')"><span class="emoji">🏭</span> ผู้จัดการคลัง</div>
+  <div class="tab" onclick="showPanel('agent')"><span class="emoji">🤝</span> ตัวแทนขาย</div>
+  <div class="tab" onclick="showPanel('shop')"><span class="emoji">🏪</span> เจ้าของร้านค้า</div>
+  <div class="tab" onclick="showPanel('seller')"><span class="emoji">🛒</span> ผู้ขาย</div>
+  <div class="tab" onclick="showPanel('customer')"><span class="emoji">👤</span> ลูกค้า</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- OVERVIEW -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel active" id="panel-overview">
+  <div class="role-header">
+    <h2>🗺️ ภาพรวม Process ทั้งหมดของระบบ</h2>
+    <p>ระบบ RaoMembers ทำงานเป็นวงจร: ตั้งค่า → เพิ่มสินค้า → กระจายสินค้า → ขาย → ลูกค้าสะสมแต้ม → แลกของรางวัล</p>
+  </div>
+
+  <div class="flow-overview">
+    <div class="flow-card">
+      <div class="icon">⚙️</div>
+      <div class="name">1. ตั้งค่าระบบ</div>
+      <div class="info">เจ้าของระบบตั้งค่าแต้ม สร้างแพ็กเกจ</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">🏷️</div>
+      <div class="name">2. เพิ่มสินค้า</div>
+      <div class="info">สร้างสินค้า + ล็อต + QR Code</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">📦</div>
+      <div class="name">3. เติมสต๊อก</div>
+      <div class="info">เพิ่มล็อตเข้าคลัง (สแกน/พิมพ์)</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">🚚</div>
+      <div class="name">4. กระจายสินค้า</div>
+      <div class="info">โอนจากคลัง → ร้านค้า</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">💰</div>
+      <div class="name">5. ขายสินค้า</div>
+      <div class="info">เปิดบิล POS สต๊อกลดอัตโนมัติ</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">📱</div>
+      <div class="name">6. ลูกค้าสแกน QR</div>
+      <div class="info">สแกน QR บนซอง → ได้แต้ม</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">🎁</div>
+      <div class="name">7. แลกของรางวัล</div>
+      <div class="info">ลูกค้าใช้แต้มแลก → ร้านรับแลก</div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="flow-card">
+      <div class="icon">📊</div>
+      <div class="name">8. วิเคราะห์ผล</div>
+      <div class="info">ดูรายงาน → ปรับกลยุทธ์</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>💡 วิธีใช้คู่มือนี้:</b> เลือกแท็บบทบาทของคุณด้านบน เพื่อดูว่า<b>คุณต้องทำอะไรบ้าง</b> ในแต่ละขั้นตอน มีปุ่ม "ไปต่อที่..." บอกว่าเมื่อจบขั้นนี้แล้วต้องไปทำขั้นไหนต่อ
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- OWNER / ADMIN -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-admin">
+  <div class="role-header">
+    <h2>👑 เจ้าของระบบ (SystemAdmin)</h2>
+    <p>คุณคือผู้ควบคุมระบบทั้งหมด — ตั้งค่าระบบ, จัดการสายงาน, อนุมัติใบเบิก, ดูรายงานความปลอดภัย</p>
+    <div class="badge">สิทธิ์: ทุกอย่าง</div>
+  </div>
+
+  <!-- Process 1 -->
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> ตั้งค่าระบบครั้งแรก (One-time Setup)</div>
+    <div class="steps">
+      <div class="step"><div class="label">⚙️ ตั้งชื่อระบบ + URL</div>
+        <div class="desc">ไปที่ <b>⚙️ ตั้งค่าระบบ</b> → ตั้งชื่อ APP_NAME (เช่น RaoMembers), URL, เขตเวลา</div></div>
+      <div class="step"><div class="label">🖼️ อัปโหลดโลโก้</div>
+        <div class="desc">ไปที่ <b>🖼️ ตั้งค่าโลโก้</b> → อัปโหลด SVG/PNG → ใช้เป็น favicon + ทุกหน้าทันที</div></div>
+      <div class="step"><div class="label">💬 ตั้งค่า LINE Login</div>
+        <div class="desc">ใส่ LINE Channel ID + Secret → ลูกค้า login ด้วย LINE ได้</div></div>
+      <div class="step"><div class="label">📧 ตั้งค่าอีเมล (SMTP)</div>
+        <div class="desc">ใส่ SMTP host/port/user/pass → ระบบส่งอีเมลแจ้งเตือนได้</div></div>
+      <div class="step done"><div class="label">✅ ทดสอบระบบ</div>
+        <div class="desc">ลอง login ด้วย LINE, ลองส่งอีเมล → ถ้าทำงาน = พร้อมใช้</div></div>
+    </div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 2:</b> ตั้งค่าอัตราแต้ม + สร้างแพ็กเกจ ↓</li>
+      <li><b>ขั้น 3:</b> สร้างสายงาน (คลัง → ร้านค้า) ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 2 -->
+  <div class="process">
+    <div class="process-title"><span class="num">2</span> ตั้งค่าระบบแต้ม + แพ็กเกจ</div>
+    <div class="steps">
+      <div class="step"><div class="label">💰 กำหนดอัตราแต้ม</div>
+        <div class="desc">ไปที่ <b>⚙️ แพ็กเกจและค่าแต้ม</b> → ตั้ง: ขาย 100 บาท = X แต้ม, สแกน QR = X แต้ม</div>
+        <div class="goto">💡 คำนวณให้ดี: แต้มมาก = ต้นทุนสูง, แต้มน้อย = ลูกค้าไม่สนใจ</div></div>
+      <div class="step"><div class="label">📦 สร้างแพ็กเกจสมาชิก</div>
+        <div class="desc">สร้างแพ็กเกจรายเดือน/รายปี สำหรับร้านค้า → กำหนดราคา + สิทธิ์ที่ได้</div></div>
+      <div class="step done"><div class="label">✅ บันทึก</div>
+        <div class="desc">มีผลทันทีกับบิล/QR ใหม่</div></div>
+    </div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 3:</b> สร้างสายงาน ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 3 -->
+  <div class="process">
+    <div class="process-title"><span class="num">3</span> สร้างสายงาน + เพิ่มสมาชิก</div>
+    <div class="steps">
+      <div class="step"><div class="label">🏢 สร้างหน่วยงาน</div>
+        <div class="desc">ไปที่ <b>🏢 หน่วยงานในสังกัด</b> → สร้างคลังใหญ่ → คลังย่อย → ร้านค้า → ตัวแทน</div></div>
+      <div class="step"><div class="label">👤 เพิ่มสมาชิกแต่ละหน่วยงาน</div>
+        <div class="desc">ไปที่ <b>👤 สมาชิกและสิทธิ์</b> → เพิ่มคน → กำหนดบทบาท (WarehouseAdmin, ShopUser, etc.)</div>
+        <div class="goto">⚠️ จดรหัสผ่านชั่วคราวไว้ — แจ้งสมาชิกทันที (แสดงครั้งเดียว!)</div></div>
+      <div class="step done"><div class="label">✅ เสร็จ</div>
+        <div class="desc">สมาชิกแต่ละคนเข้าระบบได้แล้ว เห็นเมนูตามบทบาทของตัวเอง</div></div>
+    </div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ผู้จัดการคลัง:</b> ทำตามขั้น "เพิ่มสินค้า" → "เติมสต๊อก" → "กระจายสินค้า"</li>
+      <li><b>เฝ้าระวัง:</b> ตรวจ <b>🔒 ศูนย์ความปลอดภัย</b> เป็นระยะ</li>
+      <li><b>อนุมัติใบเบิก:</b> เมื่อร้านค้าส่งใบเบิกเข้ามา → อนุมัติ/ปฏิเสธ</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 4 -->
+  <div class="process">
+    <div class="process-title"><span class="num">4</span> งานประจำวัน (Daily)</div>
+    <div class="steps">
+      <div class="step"><div class="label">📊 เช็ค Dashboard</div>
+        <div class="desc">ดู KPI: ยอดขาย, สต๊อก, ใบโอนค้าง, การแจ้งเตือน</div></div>
+      <div class="step"><div class="label">🔒 ตรวจศูนย์ความปลอดภัย</div>
+        <div class="desc">ดู alert ใหม่ → login ผิดปกติ? → บล็อก IP ถ้าจำเป็น</div></div>
+      <div class="step"><div class="label">✅ อนุมัติใบเบิก</div>
+        <div class="desc">ถ้ามี badge สีส้ม → ตรวจสอบ → อนุมัติ/ปฏิเสธ</div></div>
+      <div class="step done"><div class="label">📈 ดูรายงาน</div>
+        <div class="desc">สรุปผลประกอบการ, QR และคะแนน → วิเคราะห์แนวโน้ม</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- WAREHOUSE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-warehouse">
+  <div class="role-header">
+    <h2>🏭 ผู้จัดการคลัง (WarehouseAdmin)</h2>
+    <p>คุณจัดการสินค้าทั้งหมด: เพิ่มสินค้า, สร้างล็อต QR, เติมสต๊อก, โอนไปร้านค้า, นับสต๊อก</p>
+    <div class="badge">สิทธิ์: สต๊อก, โอน, นับ, จัดการสมาชิก</div>
+  </div>
+
+  <!-- Process 1 -->
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> เพิ่มสินค้าใหม่</div>
+    <div class="steps">
+      <div class="step"><div class="label">🏷️ ไปที่ สินค้าและล็อต QR</div>
+        <div class="desc">Sidebar → 📦 คลังสินค้า → สินค้าและล็อต QR</div></div>
+      <div class="step"><div class="label">➕ กด + เพิ่มสินค้า</div>
+        <div class="desc">กรอก: ชื่อ, SKU, บาร์โค้ด, ราคาขาย, ราคาทุน, ค่าแต้มเมื่อสแกน QR</div></div>
+      <div class="step"><div class="label">💾 บันทึกสินค้า</div>
+        <div class="desc">สินค้าเข้าระบบ แต่ยังไม่มีสต๊อก (ต้องสร้างล็อตก่อน)</div></div>
+      <div class="step done"><div class="label">✅ เสร็จขั้นเพิ่มสินค้า</div>
+        <div class="desc">สินค้าพร้อมสำหรับสร้างล็อต ↓</div></div>
+    </div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 2:</b> สร้างล็อตผลิต + QR Code ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 2 -->
+  <div class="process">
+    <div class="process-title"><span class="num">2</span> สร้างล็อตผลิต + QR Code</div>
+    <div class="steps">
+      <div class="step"><div class="label">📦 คลิกที่สินค้า → + เพิ่มล็อต</div>
+        <div class="desc">กรอก: เลขล็อต, จำนวน, วันผลิต, วันหมดอายุ</div></div>
+      <div class="step"><div class="label">🔲 ระบบสร้าง QR อัตโนมัติ</div>
+        <div class="desc">1 QR = 1 ซองสินค้า → ลูกค้าสแกนรับแต้มได้</div></div>
+      <div class="step"><div class="label">🖨️ พิมพ์ QR → แปะซอง</div>
+        <div class="desc">พิมพ์ขนาด ≥ 2cm × 2cm → แปะตำแหน่งเดียวกันทุกซอง</div></div>
+      <div class="step done"><div class="label">✅ เสร็จขั้นสร้างล็อต</div>
+        <div class="desc">สินค้ามี QR พร้อม → ตอนนี้สินค้าอยู่ในสต๊อกแล้ว</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> สินค้า + ล็อต + QR พร้อม → สต๊อกเข้าคลังอัตโนมัติ</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 3:</b> กระจายสินค้าไปร้านค้า (สร้างใบโอน) ↓</li>
+      <li>หรือ <b>เพิ่มสต๊อกด่วน:</b> ถ้ามีสินค้าอยู่แล้ว ใช้ 📱 เพิ่มสต๊อกด่วน ได้เลย</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 3 -->
+  <div class="process">
+    <div class="process-title"><span class="num">3</span> กระจายสินค้า (โอนไปร้านค้า)</div>
+    <div class="steps">
+      <div class="step"><div class="label">📋 สร้างใบโอน</div>
+        <div class="desc">ไปที่ ใบโอนสินค้า → + สร้างใบโอน → เลือกปลายทาง → เลือกสินค้า+ล็อต+จำนวน</div></div>
+      <div class="step"><div class="label">⏳ รออนุมัติ</div>
+        <div class="desc">หัวหน้าอนุมัติใบโอน (หรือคุณอนุมัติเองถ้ามีสิทธิ์)</div></div>
+      <div class="step"><div class="label">📤 ส่งของ</div>
+        <div class="desc">หลังกดอนุมัติ → กดส่งของ → ระบุเลขพัสดุ → สต๊อกออกจากคลัง</div></div>
+      <div class="step done"><div class="label">📥 ปลายทางรับของ</div>
+        <div class="desc">ร้านปลายทางกดรับ → สต๊อกเข้าร้านอัตโนมัติ</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> สินค้าถูกโอนจากคลัง → ร้านค้าปลายทาง สำเร็จ</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ร้านค้า:</b> ขายสินค้า (POS) หรือ ลูกค้าสแกน QR</li>
+      <li><b>日常工作:</b> นับสต๊อกเป็นระยะ ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 4 -->
+  <div class="process">
+    <div class="process-title"><span class="num">4</span> นับสต๊อก (ประจำสัปดาห์/เดือน)</div>
+    <div class="steps">
+      <div class="step"><div class="label">🔢 สร้างใบนับสต๊อก</div>
+        <div class="desc">ไปที่ นับสต๊อก/ปรับยอด → + สร้างใบนับ → เลือกสินค้า</div></div>
+      <div class="step"><div class="label">📋 นับของจริง</div>
+        <div class="desc">นับของจริง → กรอกจำนวนจริง → ระบบแสดงส่วนต่าง</div></div>
+      <div class="step"><div class="label">✏️ กรอกเหตุผล</div>
+        <div class="desc">เช่น "นับประจำเดือน", "สต๊อกหาย", "รับของไม่ตรงใบโอน"</div></div>
+      <div class="step done"><div class="label">✅ ยืนยันการปรับ</div>
+        <div class="desc">สต๊อกในระบบตรงกับของจริง</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- AGENT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-agent">
+  <div class="role-header">
+    <h2>🤝 ตัวแทนขาย (AgentUser)</h2>
+    <p>คุณดูแลร้านค้าในสาย — สร้าง/จัดการหน่วยงานลูก, เพิ่มสมาชิก, อนุมัติใบโอน, ดูรายงาน</p>
+    <div class="badge">สิทธิ์: จัดการสมาชิก, โอน, รายงาน</div>
+  </div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> จัดการร้านค้าในสาย</div>
+    <div class="steps">
+      <div class="step"><div class="label">🏢 สร้างหน่วยงานลูก (ร้านค้า)</div>
+        <div class="desc">ไปที่ หน่วยงานในสังกัด → สร้างร้านค้าใหม่ → ตั้งชื่อ, รหัส</div></div>
+      <div class="step"><div class="label">👤 เพิ่มสมาชิกร้านค้า</div>
+        <div class="desc">ไปที่ สมาชิก → เพิ่มคน → กำหนดบทบาท ShopUser/SellerUser → จดรหัสผ่าน</div></div>
+      <div class="step"><div class="label">📝 จัดการแพ็กเกจ</div>
+        <div class="desc">ไปที่ สมาชิกร้านค้า → กรอกใบสมัครแพ็กเกจ → ต่ออายุ</div></div>
+      <div class="step done"><div class="label">✅ ร้านค้าพร้อมใช้งาน</div>
+        <div class="desc">สมาชิกเข้าระบบได้ → เริ่มขาย/รับแลกแต้ม</div></div>
+    </div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">2</span> งานประจำวัน</div>
+    <div class="steps">
+      <div class="step"><div class="label">📊 ดู Dashboard + รายงาน</div>
+        <div class="desc">เช็คยอดขาย, สต๊อก, ใบโอนค้าง ของร้านในสาย</div></div>
+      <div class="step"><div class="label">📋 อนุมัติใบโอน</div>
+        <div class="desc">ถ้ามีใบโอนจาก/ถึงร้านในสาย → อนุมัติ/ปฏิเสธ</div></div>
+      <div class="step done"><div class="label">📈 วิเคราะห์ผลงาน</div>
+        <div class="desc">สรุปผลประกอบการ → เปรียบเทียบร้าน → ปรับกลยุทธ์</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SHOP OWNER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-shop">
+  <div class="role-header">
+    <h2>🏪 เจ้าของร้านค้า (ShopUser)</h2>
+    <p>คุณขายสินค้า, รับแลกแต้ม, ตั้งค่าหน้าร้าน, เบิกเงิน — เป็นหน้าด่านสำคัญที่ติดต่อกับลูกค้า</p>
+    <div class="badge">สิทธิ์: ขาย, แลกแต้ม, หน้าร้าน, เบิกเงิน</div>
+  </div>
+
+  <!-- Process 1: รับของ -->
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> รับสินค้าเข้าร้าน</div>
+    <div class="steps">
+      <div class="step"><div class="label">📥 ตรวจใบโอน "ส่งแล้ว"</div>
+        <div class="desc">ไปที่ ใบโอนสินค้า → ดูใบโอนสถานะ 🟣 "ส่งแล้ว" (จากคลัง)</div></div>
+      <div class="step"><div class="label">📦 นับของจริง</div>
+        <div class="desc">เทียบใบโอนกับของจริง → ตรงกันไหม?</div></div>
+      <div class="step done"><div class="label">✅ กดรับของ</div>
+        <div class="desc">สต๊อกเข้าร้านอัตโนมัติ → พร้อมขาย!</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> สินค้าเข้าสต๊อก → ขายให้ลูกค้าได้</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 2:</b> ขายสินค้า (POS) ↓</li>
+      <li><b>ขั้น 3:</b> ตั้งค่าหน้าร้าน + ของรางวัล ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 2: ขาย -->
+  <div class="process">
+    <div class="process-title"><span class="num">2</span> ขายสินค้า (POS)</div>
+    <div class="steps">
+      <div class="step"><div class="label">💰 เปิดบิลขาย</div>
+        <div class="desc">ไปที่ เปิดบิลขาย (POS) → สแกน/เลือกสินค้า → ระบุจำนวน → เลือกล็อต (FIFO)</div></div>
+      <div class="step"><div class="label">👤 เลือกลูกค้า (ไม่บังคับ)</div>
+        <div class="desc">ค้นหาด้วยเบอร์โทร → ลูกค้าได้แต้มสะสมจากบิลนี้</div></div>
+      <div class="step"><div class="label">💾 บันทึกบิล</div>
+        <div class="desc">สต๊อกลดอัตโนมัติ → ลูกค้าได้แต้ม (ถ้าเลือก) → กำไรคำนวณจากทุนล็อต</div></div>
+      <div class="step done"><div class="label">🧾 พิมพ์ใบเสร็จ</div>
+        <div class="desc">ส่งให้ลูกค้า → เสร็จ!</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> ขายสำเร็จ → สต๊อกลด → ลูกค้าได้แต้ม → ดูยอดขายที่ ประวัติการขาย</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li>ขายไปเรื่อย ๆ → ลูกค้าสะสมแต้ม → มาแลกของรางวัล ↓</li>
+      <li><b>ขั้น 3:</b> ตั้งค่าหน้าร้าน (ให้ลูกค้าดูของรางวัล) ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 3: ตั้งหน้าร้าน -->
+  <div class="process">
+    <div class="process-title"><span class="num">3</span> ตั้งค่าหน้าร้าน + ของรางวัล</div>
+    <div class="steps">
+      <div class="step"><div class="label">🏪 ตั้งค่าหน้าร้าน</div>
+        <div class="desc">ไปที่ ตั้งค่าหน้าร้าน → ตั้งชื่อ, โลโก้, สีธีม → เปิดใช้งาน</div></div>
+      <div class="step"><div class="label">🎁 เพิ่มของรางวัล</div>
+        <div class="desc">ไปที่ ของรางวัล → สร้างของรางวัล → กำหนดแต้ม, รูป, จำนวน</div>
+        <div class="goto">💡 มีหลายระดับ: แต้มน้อย (ของเล็ก) → แต้มมาก (ของใหญ่)</div></div>
+      <div class="step"><div class="label">📱 แชร์หน้าร้าน</div>
+        <div class="desc">แชร์ลิงก์หรือ QR Code → ลูกค้าดูของรางวัลได้ 24 ชม.</div></div>
+      <div class="step done"><div class="label">✅ หน้าร้านพร้อม</div>
+        <div class="desc">ลูกค้าดู + แลกของรางวัลได้จากมือถือ</div></div>
+    </div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>ขั้น 4:</b> รับแลกแต้ม (เมื่อลูกค้ามาแลก) ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 4: รับแลกแต้ม -->
+  <div class="process">
+    <div class="process-title"><span class="num">4</span> รับแลกแต้มจากลูกค้า</div>
+    <div class="steps">
+      <div class="step"><div class="label">👤 ลูกค้ามาแลก</div>
+        <div class="desc">ลูกค้าแสดง QR Code ของรางวัล (จากหน้า LINE/แอป)</div></div>
+      <div class="step"><div class="label">📷 สแกน QR</div>
+        <div class="desc">ไปที่ รับแลกแต้ม → สแกน QR ลูกค้า → ระบบแสดงข้อมูล</div></div>
+      <div class="step"><div class="label">🔍 ตรวจสอบ</div>
+        <div class="desc">เช็คว่า: ชื่อกับตัวคนตรงกัน, ของรางวัลถูกต้อง, แต้มพอ</div></div>
+      <div class="step"><div class="label">✅ ยืนยัน</div>
+        <div class="desc">กดยืนยัน → แต้มตัดอัตโนมัติ → มอบของรางวัล</div></div>
+      <div class="step done"><div class="label">🎁 ให้ของรางวัล</div>
+        <div class="desc">ลูกค้าพอใจ → เสร็จ!</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> ลูกค้าได้ของรางวัล → แต้มถูกตัด → บันทึกในประวัติ</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>เบิกเงิน:</b> ถ้ามีค่าใช้จ่าย → ยื่นใบเบิก ↓</li>
+      <li><b>ดูรายงาน:</b> สรุปยอดแลกที่ ประวัติรับแลกแต้ม</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <!-- Process 5: เบิกเงิน -->
+  <div class="process">
+    <div class="process-title"><span class="num">5</span> เบิกเงินคืน</div>
+    <div class="steps">
+      <div class="step"><div class="label">💵 สร้างใบเบิก</div>
+        <div class="desc">ไปที่ เบิกเงินคืน → + สร้าง → กรอกจำนวน, เหตุผล, แนบหลักฐาน</div></div>
+      <div class="step"><div class="label">⏳ รอเจ้าของระบบอนุมัติ</div>
+        <div class="desc">ติดตามสถานะใบเบิก</div></div>
+      <div class="step done"><div class="label">💰 รับเงิน</div>
+        <div class="desc">หลังอนุมัติ → เจ้าของระบบโอนเงินให้</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SELLER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-seller">
+  <div class="role-header">
+    <h2>🛒 ผู้ขาย (SellerUser)</h2>
+    <p>คุณขายสินค้าที่หน้าร้าน + รับแลกแต้ม — เน้นงานขายประจำวัน</p>
+    <div class="badge">สิทธิ์: ขาย, แลกแต้ม, ดูรายงาน</div>
+  </div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> เปิดร้าน (ประจำวัน)</div>
+    <div class="steps">
+      <div class="step"><div class="label">📦 เช็คสต๊อก</div>
+        <div class="desc">ไปที่ สต๊อกคงเหลือ → ดูว่าสินค้าตัวไหนใกล้หมด → แจ้งหัวหน้า</div></div>
+      <div class="step"><div class="label">📥 รับของ (ถ้ามีใบโอน)</div>
+        <div class="desc">ไปที่ ใบโอนสินค้า → ถ้ามีสถานะ "ส่งแล้ว" → นับของ → กดรับ</div></div>
+      <div class="step done"><div class="label">✅ พร้อมขาย!</div>
+        <div class="desc">สต๊อกพร้อม → เริ่มเปิดบิลขาย</div></div>
+    </div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">2</span> ขายสินค้า (POS)</div>
+    <div class="steps">
+      <div class="step"><div class="label">💰 เปิดบิลขาย</div>
+        <div class="desc">POS → สแกน/เลือกสินค้า → จำนวน → เลือกล็อต (ล็อตหมดอายุก่อน = ขายก่อน)</div></div>
+      <div class="step"><div class="label">👤 ถามลูกค้า "มีสมาชิกไหม?"</div>
+        <div class="desc">ถ้ามี → ค้นหาเบอร์ → ลูกค้าได้แต้ม → ลูกค้ากลับมาซื้ออีก</div></div>
+      <div class="step"><div class="label">💾 บันทึกบิล → 🧾 ใบเสร็จ</div>
+        <div class="desc">สต๊อกลดอัตโนมัติ → พิมพ์ใบเสร็จ → ส่งลูกค้า</div></div>
+      <div class="step done"><div class="label">🔄 ขายไปเรื่อยๆ</div>
+        <div class="desc">ดูยอดขายที่ ประวัติการขาย</div></div>
+    </div>
+    <div class="tip"><b>💡 เคล็ดลับ:</b> ถามลูกค้าทุกครั้งว่า "มีบัญชีสมาชิกไหม?" — ลูกค้าได้แต้ม, คุณได้ข้อมูล, ลูกค้ากลับมาซื้ออีก</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">3</span> รับแลกแต้ม</div>
+    <div class="steps">
+      <div class="step"><div class="label">⭐ ลูกค้ามาแลก → สแกน QR</div>
+        <div class="desc">ไปที่ รับแลกแต้ม → สแกน QR ลูกค้า → ตรวจสอบ → ยืนยัน</div></div>
+      <div class="step done"><div class="label">🎁 มอบของรางวัล</div>
+        <div class="desc">แต้มตัดอัตโนมัติ → เสร็จ!</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- CUSTOMER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="panel" id="panel-customer">
+  <div class="role-header">
+    <h2>👤 ลูกค้า (Customer)</h2>
+    <p>คุณซื้อสินค้า → สแกน QR บนซอง → สะสมแต้ม → แลกของรางวัล!</p>
+    <div class="badge">ใช้งานผ่านมือถือ — ไม่ต้อง login ระบบ</div>
+  </div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">1</span> เริ่มต้น — สแกน QR ครั้งแรก</div>
+    <div class="steps">
+      <div class="step"><div class="label">📱 เปิดลิงก์ QR หรือ สแกน QR จากซอง</div>
+        <div class="desc">เปิดหน้าสแกนของร้าน → เห็นชื่อสินค้าและแต้มที่จะได้</div></div>
+      <div class="step"><div class="label">📷 ถ่ายรูปสแกน QR</div>
+        <div class="desc">กด 📷 ถ่ายรูปสแกน → ถ่าย QR บนซอง → ระบบอ่านอัตโนมัติ</div></div>
+      <div class="step"><div class="label">📞 กรอกเบอร์โทร</div>
+        <div class="desc">ใส่เบอร์โทร (ครั้งแรกเท่านั้น) → ระบบจำเบอร์ไว้ ครั้งหน้าไม่ต้องกรอก</div></div>
+      <div class="step"><div class="label">⭐ กดรับแต้ม</div>
+        <div class="desc">กดปุ่ม ⭐ รับแต้มเลย → แต้มเข้ากระเป๋า!</div></div>
+      <div class="step done"><div class="label">🎉 สำเร็จ!</div>
+        <div class="desc">เห็นจำนวนแต้มที่ได้ → กดดูกระเป๋าแต้ม</div></div>
+    </div>
+    <div class="result"><b>✅ ผลลัพธ์:</b> คุณมีแต้มสะสมแล้ว! สแกนซองถัดไปเพื่อสะสมเพิ่ม</div>
+    <div class="next-box"><h4>🔗 ไปต่อที่:</h4><ul>
+      <li><b>สแกนซองถัดไป:</b> ซื้อสินค้า → สแกน QR → สะสมเพิ่ม ↓</li>
+      <li><b>ดูกระเป๋าแต้ม:</b> ดูว่ามีกี่แต้ม, แต้มแยกตามร้าน ↓</li>
+    </ul></div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">2</div> สะสมแต้ม (ทำซ้ำทุกครั้ง)</div>
+    <div class="steps">
+      <div class="step"><div class="label">🛒 ซื้อสินค้า</div>
+        <div class="desc">ซื้อสินค้าจากร้านที่ร่วมรายการ</div></div>
+      <div class="step"><div class="label">📷 สแกน QR บนซอง</div>
+        <div class="desc">เปิดลิงก์ หรือสแกน QR → ถ่ายรูป → ระบบจำเบอร์ไว้แล้ว</div></div>
+      <div class="step done"><div class="label">⭐ รับแต้ม</div>
+        <div class="desc">กดรับแต้ม → สะสมไปเรื่อยๆ!</div></div>
+    </div>
+    <div class="tip"><b>💡 เคล็ดลับ:</b> ยิ่งซื้อเยอะ ยิ่งสแกนเยอะ ยิ่งมีแต้มเยอะ → แลกของรางวัลใหญ่ได้!</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">3</span> แลกของรางวัล</div>
+    <div class="steps">
+      <div class="step"><div class="label">💰 เช็คแต้ม</div>
+        <div class="desc">ไปที่ กระเป๋าแต้ม → ดูว่ามีกี่แต้ม</div></div>
+      <div class="step"><div class="label">🎁 เลือกของรางวัล</div>
+        <div class="desc">ดูหน้าร้านออนไลน์ → เลือกของรางวัลที่แต้มถึง</div></div>
+      <div class="step"><div class="label">📱 แสดง QR ของรางวัล</div>
+        <div class="desc">กดแลก → ระบบสร้าง QR Code สำหรับแลก</div></div>
+      <div class="step"><div class="label">🏪 ไปที่ร้านค้า</div>
+        <div class="desc">แสดง QR ให้พนักงาน → พนักงานสแกน → ยืนยัน</div></div>
+      <div class="step done"><div class="label">🎉 ได้ของรางวัล!</div>
+        <div class="desc">แต้มถูกตัด → ของรางวัลเป็นของคุณ</div></div>
+    </div>
+    <div class="result"><b>🎉 ยินดีด้วย!</b> คุณได้รับของรางวัลแล้ว → สะสมแต้มต่อไปเพื่อแลกของรางวัลใหญ่กว่า!</div>
+  </div>
+
+  <div class="connector">▼</div>
+
+  <div class="process">
+    <div class="process-title"><span class="num">4</span> ผูก LINE (ไม่บังคับ)</div>
+    <div class="steps">
+      <div class="step"><div class="label">💬 ผูก LINE</div>
+        <div class="desc">ไปที่ กระเป๋าแต้ม → บัญชีฉัน → ผูก LINE → ครั้งหน้า login ด้วย LINE ได้</div></div>
+      <div class="step done"><div class="label">✅ สะดวกขึ้น</div>
+        <div class="desc">ไม่ต้องกรอกเบอร์ทุกครั้งที่สแกน</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- .container -->
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.closest('.tab').classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

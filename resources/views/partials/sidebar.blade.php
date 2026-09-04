@@ -208,6 +208,10 @@
       <a href="{{ route('admin.brand.index') }}" class="{{ request()->routeIs('admin.brand.*') ? 'on' : '' }}">
         🖼️ ตั้งค่าโลโก้
       </a>
+
+      <a href="{{ asset('workflow-guide.html') }}" target="_blank" class="">
+        📋 คู่มือขั้นตอนการทำงาน
+      </a>
     @endif
 
     {{-- ═══════════════════════════════════════════════════
