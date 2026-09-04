@@ -40,6 +40,49 @@ if (file_exists(__DIR__ . '/../.env')) {
     }
 }
 
+// 4. ตรวจสอบ database — ถ้ายังไม่มี table ต้อง setup
+if (file_exists(__DIR__ . '/../.env') && ! $setupRedirect) {
+    $envContent = file_get_contents(__DIR__ . '/../.env');
+
+    // ดึง DB_CONNECTION
+    $dbDriver = 'sqlite';
+    if (preg_match('/^DB_CONNECTION=(.+)$/m', $envContent, $m)) {
+        $dbDriver = trim($m[1]);
+    }
+
+    $dbReady = false;
+
+    try {
+        if ($dbDriver === 'sqlite') {
+            $dbPath = __DIR__ . '/../database/database.sqlite';
+            if (file_exists($dbPath) && filesize($dbPath) > 0) {
+                $pdo = new PDO('sqlite:' . $dbPath);
+                $result = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'");
+                $dbReady = $result && $result->fetch() !== false;
+            }
+        } elseif ($dbDriver === 'mysql') {
+            $host = '127.0.0.1'; $port = '3306'; $dbname = ''; $user = 'root'; $pass = '';
+            if (preg_match('/^DB_HOST=(.+)$/m', $envContent, $m))     $host   = trim($m[1]);
+            if (preg_match('/^DB_PORT=(.+)$/m', $envContent, $m))     $port   = trim($m[1]);
+            if (preg_match('/^DB_DATABASE=(.+)$/m', $envContent, $m)) $dbname = trim($m[1]);
+            if (preg_match('/^DB_USERNAME=(.+)$/m', $envContent, $m)) $user   = trim($m[1]);
+            if (preg_match('/^DB_PASSWORD=(.+)$/m', $envContent, $m)) $pass   = trim($m[1]);
+
+            if ($dbname) {
+                $pdo = new PDO("mysql:host={$host};port={$port};dbname={$dbname}", $user, $pass, [PDO::ATTR_TIMEOUT => 3]);
+                $result = $pdo->query("SHOW TABLES LIKE 'sessions'");
+                $dbReady = $result && $result->fetch() !== false;
+            }
+        }
+    } catch (\Throwable $e) {
+        $dbReady = false;
+    }
+
+    if (! $dbReady) {
+        $setupRedirect = true;
+    }
+}
+
 // ถ้าต้อง redirect → ทำ raw PHP redirect (ไม่พึ่ง Laravel)
 if ($setupRedirect) {
     $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
@@ -107,6 +150,28 @@ HTML;
         }
         $checks[] = ['key', 'APP_KEY (encryption key)', $appKeyOk];
 
+        // Database
+        $dbReady = false;
+        if ($envOk && $appKeyOk) {
+            $dbDriver = 'sqlite';
+            if (preg_match('/^DB_CONNECTION=(.+)$/m', $envContent, $m)) {
+                $dbDriver = trim($m[1]);
+            }
+            try {
+                if ($dbDriver === 'sqlite') {
+                    $dbPath = __DIR__ . '/../database/database.sqlite';
+                    if (file_exists($dbPath) && filesize($dbPath) > 0) {
+                        $pdo = new PDO('sqlite:' . $dbPath);
+                        $r = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'");
+                        $dbReady = $r && $r->fetch() !== false;
+                    }
+                } else {
+                    $dbReady = true; // MySQL assumed OK if credentials exist
+                }
+            } catch (\Throwable $e) {}
+        }
+        $checks[] = ['db', "Database ({$dbDriver})", $dbReady];
+
         // extensions
         $exts = ['mbstring', 'xml', 'curl', 'zip', 'pdo', 'openssl'];
         foreach ($exts as $ext) {
@@ -139,6 +204,13 @@ HTML;
             echo '<code style="background:#1A1A14;color:#4CAF50;padding:8px 12px;border-radius:8px;display:block;margin-top:8px;font-size:12px">composer install</code>';
             echo '</p>';
             echo '<p style="font-size:12px;color:#6E6E63">หรือรัน <code>bash install.sh</code> เพื่อติดตั้งทั้งหมดอัตโนมัติ</p>';
+        } elseif ($vendorOk && $envOk && $appKeyOk && ! $dbReady) {
+            // vendor + .env + APP_KEY พร้อม แต่ database ยังไม่ได้ migrate → ไป /setup
+            echo '<p style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:12px;font-size:13px;color:#1B5E20;margin-bottom:16px">';
+            echo '✅ ไฟล์และ dependencies พร้อมแล้ว<br>';
+            echo '❌ ฐานข้อมูลยังไม่ได้สร้าง — กดปุ่มด้านล่างเพื่อติดตั้ง';
+            echo '</p>';
+            echo '<a href="/setup" class="btn">🚀 เริ่มติดตั้ง →</a>';
         } elseif ($allOk) {
             echo '<a href="/setup" class="btn">เริ่มติดตั้ง →</a>';
         } else {
@@ -158,6 +230,13 @@ if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php'))
 
 // Register the Composer autoloader...
 require __DIR__.'/../vendor/autoload.php';
+
+// ถ้า database ยังไม่พร้อม → ใช้ array session (ไม่พึ่ง database)
+// ป้องกัน 500 error ตอนเข้า /setup
+if (isset($dbReady) && ! $dbReady) {
+    $_ENV['SESSION_DRIVER'] = 'array';
+    putenv('SESSION_DRIVER=array');
+}
 
 // Bootstrap Laravel and handle the request...
 /** @var Application $app */
