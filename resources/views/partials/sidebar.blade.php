@@ -246,8 +246,37 @@
       <a href="{{ route('accounting.audit') }}" class="{{ request()->routeIs('accounting.audit') ? 'on' : '' }}">
         🔍 Audit (ตรวจสอบยอด)
       </a>
+      <a href="{{ route('accounting.quotations') }}" class="{{ request()->routeIs('accounting.quotations*') ? 'on' : '' }}">
+        📋 ใบเสนอราคา
+      </a>
+      <a href="{{ route('accounting.po') }}" class="{{ request()->routeIs('accounting.po*') ? 'on' : '' }}">
+        🛒 ใบสั่งซื้อ
+      </a>
+      <a href="{{ route('accounting.journals') }}" class="{{ request()->routeIs('accounting.journals*') ? 'on' : '' }}">
+        📒 ลงบัญชีแยก
+      </a>
       <a href="{{ route('accounting.reports') }}" class="{{ request()->routeIs('accounting.reports') ? 'on' : '' }}">
         📈 รายงานบัญชี
+      </a>
+    @endif
+
+    {{-- งบการเงิน --}}
+    @if($u->hasAbility('view-reports'))
+      <div class="group">📊 งบการเงิน</div>
+      <a href="{{ route('accounting.general-ledger') }}" class="{{ request()->routeIs('accounting.general-ledger') ? 'on' : '' }}">
+        📒 General Ledger
+      </a>
+      <a href="{{ route('accounting.trial-balance') }}" class="{{ request()->routeIs('accounting.trial-balance') ? 'on' : '' }}">
+        ⚖️ งบทดลอง
+      </a>
+      <a href="{{ route('accounting.profit-loss') }}" class="{{ request()->routeIs('accounting.profit-loss') ? 'on' : '' }}">
+        📈 งบกำไรขาดทุน
+      </a>
+      <a href="{{ route('accounting.balance-sheet') }}" class="{{ request()->routeIs('accounting.balance-sheet') ? 'on' : '' }}">
+        🏦 งบแสดงฐานะ
+      </a>
+      <a href="{{ route('accounting.aging-report') }}" class="{{ request()->routeIs('accounting.aging-report') ? 'on' : '' }}">
+        ⏳ AR/AP Aging
       </a>
     @endif
 

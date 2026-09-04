@@ -344,6 +344,37 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         // Stock Ledger & Audit
         Route::get('/stock-ledger', [\App\Http\Controllers\Web\AccountingController::class, 'stockLedger'])->name('stock-ledger');
         Route::get('/audit', [\App\Http\Controllers\Web\AccountingController::class, 'audit'])->name('audit');
+
+        // Quotations
+        Route::get('/quotations', [\App\Http\Controllers\Web\AccountingController::class, 'quotations'])->name('quotations');
+        Route::get('/quotations/create', [\App\Http\Controllers\Web\AccountingController::class, 'createQuotation'])->name('quotations.create');
+        Route::post('/quotations', [\App\Http\Controllers\Web\AccountingController::class, 'storeQuotation'])->name('quotations.store');
+        Route::get('/quotations/{quotation}', [\App\Http\Controllers\Web\AccountingController::class, 'showQuotation'])->name('quotations.show');
+        Route::patch('/quotations/{quotation}/send', [\App\Http\Controllers\Web\AccountingController::class, 'sendQuotation'])->name('quotations.send');
+        Route::patch('/quotations/{quotation}/accept', [\App\Http\Controllers\Web\AccountingController::class, 'acceptQuotation'])->name('quotations.accept');
+        Route::patch('/quotations/{quotation}/convert', [\App\Http\Controllers\Web\AccountingController::class, 'convertQuotation'])->name('quotations.convert');
+
+        // Purchase Orders
+        Route::get('/purchase-orders', [\App\Http\Controllers\Web\AccountingController::class, 'purchaseOrders'])->name('po');
+        Route::get('/purchase-orders/create', [\App\Http\Controllers\Web\AccountingController::class, 'createPurchaseOrder'])->name('po.create');
+        Route::post('/purchase-orders', [\App\Http\Controllers\Web\AccountingController::class, 'storePurchaseOrder'])->name('po.store');
+        Route::get('/purchase-orders/{po}', [\App\Http\Controllers\Web\AccountingController::class, 'showPurchaseOrder'])->name('po.show');
+        Route::patch('/purchase-orders/{po}/approve', [\App\Http\Controllers\Web\AccountingController::class, 'approvePurchaseOrder'])->name('po.approve');
+
+        // Manual Journals
+        Route::get('/journals', [\App\Http\Controllers\Web\AccountingController::class, 'manualJournals'])->name('journals');
+        Route::get('/journals/create', [\App\Http\Controllers\Web\AccountingController::class, 'createManualJournal'])->name('journals.create');
+        Route::post('/journals', [\App\Http\Controllers\Web\AccountingController::class, 'storeManualJournal'])->name('journals.store');
+        Route::get('/journals/{journal}', [\App\Http\Controllers\Web\AccountingController::class, 'showManualJournal'])->name('journals.show');
+        Route::patch('/journals/{journal}/post', [\App\Http\Controllers\Web\AccountingController::class, 'postManualJournal'])->name('journals.post');
+        Route::patch('/journals/{journal}/reverse', [\App\Http\Controllers\Web\AccountingController::class, 'reverseManualJournal'])->name('journals.reverse');
+
+        // Financial Statements
+        Route::get('/general-ledger', [\App\Http\Controllers\Web\AccountingController::class, 'generalLedger'])->name('general-ledger');
+        Route::get('/trial-balance', [\App\Http\Controllers\Web\AccountingController::class, 'trialBalance'])->name('trial-balance');
+        Route::get('/profit-loss', [\App\Http\Controllers\Web\AccountingController::class, 'profitLoss'])->name('profit-loss');
+        Route::get('/balance-sheet', [\App\Http\Controllers\Web\AccountingController::class, 'balanceSheet'])->name('balance-sheet');
+        Route::get('/aging-report', [\App\Http\Controllers\Web\AccountingController::class, 'agingReport'])->name('aging-report');
     });
 
     // คู่มือขั้นตอนการทำงาน (Workflow Guide)

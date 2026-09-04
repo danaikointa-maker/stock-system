@@ -6,13 +6,25 @@
 
 {{-- Quick links --}}
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-  <a href="{{ route('accounting.invoices.create') }}" class="btn btn-create">📄 สร้างบิลเรียกเก็บ</a>
-  <a href="{{ route('accounting.receipts.create') }}" class="btn btn-ok">💰 สร้างบิลรับ</a>
-  <a href="{{ route('accounting.payments.create') }}" class="btn btn-ship">💸 สร้างบิลจ่าย</a>
+  <a href="{{ route('accounting.quotations.create') }}" class="btn">📋 เสนอราคา</a>
+  <a href="{{ route('accounting.invoices.create') }}" class="btn btn-create">📄 บิลเรียกเก็บ</a>
+  <a href="{{ route('accounting.receipts.create') }}" class="btn btn-ok">💰 บิลรับ</a>
   <a href="{{ route('accounting.delivery.create') }}" class="btn btn-view">🚚 ใบส่งของ</a>
-  <a href="{{ route('accounting.credit.create') }}" class="btn" style="background:#fef2f2;color:#b91c1c">↩️ ใบลดหนี้</a>
-  <a href="{{ route('accounting.stock-ledger') }}" class="btn btn-blue">📋 Ledger</a>
-  <a href="{{ route('accounting.audit') }}" class="btn btn-approve">🔍 Audit</a>
+  <a href="{{ route('accounting.po.create') }}" class="btn">🛒 สั่งซื้อ</a>
+  <a href="{{ route('accounting.payments.create') }}" class="btn btn-ship">💸 บิลจ่าย</a>
+  <a href="{{ route('accounting.journals.create') }}" class="btn btn-blue">📒 ลงบัญชี</a>
+  <a href="{{ route('accounting.credit.create') }}" class="btn" style="background:#fef2f2;color:#b91c1c">↩️ ลดหนี้</a>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+  <a href="{{ route('accounting.trial-balance') }}" class="btn btn-sm">⚖️ งบทดลอง</a>
+  <a href="{{ route('accounting.profit-loss') }}" class="btn btn-sm">📈 กำไรขาดทุน</a>
+  <a href="{{ route('accounting.balance-sheet') }}" class="btn btn-sm">🏦 งบแสดงฐานะ</a>
+  <a href="{{ route('accounting.general-ledger') }}" class="btn btn-sm">📒 General Ledger</a>
+  <a href="{{ route('accounting.aging-report') }}" class="btn btn-sm">⏳ AR/AP</a>
+  <a href="{{ route('accounting.stock-ledger') }}" class="btn btn-sm">📋 Stock Ledger</a>
+  <a href="{{ route('accounting.audit') }}" class="btn btn-sm">🔍 Audit</a>
+  <a href="{{ route('accounting.chart') }}" class="btn btn-sm">🗂️ ผังบัญชี</a>
 </div>
 
 {{-- KPI Cards --}}
