@@ -168,12 +168,37 @@
 
     <div class="field">
       <label for="phone">เบอร์โทรศัพท์ <span class="req">*จำเป็น</span></label>
-      <input class="input {{ $errors->has('phone') ? 'err' : '' }}"
-             type="tel" id="phone" name="phone" inputmode="numeric"
-             value="{{ old('phone', $customer->phone ?? '') }}"
-             placeholder="08X-XXX-XXXX" maxlength="10" required>
-      @error('phone')<p class="errmsg">{{ $message }}</p>@enderror
-      <p class="hint">ใช้เบอร์นี้เก็บแต้มของคุณ · 1 เบอร์ต่อ 1 บัญชี</p>
+
+      {{-- ป้ายแสดงเบอร์ที่จำไว้ (ซ่อนเมื่อไม่มีเบอร์) --}}
+      <div id="phoneRemembered" style="display:none;background:#E8F5E9;border:2px solid #A5D6A7;border-radius:14px;padding:14px 16px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div>
+            <span style="font-size:12px;color:#2E7D32">📞 เบอร์ที่จำไว้</span><br>
+            <b id="phoneDisplay" style="font-size:18px;color:#1B5E20;letter-spacing:1px"></b>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button type="button" id="changePhoneBtn"
+                    style="background:#fff;border:1.5px solid #A5D6A7;border-radius:10px;padding:8px 12px;font-size:12px;color:#2E7D32;cursor:pointer;font-weight:600">
+              ✏️ เปลี่ยน
+            </button>
+            <button type="button" id="forgetPhoneBtn"
+                    style="background:#fff;border:1.5px solid #EF9A9A;border-radius:10px;padding:8px 12px;font-size:12px;color:#C62828;cursor:pointer;font-weight:600">
+              🚪 ออก
+            </button>
+          </div>
+        </div>
+        <p style="font-size:11px;color:#66BB6A;margin:6px 0 0">🔒 ล็อกเครื่องนี้แล้ว — ไม่ต้องกรอกเบอร์ซ้ำ</p>
+      </div>
+
+      {{-- ช่องกรอกเบอร์ (ซ่อนเมื่อมีเบอร์จำไว้) --}}
+      <div id="phoneInputBox">
+        <input class="input {{ $errors->has('phone') ? 'err' : '' }}"
+               type="tel" id="phone" name="phone" inputmode="numeric"
+               value="{{ old('phone', $customer->phone ?? '') }}"
+               placeholder="08X-XXX-XXXX" maxlength="10" required>
+        @error('phone')<p class="errmsg">{{ $message }}</p>@enderror
+        <p class="hint">ใช้เบอร์นี้เก็บแต้มของคุณ · 1 เบอร์ต่อ 1 บัญชี</p>
+      </div>
     </div>
 
     @unless($customer)
@@ -272,16 +297,82 @@
   var isLocked      = {{ $token ? 'true' : 'false' }};
 
   // ─── 1. จำเบอร์จาก localStorage ───────────────────────────
-  (function () {
-    if (!phoneInput || phoneInput.value) return;
+  var phoneRemembered = $('phoneRemembered');
+  var phoneInputBox = $('phoneInputBox');
+  var phoneDisplay = $('phoneDisplay');
+  var changePhoneBtn = $('changePhoneBtn');
+  var forgetPhoneBtn = $('forgetPhoneBtn');
+  var phoneField = $('phoneField');
+
+  function getSavedPhone() {
     try {
       var saved = localStorage.getItem('roamembers_phone');
-      if (saved && /^0[0-9]{8,9}$/.test(saved)) phoneInput.value = saved;
+      if (saved && /^0[0-9]{8,9}$/.test(saved)) return saved;
     } catch(e) {}
-  })();
+    return null;
+  }
+
+  function showRememberedPhone(phone) {
+    if (!phoneRemembered || !phoneDisplay) return;
+    phoneDisplay.textContent = phone.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+    phoneRemembered.style.display = 'block';
+    if (phoneInputBox) phoneInputBox.style.display = 'none';
+    if (phoneInput) phoneInput.value = phone;
+    // ซ่อนช่องชื่อเล่นด้วย (ไม่จำเป็นสำหรับลูกค้าเดิม)
+    var nameField = document.getElementById('name');
+    if (nameField) {
+      var nameParent = nameField.closest('.field');
+      if (nameParent) nameParent.style.display = 'none';
+    }
+  }
+
+  function showPhoneInput() {
+    if (phoneRemembered) phoneRemembered.style.display = 'none';
+    if (phoneInputBox) phoneInputBox.style.display = '';
+    if (phoneInput) phoneInput.focus();
+  }
+
+  // ตรวจสอบ localStorage เมื่อโหลดหน้า
+  var savedPhone = getSavedPhone();
+  if (savedPhone && !{{ $customer ? 'true' : 'false' }}) {
+    showRememberedPhone(savedPhone);
+  } else if (!phoneInput.value) {
+    // ถ้าไม่มีเบอร์จำไว้ → เติมจาก localStorage ถ้ามี
+    // (ไม่ทำอะไร เพราะยังไม่มีค่า)
+  }
+
+  // บันทึกเบอร์ลง localStorage เมื่อพิมพ์
   if (phoneInput) {
     phoneInput.addEventListener('change', function () {
-      try { localStorage.setItem('roamembers_phone', this.value); } catch(e) {}
+      if (/^0[0-9]{8,9}$/.test(this.value)) {
+        try { localStorage.setItem('roamembers_phone', this.value); } catch(e) {}
+      }
+    });
+  }
+
+  // ปุ่ม "เปลี่ยนเบอร์"
+  if (changePhoneBtn) {
+    changePhoneBtn.addEventListener('click', function () {
+      showPhoneInput();
+    });
+  }
+
+  // ปุ่ม "ออกจากระบบ" (ล้างเบอร์)
+  if (forgetPhoneBtn) {
+    forgetPhoneBtn.addEventListener('click', function () {
+      if (!confirm('ต้องการออกจากระบบ?\n\nจะต้องกรอกเบอร์ใหม่อีกครั้งในคราวหน้า')) return;
+      try { localStorage.removeItem('roamembers_phone'); } catch(e) {}
+      // เรียก server ให้ลืม session (POST + CSRF)
+      var csrfToken = document.querySelector('input[name="_token"]').value;
+      fetch('{{ route("scan.forget") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({})
+      }).then(function () {
+        window.location.href = '{{ route("scan.form") }}';
+      }).catch(function () {
+        window.location.href = '{{ route("scan.form") }}';
+      });
     });
   }
 
