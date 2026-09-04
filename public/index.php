@@ -206,13 +206,21 @@ HTML;
             echo '<p style="font-size:12px;color:#6E6E63">หรือรัน <code>bash install.sh</code> เพื่อติดตั้งทั้งหมดอัตโนมัติ</p>';
         } elseif ($vendorOk && $envOk && $appKeyOk && ! $dbReady) {
             // vendor + .env + APP_KEY พร้อม แต่ database ยังไม่ได้ migrate → ไป /setup
+            $setupUrl = rtrim(str_replace('\\', '', parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: ''), '/');
+            // สร้าง base URL จาก request ปัจจุบัน
+            $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $baseUrl = $proto . '://' . $host;
             echo '<p style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:12px;font-size:13px;color:#1B5E20;margin-bottom:16px">';
             echo '✅ ไฟล์และ dependencies พร้อมแล้ว<br>';
             echo '❌ ฐานข้อมูลยังไม่ได้สร้าง — กดปุ่มด้านล่างเพื่อติดตั้ง';
             echo '</p>';
-            echo '<a href="/setup" class="btn">🚀 เริ่มติดตั้ง →</a>';
+            echo '<a href="' . $baseUrl . '/setup" class="btn" id="setupLink">🚀 เริ่มติดตั้ง →</a>';
+            echo '<script>';
+            echo 'document.getElementById("setupLink").href = window.location.origin + "/setup";';
+            echo '</script>';
         } elseif ($allOk) {
-            echo '<a href="/setup" class="btn">เริ่มติดตั้ง →</a>';
+            echo '<a href="#" class="btn" id="setupLink" onclick="window.location.href=window.location.origin+\'/setup\';return false;">เริ่มติดตั้ง →</a>';
         } else {
             echo '<p style="font-size:12px;color:#C62828">❌ กรุณาแก้ไขรายการที่ ❌ ด้านบน แล้วรีเฟรชหน้านี้</p>';
         }
