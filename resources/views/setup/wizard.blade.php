@@ -298,7 +298,7 @@ function runInstall() {
       document.getElementById('installDone').style.display = 'block';
       btn.textContent = '✅ เสร็จสิ้น!';
       setTimeout(function() {
-        window.location.href = '/login';
+        window.location.href = (window.__baseUrl || '') + '/login';
       }, 2000);
     } else {
       document.getElementById('installFailed').style.display = 'block';
