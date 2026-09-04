@@ -24,9 +24,20 @@ if (! file_exists(__DIR__ . '/../vendor/autoload.php')) {
     $setupRedirect = true;
 }
 
-// 2. ตรวจสอบ .env
+// 2. ตรวจสอบ .env — ถ้าไม่มี สร้างจาก .env.example
 if (! file_exists(__DIR__ . '/../.env')) {
+    if (file_exists(__DIR__ . '/../.env.example')) {
+        copy(__DIR__ . '/../.env.example', __DIR__ . '/../.env');
+    }
     $setupRedirect = true;
+}
+
+// 3. ตรวจสอบ APP_KEY — ถ้าว่าง ต้อง setup
+if (file_exists(__DIR__ . '/../.env')) {
+    $envContent = file_get_contents(__DIR__ . '/../.env');
+    if (! preg_match('/^APP_KEY=.+$/m', $envContent)) {
+        $setupRedirect = true;
+    }
 }
 
 // ถ้าต้อง redirect → ทำ raw PHP redirect (ไม่พึ่ง Laravel)
@@ -37,11 +48,6 @@ if ($setupRedirect) {
     // อนุญาตให้เข้า /setup ได้ (เพื่อติดตั้ง)
     // แต่ทุกหน้าอื่น → redirect ไป /setup
     if ($requestPath !== '/setup' && ! str_starts_with($requestPath, '/setup/')) {
-        // สร้าง .env จาก .env.example อัตโนมัติ (ถ้ายังไม่มี)
-        if (! file_exists(__DIR__ . '/../.env') && file_exists(__DIR__ . '/../.env.example')) {
-            copy(__DIR__ . '/../.env.example', __DIR__ . '/../.env');
-        }
-
         // แสดงหน้า setup pre-check (ไม่พึ่ง Laravel)
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
@@ -92,6 +98,14 @@ HTML;
         // .env
         $envOk = file_exists(__DIR__ . '/../.env');
         $checks[] = ['env', '.env file', $envOk];
+
+        // APP_KEY
+        $appKeyOk = false;
+        if ($envOk) {
+            $envContent = file_get_contents(__DIR__ . '/../.env');
+            $appKeyOk = (bool) preg_match('/^APP_KEY=.+$/m', $envContent);
+        }
+        $checks[] = ['key', 'APP_KEY (encryption key)', $appKeyOk];
 
         // extensions
         $exts = ['mbstring', 'xml', 'curl', 'zip', 'pdo', 'openssl'];
