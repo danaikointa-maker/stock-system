@@ -146,7 +146,7 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   </div>
 </div>
 {{-- ═══ Help Modal ═══ --}}
-<div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;justify-content:center;align-items:flex-start;padding:30px 16px;overflow-y:auto">
+<div id="helpModal" class="help-overlay">
   <div style="background:#fff;border-radius:16px;max-width:700px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)">
       <h2 id="helpTitle" style="font-size:17px;margin:0">📖 คู่มือการใช้งาน</h2>
@@ -178,7 +178,8 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
 #helpContent li{margin-bottom:4px}
 #helpContent b{color:var(--ink)}
 #helpContent code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
-#helpModal.show{display:flex}
+.help-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;justify-content:center;align-items:flex-start;padding:30px 16px;overflow-y:auto}
+.help-overlay.show{display:flex}
 </style>
 
 <script>
