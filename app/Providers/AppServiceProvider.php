@@ -9,7 +9,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // โหลด helper functions (brand_logo, brand_favicon ฯลฯ)
+        require_once app_path('helpers.php');
     }
 
     public function boot(): void
