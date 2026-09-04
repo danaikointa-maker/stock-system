@@ -47,7 +47,7 @@
 @section('body')
 <div class="wallet-top">
   <div class="brandbar" style="margin-bottom:14px">
-    <img src="{{ asset('brand/logo-192.png') }}" alt="RoaMembers">
+    <img src="{{ asset('brand/logo.svg') }}" alt="RoaMembers">
     <div><span class="name">RoaMembers</span></div>
   </div>
   <div class="who">สวัสดี คุณ{{ $customer->name }} 👋</div>

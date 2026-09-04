@@ -61,7 +61,7 @@
       ออกรายงานเมื่อ {{ $printedAt->format('j M Y เวลา H:i น.') }}
     </div>
   </div>
-  <img class="logo" src="{{ asset('brand/logo-192.png') }}" alt="RoaMembers">
+  <img class="logo" src="{{ asset('brand/logo.svg') }}" alt="RoaMembers">
 </div>
 
 <div class="cards">

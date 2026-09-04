@@ -9,8 +9,8 @@
 {{-- ป้องกันการฝังหน้านี้ในเว็บอื่น --}}
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
-<link rel="icon" href="{{ asset('brand/logo-96.png') }}">
-<link rel="apple-touch-icon" href="{{ asset('brand/logo-192.png') }}">
+<link rel="icon" href="{{ asset('brand/logo.svg') }}">
+<link rel="apple-touch-icon" href="{{ asset('brand/logo.svg') }}">
 
 <style>
   /* ===== สีแบรนด์ RoaMembers (ดึงจากโลโก้จริง) ===== */

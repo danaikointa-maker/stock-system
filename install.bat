@@ -107,6 +107,23 @@ if not exist storage\framework\cache mkdir storage\framework\cache
 if not exist storage\framework\data mkdir storage\framework\data
 if not exist storage\logs mkdir storage\logs
 if not exist storage\app\public mkdir storage\app\public
+
+REM สร้าง placeholder logo ถ้ายังไม่มี
+if not exist public\brand mkdir public\brand
+if not exist public\brand\logo.svg (
+  (
+    echo ^<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"^>
+    echo   ^<rect width="192" height="192" rx="32" fill="#1A1A1A"/^>
+    echo   ^<g transform="translate(96,96)"^>
+    echo     ^<polygon points="0,-52 12,-16 50,-16 20,6 32,42 0,22 -32,42 -20,6 -50,-16 -12,-16" fill="#D4A84B"/^>
+    echo     ^<circle r="14" fill="#1A1A1A"/^>
+    echo     ^<circle r="8" fill="#D4A84B" opacity="0.6"/^>
+    echo   ^</g^>
+    echo   ^<text x="96" y="170" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="28" fill="#D4A84B" letter-spacing="4"^>RM^</text^>
+    echo ^</svg^>
+  ) > public\brand\logo.svg
+  echo   [OK] Created placeholder logo.svg
+)
 echo       Done
 
 REM --- 6. ติดตั้ง PHP dependencies ---

@@ -91,6 +91,23 @@ mkdir -p storage/app/public
 chmod -R 775 storage/
 ok "storage directories พร้อมใช้งาน"
 
+# สร้าง placeholder logo ถ้ายังไม่มี
+mkdir -p public/brand
+if [ ! -f public/brand/logo.svg ]; then
+    cat > public/brand/logo.svg << 'LOGOSVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#1A1A1A"/>
+  <g transform="translate(96,96)">
+    <polygon points="0,-52 12,-16 50,-16 20,6 32,42 0,22 -32,42 -20,6 -50,-16 -12,-16" fill="#D4A84B"/>
+    <circle r="14" fill="#1A1A1A"/>
+    <circle r="8" fill="#D4A84B" opacity="0.6"/>
+  </g>
+  <text x="96" y="170" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="28" fill="#D4A84B" letter-spacing="4">RM</text>
+</svg>
+LOGOSVG
+    ok "สร้าง placeholder logo.svg"
+fi
+
 # ── 4. ติดตั้ง PHP dependencies ──────────────────────────
 step "4/7 ติดตั้ง PHP dependencies (Composer)"
 

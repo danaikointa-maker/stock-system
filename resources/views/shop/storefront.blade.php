@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <meta name="theme-color" content="{{ $colors['primary'] }}">
 <title>{{ $profile->display_name }} · RoaMembers</title>
-<link rel="icon" href="{{ asset('brand/logo-96.png') }}">
+<link rel="icon" href="{{ asset('brand/logo.svg') }}">
 
 <style>
   /*
@@ -252,7 +252,7 @@
   </div>
 
   <div class="foot">
-    <img src="{{ asset('brand/logo-96.png') }}" alt="RoaMembers"><br>
+    <img src="{{ asset('brand/logo.svg') }}" alt="RoaMembers"><br>
     ร้านนี้เข้าร่วมโครงการสะสมแต้ม RoaMembers<br>
     สแกน QR บนสินค้าเพื่อรับแต้ม แล้วนำมาแลกที่ร้านนี้ได้
   </div>
