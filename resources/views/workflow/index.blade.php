@@ -97,6 +97,23 @@
 .wf-tbl{font-size:12px;border-collapse:collapse;width:100%;margin-top:6px}
 .wf-tbl td{padding:4px 8px;border:1px solid var(--line)}
 .wf-tbl td:first-child{font-weight:700;white-space:nowrap;color:var(--ink);background:#f8fafc;width:160px}
+
+/* Shortcut links */
+.wf-link{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;
+  font-size:11.5px;font-weight:700;text-decoration:none;transition:all .15s;
+  background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#1d4ed8;border:1px solid #93c5fd;
+  margin-top:4px}
+.wf-link:hover{background:linear-gradient(135deg,#dbeafe,#bfdbfe);transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(59,130,246,.2);color:#1e40af}
+.wf-link::before{content:'→';font-size:10px}
+.wf-ext{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;
+  font-size:11.5px;font-weight:700;text-decoration:none;transition:all .15s;
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#15803d;border:1px solid #86efac;
+  margin-top:4px}
+.wf-ext:hover{background:linear-gradient(135deg,#dcfce7,#bbf7d0);transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(16,185,129,.2);color:#14532d}
+.wf-ext::after{content:'↗';font-size:10px}
+.wf-links{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 </style>
 @endpush
 
@@ -169,8 +186,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">1</span> ตั้งค่าระบบครั้งแรก</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">⚙️ ตั้งชื่อระบบ + URL</div><div class="dsc">⚙️ ตั้งค่าระบบ → APP_NAME, URL, เขตเวลา</div></div>
-      <div class="wf-step"><div class="lbl">🖼️ อัปโหลดโลโก้</div><div class="dsc">🖼️ ตั้งค่าโลโก้ → อัปโหลด SVG/PNG → favicon + ทุกหน้า</div></div>
+      <div class="wf-step"><div class="lbl">⚙️ ตั้งชื่อระบบ + URL</div><div class="dsc">APP_NAME, URL, เขตเวลา</div><div class="wf-links"><a href="{{ route('admin.settings.index') }}" class="wf-link">⚙️ ตั้งค่าระบบ</a></div></div>
+      <div class="wf-step"><div class="lbl">🖼️ อัปโหลดโลโก้</div><div class="dsc">อัปโหลด SVG/PNG → favicon + ทุกหน้า</div><div class="wf-links"><a href="{{ route('admin.brand.index') }}" class="wf-link">🖼️ ตั้งค่าโลโก้</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ เสร็จขั้นพื้นฐาน</div><div class="dsc">ระบบพร้อม → ไปตั้งค่าเชื่อมต่อภายนอก ↓</div></div>
     </div>
     <div class="wf-next"><h4>🔗 ไปต่อที่:</h4><ul><li><b>ขั้น 5-7:</b> ตั้งค่า LINE / Gmail / SMS ↓</li><li><b>ขั้น 2:</b> ตั้งค่าแต้ม + แพ็กเกจ ↓</li></ul></div>
@@ -180,8 +197,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">2</span> ตั้งค่าระบบแต้ม + แพ็กเกจ</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">💰 กำหนดอัตราแต้ม</div><div class="dsc">⚙️ แพ็กเกจและค่าแต้ม → ขาย 100 บาท = X แต้ม, สแกน QR = X แต้ม</div><div class="hint">💡 แต้มมาก=ต้นทุนสูง, น้อย=ลูกค้าไม่สนใจ</div></div>
-      <div class="wf-step"><div class="lbl">📦 สร้างแพ็กเกจสมาชิก</div><div class="dsc">สร้างแพ็กเกจรายเดือน/รายปี → ราคา + สิทธิ์</div></div>
+      <div class="wf-step"><div class="lbl">💰 กำหนดอัตราแต้ม</div><div class="dsc">ขาย 100 บาท = X แต้ม, สแกน QR = X แต้ม</div><div class="hint">💡 แต้มมาก=ต้นทุนสูง, น้อย=ลูกค้าไม่สนใจ</div><div class="wf-links"><a href="{{ route('admin.packages.index') }}" class="wf-link">📦 แพ็กเกจและค่าแต้ม</a></div></div>
+      <div class="wf-step"><div class="lbl">📦 สร้างแพ็กเกจสมาชิก</div><div class="dsc">สร้างแพ็กเกจรายเดือน/รายปี → ราคา + สิทธิ์</div><div class="wf-links"><a href="{{ route('admin.packages.index') }}" class="wf-link">📦 แพ็กเกจและค่าแต้ม</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ บันทึก</div><div class="dsc">มีผลทันทีกับบิล/QR ใหม่</div></div>
     </div>
     <div class="wf-next"><h4>🔗 ไปต่อที่:</h4><ul><li><b>ขั้น 3:</b> สร้างสายงาน ↓</li></ul></div>
@@ -191,8 +208,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">3</span> สร้างสายงาน + เพิ่มสมาชิก</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">🏢 สร้างหน่วยงาน</div><div class="dsc">🏢 หน่วยงาน → สร้างคลังใหญ่ → คลังย่อย → ร้านค้า</div></div>
-      <div class="wf-step"><div class="lbl">👤 เพิ่มสมาชิก</div><div class="dsc">👤 สมาชิก → เพิ่มคน → กำหนดบทบาท</div><div class="hint">⚠️ จดรหัสผ่านชั่วคราว — แสดงครั้งเดียว!</div></div>
+      <div class="wf-step"><div class="lbl">🏢 สร้างหน่วยงาน</div><div class="dsc">สร้างคลังใหญ่ → คลังย่อย → ร้านค้า</div><div class="wf-links"><a href="{{ route('nodes.index') }}" class="wf-link">🏢 หน่วยงาน</a></div></div>
+      <div class="wf-step"><div class="lbl">👤 เพิ่มสมาชิก</div><div class="dsc">เพิ่มคน → กำหนดบทบาท</div><div class="hint">⚠️ จดรหัสผ่านชั่วคราว — แสดงครั้งเดียว!</div><div class="wf-links"><a href="{{ route('members.index') }}" class="wf-link">👤 สมาชิก</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ เสร็จ</div><div class="dsc">สมาชิกแต่ละคนเข้าระบบได้ เห็นเมนูตามบทบาท</div></div>
     </div>
     <div class="wf-next"><h4>🔗 ไปต่อที่:</h4><ul><li>ผู้จัดการคลัง → ทำตาม "เพิ่มสินค้า" → "เติมสต๊อก" → "กระจาย"</li><li>เฝ้าระวัง → 🔒 ศูนย์ความปลอดภัย</li></ul></div>
@@ -202,10 +219,10 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">4</span> งานประจำวัน</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">📊 เช็ค Dashboard</div><div class="dsc">KPI: ยอดขาย, สต๊อก, ใบโอนค้าง</div></div>
-      <div class="wf-step"><div class="lbl">🔒 ตรวจความปลอดภัย</div><div class="dsc">Alert ใหม่ → login ผิดปกติ? → บล็อก IP</div></div>
-      <div class="wf-step"><div class="lbl">✅ อนุมัติใบเบิก</div><div class="dsc">Badge สีส้ม → ตรวจสอบ → อนุมัติ/ปฏิเสธ</div></div>
-      <div class="wf-step done"><div class="lbl">📈 ดูรายงาน</div><div class="dsc">สรุปผลประกอบการ → วิเคราะห์แนวโน้ม</div></div>
+      <div class="wf-step"><div class="lbl">📊 เช็ค Dashboard</div><div class="dsc">KPI: ยอดขาย, สต๊อก, ใบโอนค้าง</div><div class="wf-links"><a href="{{ route('dashboard') }}" class="wf-link">📊 Dashboard</a></div></div>
+      <div class="wf-step"><div class="lbl">🔒 ตรวจความปลอดภัย</div><div class="dsc">Alert ใหม่ → login ผิดปกติ? → บล็อก IP</div><div class="wf-links"><a href="{{ route('admin.security.index') }}" class="wf-link">🔒 ศูนย์ความปลอดภัย</a></div></div>
+      <div class="wf-step"><div class="lbl">✅ อนุมัติใบเบิก</div><div class="dsc">Badge สีส้ม → ตรวจสอบ → อนุมัติ/ปฏิเสธ</div><div class="wf-links"><a href="{{ route('admin.claims.index') }}" class="wf-link">✅ อนุมัติใบเบิก</a></div></div>
+      <div class="wf-step done"><div class="lbl">📈 ดูรายงาน</div><div class="dsc">สรุปผลประกอบการ → วิเคราะห์แนวโน้ม</div><div class="wf-links"><a href="{{ route('reports.summary') }}" class="wf-link">📈 สรุปผลประกอบการ</a><a href="{{ route('reports.qr') }}" class="wf-link">📊 QR และคะแนน</a></div></div>
     </div>
   </div>
   <div class="wf-conn">▼</div>
@@ -217,19 +234,19 @@
 
     <div class="wf-sub" style="color:#06C755">📋 ส่วน A: สร้าง LINE Login Channel</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">1️⃣ เข้า LINE Developers</div><div class="dsc">เปิด <code>https://developers.line.biz</code> → Login ด้วย LINE ส่วนตัว</div></div>
+      <div class="wf-step"><div class="lbl">1️⃣ เข้า LINE Developers</div><div class="dsc">Login ด้วย LINE ส่วนตัว</div><div class="wf-links"><a href="https://developers.line.biz" target="_blank" rel="noopener" class="wf-ext">🌐 LINE Developers</a></div></div>
       <div class="wf-step"><div class="lbl">2️⃣ สร้าง Provider</div><div class="dsc"><b>Create a new provider</b> → ตั้งชื่อบริษัท → Create</div></div>
       <div class="wf-step"><div class="lbl">3️⃣ สร้าง LINE Login Channel</div><div class="dsc"><b>Create a LINE Login channel</b> → เลือก Provider → ตั้งชื่อ → Create</div></div>
       <div class="wf-step"><div class="lbl">4️⃣ คัดลอก Channel ID + Secret</div><div class="dsc">Basic settings → <b>Channel ID</b><br>Messaging API → <b>Channel secret</b></div><div class="hint">⚠️ เก็บ Secret เป็นความลับ</div></div>
       <div class="wf-step"><div class="lbl">5️⃣ ตั้ง Callback URL</div><div class="dsc">LINE Login → Callback URL → ใส่:<br><code>https://your-domain.com/social/callback/line</code></div></div>
       <div class="wf-step"><div class="lbl">6️⃣ เปิด Email permission</div><div class="dsc">LINE Login → OpenID Connect → Apply → ติ๊ก <b>email</b> → Submit</div></div>
-      <div class="wf-step"><div class="lbl">7️⃣ กรอกค่าในระบบ</div><div class="dsc">⚙️ ตั้งค่าระบบ → Social Login → ใส่ Channel ID + Secret → 💾 บันทึก</div></div>
+      <div class="wf-step"><div class="lbl">7️⃣ กรอกค่าในระบบ</div><div class="dsc">ใส่ Channel ID + Secret → 💾 บันทึก</div><div class="wf-links"><a href="{{ route('admin.settings.index') }}" class="wf-link">⚙️ ตั้งค่าระบบ</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ ทดสอบ</div><div class="dsc">Logout → กด 💬 เข้าสู่ระบบด้วย LINE → login ได้ = สำเร็จ!</div></div>
     </div>
 
     <div class="wf-sub" style="color:#06C755">📋 ส่วน B: LINE Notify (แจ้งเตือนพนักงาน)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">1️⃣ สร้าง Token</div><div class="dsc"><code>https://notify-bot.line.me</code> → Login → My page → Generate token</div></div>
+      <div class="wf-step"><div class="lbl">1️⃣ สร้าง Token</div><div class="dsc">Login → My page → Generate token</div><div class="wf-links"><a href="https://notify-bot.line.me" target="_blank" rel="noopener" class="wf-ext">🌐 LINE Notify</a></div></div>
       <div class="wf-step"><div class="lbl">2️⃣ เลือกกลุ่ม/ส่วนตัว</div><div class="dsc">ส่งหาตัวเอง (ทดสอบ) หรือเลือกกลุ่ม LINE</div></div>
       <div class="wf-step"><div class="lbl">3️⃣ คัดลอก Token</div><div class="dsc">Access Token → คัดลอกเก็บไว้</div><div class="hint">⚠️ แสดงครั้งเดียว!</div></div>
       <div class="wf-step done"><div class="lbl">4️⃣ พนักงานเชื่อมต่อ</div><div class="dsc">แต่ละคน → 👤 การแจ้งเตือน → เชื่อมต่อ LINE → อนุญาต</div></div>
@@ -245,7 +262,7 @@
 
     <div class="wf-sub" style="color:#D44638">📋 ขั้น 1: สร้าง App Password ของ Google</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">1️⃣ เข้า Google Account</div><div class="dsc"><code>https://myaccount.google.com</code> → Login Gmail ที่ต้องการใช้</div></div>
+      <div class="wf-step"><div class="lbl">1️⃣ เข้า Google Account</div><div class="dsc">Login Gmail ที่ต้องการใช้</div><div class="wf-links"><a href="https://myaccount.google.com" target="_blank" rel="noopener" class="wf-ext">🌐 Google Account</a></div></div>
       <div class="wf-step"><div class="lbl">2️⃣ เปิด 2-Step Verification</div><div class="dsc">Security → 2-Step Verification → เปิดใช้งาน</div><div class="hint">⚠️ ต้องเปิด 2FA ก่อน!</div></div>
       <div class="wf-step"><div class="lbl">3️⃣ สร้าง App Password</div><div class="dsc">Security → App passwords → Mail → Other → ชื่อ <b>RaoMembers</b> → Generate</div></div>
       <div class="wf-step"><div class="lbl">4️⃣ คัดลอกรหัส 16 ตัว</div><div class="dsc">เช่น <code>abcd efgh ijkl mnop</code> → เอาช่องว่างออก → <code>abcdefghijklmnop</code></div><div class="hint">⚠️ แสดงครั้งเดียว!</div></div>
@@ -253,7 +270,7 @@
 
     <div class="wf-sub" style="color:#D44638">📋 ขั้น 2: กรอกค่าในระบบ</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">5️⃣ ไปที่ตั้งค่าระบบ</div><div class="dsc">⚙️ ตั้งค่าระบบ → หมวด อีเมล (SMTP)</div></div>
+      <div class="wf-step"><div class="lbl">5️⃣ ไปที่ตั้งค่าระบบ</div><div class="dsc">หมวด อีเมล (SMTP)</div><div class="wf-links"><a href="{{ route('admin.settings.index') }}" class="wf-link">⚙️ ตั้งค่าระบบ</a></div></div>
       <div class="wf-step"><div class="lbl">6️⃣ กรอกค่า SMTP</div><div class="dsc">
         <table class="wf-tbl">
           <tr><td>MAIL_MAILER</td><td><code>smtp</code></td></tr>
@@ -280,7 +297,7 @@
 
     <div class="wf-sub" style="color:#6366f1">📋 ตัวเลือก A: Thai Bulk SMS (แนะนำ)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">1️⃣ สมัครสมาชิก</div><div class="dsc"><code>https://www.thaibulksms.com</code> → สมัคร → ยืนยันตัวตน</div></div>
+      <div class="wf-step"><div class="lbl">1️⃣ สมัครสมาชิก</div><div class="dsc">สมัคร → ยืนยันตัวตน</div><div class="wf-links"><a href="https://www.thaibulksms.com" target="_blank" rel="noopener" class="wf-ext">🌐 Thai Bulk SMS</a></div></div>
       <div class="wf-step"><div class="lbl">2️⃣ เติมเงิน</div><div class="dsc">ราคา ~0.50 - 1.50 บาท/SMS</div></div>
       <div class="wf-step"><div class="lbl">3️⃣ ขอ API Key</div><div class="dsc">API / Developer → คัดลอก API Key + Secret</div></div>
       <div class="wf-step"><div class="lbl">4️⃣ ตั้งชื่อ Sender</div><div class="dsc">ยื่นขอ Sender Name → รออนุมัติ 1-3 วัน</div></div>
@@ -290,7 +307,7 @@
 
     <div class="wf-sub" style="color:#6366f1">📋 ตัวเลือก B: Twilio (นานาชาติ)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">1️⃣ สมัคร Twilio</div><div class="dsc"><code>https://www.twilio.com</code> → Sign up</div></div>
+      <div class="wf-step"><div class="lbl">1️⃣ สมัคร Twilio</div><div class="dsc">Sign up → Verify</div><div class="wf-links"><a href="https://www.twilio.com" target="_blank" rel="noopener" class="wf-ext">🌐 Twilio</a></div></div>
       <div class="wf-step"><div class="lbl">2️⃣ ซื้อเบอร์</div><div class="dsc">Phone Numbers → Buy → Thailand (+66) → ~$1/เดือน</div></div>
       <div class="wf-step"><div class="lbl">3️⃣ คัดลอก Credentials</div><div class="dsc">Account SID + Auth Token + Phone Number</div></div>
       <div class="wf-step done"><div class="lbl">4️⃣ กรอก + ทดสอบ</div><div class="dsc">⚙️ ตั้งค่า → Twilio → ใส่ค่า → ทดสอบส่ง</div></div>
@@ -315,8 +332,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">1</span> เพิ่มสินค้าใหม่</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">🏷️ ไปที่ สินค้าและล็อต QR</div><div class="dsc">Sidebar → 📦 คลังสินค้า → สินค้าและล็อต QR</div></div>
-      <div class="wf-step"><div class="lbl">➕ กด + เพิ่มสินค้า</div><div class="dsc">กรอก: ชื่อ, SKU, บาร์โค้ด, ราคาขาย, ราคาทุน, ค่าแต้ม QR</div></div>
+      <div class="wf-step"><div class="lbl">🏷️ ไปที่ สินค้าและล็อต QR</div><div class="dsc">Sidebar → 📦 คลังสินค้า</div><div class="wf-links"><a href="{{ route('products.index') }}" class="wf-link">🏷️ สินค้าและล็อต QR</a></div></div>
+      <div class="wf-step"><div class="lbl">➕ กด + เพิ่มสินค้า</div><div class="dsc">ชื่อ, SKU, บาร์โค้ด, ราคาขาย, ราคาทุน, ค่าแต้ม QR</div><div class="wf-links"><a href="{{ route('products.create') }}" class="wf-link">➕ เพิ่มสินค้า</a></div></div>
       <div class="wf-step done"><div class="lbl">💾 บันทึก</div><div class="dsc">สินค้าเข้าระบบ → แต่ยังไม่มีสต๊อก (ต้องสร้างล็อต)</div></div>
     </div>
     <div class="wf-next"><h4>🔗 ไปต่อ:</h4><ul><li><b>ขั้น 2:</b> สร้างล็อต + QR ↓</li></ul></div>
@@ -332,14 +349,14 @@
       <div class="wf-step done"><div class="lbl">✅ สต๊อกเข้าคลัง</div><div class="dsc">สินค้า + ล็อต + QR พร้อม</div></div>
     </div>
     <div class="wf-result"><b>✅ ผลลัพธ์:</b> สินค้าอยู่ในสต๊อก → พร้อมกระจายไปร้าน</div>
-    <div class="wf-next"><h4>🔗 ไปต่อ:</h4><ul><li><b>ขั้น 3:</b> กระจายไปร้าน (ใบโอน) ↓</li><li>หรือ <b>📱 เพิ่มสต๊อกด่วน</b> ถ้ามีสินค้าอยู่แล้ว</li></ul></div>
+    <div class="wf-next"><h4>🔗 ไปต่อ:</h4><ul><li><b>ขั้น 3:</b> กระจายไปร้าน ↓</li><li>หรือ <a href="{{ route('products.quick-stock') }}" class="wf-link">📱 เพิ่มสต๊อกด่วน</a></li></ul></div>
   </div>
   <div class="wf-conn">▼</div>
 
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">3</span> กระจายสินค้า (ใบโอน)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">📋 สร้างใบโอน</div><div class="dsc">เลือกปลายทาง → เลือกสินค้า+ล็อต+จำนวน</div></div>
+      <div class="wf-step"><div class="lbl">📋 สร้างใบโอน</div><div class="dsc">เลือกปลายทาง → เลือกสินค้า+ล็อต+จำนวน</div><div class="wf-links"><a href="{{ route('transfers.create') }}" class="wf-link">📋 สร้างใบโอน</a><a href="{{ route('transfers.index') }}" class="wf-link">📋 ดูใบโอนทั้งหมด</a></div></div>
       <div class="wf-step"><div class="lbl">⏳ รออนุมัติ → ✅ อนุมัติ</div><div class="dsc">หัวหน้าอนุมัติ (หรือตัวเองถ้ามีสิทธิ์)</div></div>
       <div class="wf-step"><div class="lbl">📤 ส่งของ</div><div class="dsc">ระบุเลขพัสดุ → สต๊อกออกจากคลัง</div></div>
       <div class="wf-step done"><div class="lbl">📥 ปลายทางรับของ</div><div class="dsc">ร้านกดรับ → สต๊อกเข้าร้าน</div></div>
@@ -351,7 +368,7 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">4</span> นับสต๊อก (ประจำสัปดาห์/เดือน)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">🔢 สร้างใบนับสต๊อก</div><div class="dsc">เลือกสินค้าที่ต้องการนับ</div></div>
+      <div class="wf-step"><div class="lbl">🔢 สร้างใบนับสต๊อก</div><div class="dsc">เลือกสินค้าที่ต้องการนับ</div><div class="wf-links"><a href="{{ route('stock.count') }}" class="wf-link">🔢 นับสต๊อก/ปรับยอด</a></div></div>
       <div class="wf-step"><div class="lbl">📋 นับของจริง → กรอก</div><div class="dsc">ระบบแสดงส่วนต่าง: 🔴 น้อยกว่า, 🟢 มากกว่า</div></div>
       <div class="wf-step"><div class="lbl">✏️ กรอกเหตุผล</div><div class="dsc">เช่น "นับประจำเดือน", "สต๊อกหาย"</div></div>
       <div class="wf-step done"><div class="lbl">✅ ยืนยัน</div><div class="dsc">สต๊อกในระบบ = ของจริง</div></div>
@@ -374,9 +391,9 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">1</span> จัดการร้านค้าในสาย</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">🏢 สร้างหน่วยงานลูก</div><div class="dsc">หน่วยงาน → สร้างร้านค้า → ตั้งชื่อ, รหัส</div></div>
-      <div class="wf-step"><div class="lbl">👤 เพิ่มสมาชิก</div><div class="dsc">สมาชิก → เพิ่มคน → ShopUser/SellerUser → จดรหัสผ่าน</div></div>
-      <div class="wf-step"><div class="lbl">📝 จัดการแพ็กเกจ</div><div class="dsc">สมาชิกร้านค้า → กรอกใบสมัคร → ต่ออายุ</div></div>
+      <div class="wf-step"><div class="lbl">🏢 สร้างหน่วยงานลูก</div><div class="dsc">สร้างร้านค้า → ตั้งชื่อ, รหัส</div><div class="wf-links"><a href="{{ route('nodes.index') }}" class="wf-link">🏢 หน่วยงาน</a></div></div>
+      <div class="wf-step"><div class="lbl">👤 เพิ่มสมาชิก</div><div class="dsc">เพิ่มคน → ShopUser/SellerUser → จดรหัสผ่าน</div><div class="wf-links"><a href="{{ route('members.index') }}" class="wf-link">👤 สมาชิก</a></div></div>
+      <div class="wf-step"><div class="lbl">📝 จัดการแพ็กเกจ</div><div class="dsc">กรอกใบสมัคร → ต่ออายุ</div><div class="wf-links"><a href="{{ route('subscriptions.index') }}" class="wf-link">📝 สมาชิกร้านค้า</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ ร้านพร้อมใช้งาน</div><div class="dsc">สมาชิกเข้าระบบ → เริ่มขาย</div></div>
     </div>
   </div>
@@ -384,9 +401,9 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">2</span> งานประจำวัน</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">📊 Dashboard + รายงาน</div><div class="dsc">ยอดขาย, สต๊อก, ใบโอน ของร้านในสาย</div></div>
-      <div class="wf-step"><div class="lbl">📋 อนุมัติใบโอน</div><div class="dsc">ใบโอนจาก/ถึงร้านในสาย → อนุมัติ/ปฏิเสธ</div></div>
-      <div class="wf-step done"><div class="lbl">📈 วิเคราะห์ผลงาน</div><div class="dsc">เปรียบเทียบร้าน → ปรับกลยุทธ์</div></div>
+      <div class="wf-step"><div class="lbl">📊 Dashboard + รายงาน</div><div class="dsc">ยอดขาย, สต๊อก, ใบโอน ของร้านในสาย</div><div class="wf-links"><a href="{{ route('dashboard') }}" class="wf-link">📊 Dashboard</a><a href="{{ route('reports.summary') }}" class="wf-link">📈 รายงาน</a></div></div>
+      <div class="wf-step"><div class="lbl">📋 อนุมัติใบโอน</div><div class="dsc">ใบโอนจาก/ถึงร้านในสาย → อนุมัติ/ปฏิเสธ</div><div class="wf-links"><a href="{{ route('transfers.index', ['tab'=>'approve']) }}" class="wf-link">📋 ใบโอนรออนุมัติ</a></div></div>
+      <div class="wf-step done"><div class="lbl">📈 วิเคราะห์ผลงาน</div><div class="dsc">เปรียบเทียบร้าน → ปรับกลยุทธ์</div><div class="wf-links"><a href="{{ route('reports.summary') }}" class="wf-link">📈 สรุปผลประกอบการ</a></div></div>
     </div>
   </div>
 </div>
@@ -406,7 +423,7 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">1</span> รับสินค้าเข้าร้าน</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">📥 ตรวจใบโอน "ส่งแล้ว"</div><div class="dsc">ใบโอนสินค้า → สถานะ 🟣 ส่งแล้ว (จากคลัง)</div></div>
+      <div class="wf-step"><div class="lbl">📥 ตรวจใบโอน "ส่งแล้ว"</div><div class="dsc">สถานะ 🟣 ส่งแล้ว (จากคลัง)</div><div class="wf-links"><a href="{{ route('transfers.index', ['tab'=>'receive']) }}" class="wf-link">📥 ใบโอนรอรับ</a></div></div>
       <div class="wf-step"><div class="lbl">📦 นับของจริง</div><div class="dsc">เทียบใบโอนกับของจริง → ตรงกัน?</div></div>
       <div class="wf-step done"><div class="lbl">✅ กดรับของ</div><div class="dsc">สต๊อกเข้าร้าน → พร้อมขาย!</div></div>
     </div>
@@ -417,10 +434,10 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">2</span> ขายสินค้า (POS)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">💰 เปิดบิลขาย</div><div class="dsc">สแกน/เลือกสินค้า → จำนวน → เลือกล็อต (FIFO)</div></div>
+      <div class="wf-step"><div class="lbl">💰 เปิดบิลขาย</div><div class="dsc">สแกน/เลือกสินค้า → จำนวน → เลือกล็อต (FIFO)</div><div class="wf-links"><a href="{{ route('pos.index') }}" class="wf-link">💰 เปิดบิลขาย (POS)</a></div></div>
       <div class="wf-step"><div class="lbl">👤 เลือกลูกค้า</div><div class="dsc">ค้นหาเบอร์โทร → ลูกค้าได้แต้มสะสม</div></div>
       <div class="wf-step"><div class="lbl">💾 บันทึกบิล → 🧾 ใบเสร็จ</div><div class="dsc">สต๊อกลด → กำไรคำนวณจากทุนล็อต</div></div>
-      <div class="wf-step done"><div class="lbl">✅ ขายสำเร็จ</div><div class="dsc">ดูยอดขายที่ ประวัติการขาย</div></div>
+      <div class="wf-step done"><div class="lbl">✅ ขายสำเร็จ</div><div class="dsc">ดูยอดขายที่ ประวัติการขาย</div><div class="wf-links"><a href="{{ route('pos.history') }}" class="wf-link">📋 ประวัติการขาย</a></div></div>
     </div>
     <div class="wf-next"><h4>🔗 ไปต่อ:</h4><ul><li>ลูกค้าสะสมแต้ม → มาแลกของรางวัล ↓</li><li><b>ขั้น 3:</b> ตั้งหน้าร้าน ↓</li></ul></div>
   </div>
@@ -429,8 +446,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">3</span> ตั้งหน้าร้าน + ของรางวัล</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">🏪 ตั้งค่าหน้าร้าน</div><div class="dsc">ชื่อ, โลโก้, สีธีม → เปิดใช้งาน</div></div>
-      <div class="wf-step"><div class="lbl">🎁 เพิ่มของรางวัล</div><div class="dsc">กำหนดแต้ม, รูป, จำนวน → หลายระดับ (เล็ก-ใหญ่)</div></div>
+      <div class="wf-step"><div class="lbl">🏪 ตั้งค่าหน้าร้าน</div><div class="dsc">ชื่อ, โลโก้, สีธีม → เปิดใช้งาน</div><div class="wf-links"><a href="{{ route('shop.settings') }}" class="wf-link">🏪 ตั้งค่าหน้าร้าน</a></div></div>
+      <div class="wf-step"><div class="lbl">🎁 เพิ่มของรางวัล</div><div class="dsc">กำหนดแต้ม, รูป, จำนวน → หลายระดับ (เล็ก-ใหญ่)</div><div class="wf-links"><a href="{{ route('customers.rewards') }}" class="wf-link">🎁 ของรางวัล</a></div></div>
       <div class="wf-step"><div class="lbl">📱 แชร์หน้าร้าน</div><div class="dsc">แชร์ลิงก์/QR → ลูกค้าดู 24 ชม.</div></div>
       <div class="wf-step done"><div class="lbl">✅ พร้อม</div><div class="dsc">ลูกค้าดู + แลกจากมือถือ</div></div>
     </div>
@@ -442,7 +459,7 @@
     <div class="wf-ptitle"><span class="num">4</span> รับแลกแต้ม</div>
     <div class="wf-steps">
       <div class="wf-step"><div class="lbl">👤 ลูกค้าแสดง QR</div><div class="dsc">QR Code ของรางวัล (จาก LINE/แอป)</div></div>
-      <div class="wf-step"><div class="lbl">📷 สแกน → 🔍 ตรวจสอบ</div><div class="dsc">ชื่อตรง? ของรางวัลถูก? แต้มพอ?</div></div>
+      <div class="wf-step"><div class="lbl">📷 สแกน → 🔍 ตรวจสอบ</div><div class="dsc">ชื่อตรง? ของรางวัลถูก? แต้มพอ?</div><div class="wf-links"><a href="{{ route('redeem.desk') }}" class="wf-link">⭐ รับแลกแต้ม</a></div></div>
       <div class="wf-step"><div class="lbl">✅ ยืนยัน → 🎁 ให้ของ</div><div class="dsc">แต้มตัดอัตโนมัติ → มอบของรางวัล</div></div>
       <div class="wf-step done"><div class="lbl">🎉 เสร็จ!</div><div class="dsc">ลูกค้าพอใจ → บันทึกในประวัติ</div></div>
     </div>
@@ -453,7 +470,7 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">5</span> เบิกเงินคืน</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">💵 สร้างใบเบิก</div><div class="dsc">จำนวน, เหตุผล, แนบหลักฐาน</div></div>
+      <div class="wf-step"><div class="lbl">💵 สร้างใบเบิก</div><div class="dsc">จำนวน, เหตุผล, แนบหลักฐาน</div><div class="wf-links"><a href="{{ route('claims.index') }}" class="wf-link">💵 เบิกเงินคืน</a></div></div>
       <div class="wf-step"><div class="lbl">⏳ รออนุมัติ</div><div class="dsc">เจ้าของระบบตรวจสอบ</div></div>
       <div class="wf-step done"><div class="lbl">💰 รับเงิน</div><div class="dsc">หลังอนุมัติ → โอนเงินให้</div></div>
     </div>
@@ -474,8 +491,8 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">1</span> เปิดร้าน (ประจำวัน)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">📦 เช็คสต๊อก</div><div class="dsc">สต๊อกคงเหลือ → ตัวไหนใกล้หมด → แจ้งหัวหน้า</div></div>
-      <div class="wf-step"><div class="lbl">📥 รับของ (ถ้ามี)</div><div class="dsc">ใบโอน "ส่งแล้ว" → นับ → กดรับ</div></div>
+      <div class="wf-step"><div class="lbl">📦 เช็คสต๊อก</div><div class="dsc">ตัวไหนใกล้หมด → แจ้งหัวหน้า</div><div class="wf-links"><a href="{{ route('reports.stock') }}" class="wf-link">📦 สต๊อกคงเหลือ</a></div></div>
+      <div class="wf-step"><div class="lbl">📥 รับของ (ถ้ามี)</div><div class="dsc">ใบโอน "ส่งแล้ว" → นับ → กดรับ</div><div class="wf-links"><a href="{{ route('transfers.index', ['tab'=>'receive']) }}" class="wf-link">📥 ใบโอนรอรับ</a></div></div>
       <div class="wf-step done"><div class="lbl">✅ พร้อมขาย!</div></div>
     </div>
   </div>
@@ -483,7 +500,7 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">2</span> ขายสินค้า (POS)</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">💰 เปิดบิลขาย</div><div class="dsc">สแกน/เลือก → จำนวน → ล็อต (FIFO)</div></div>
+      <div class="wf-step"><div class="lbl">💰 เปิดบิลขาย</div><div class="dsc">สแกน/เลือก → จำนวน → ล็อต (FIFO)</div><div class="wf-links"><a href="{{ route('pos.index') }}" class="wf-link">💰 POS</a><a href="{{ route('pos.history') }}" class="wf-link">📋 ประวัติ</a></div></div>
       <div class="wf-step"><div class="lbl">👤 ถาม "มีสมาชิกไหม?"</div><div class="dsc">มี → ค้นหาเบอร์ → ลูกค้าได้แต้ม</div></div>
       <div class="wf-step"><div class="lbl">💾 บันทึก → 🧾 ใบเสร็จ</div><div class="dsc">สต๊อกลด → พิมพ์ใบเสร็จ</div></div>
       <div class="wf-step done"><div class="lbl">🔄 ขายไปเรื่อยๆ</div><div class="dsc">ดูยอดขายที่ ประวัติการขาย</div></div>
@@ -494,7 +511,7 @@
   <div class="wf-process">
     <div class="wf-ptitle"><span class="num">3</span> รับแลกแต้ม</div>
     <div class="wf-steps">
-      <div class="wf-step"><div class="lbl">⭐ สแกน QR ลูกค้า</div><div class="dsc">รับแลกแต้ม → สแกน → ตรวจสอบ → ยืนยัน</div></div>
+      <div class="wf-step"><div class="lbl">⭐ สแกน QR ลูกค้า</div><div class="dsc">สแกน → ตรวจสอบ → ยืนยัน</div><div class="wf-links"><a href="{{ route('redeem.desk') }}" class="wf-link">⭐ รับแลกแต้ม</a><a href="{{ route('redeem.history') }}" class="wf-link">📝 ประวัติแลก</a></div></div>
       <div class="wf-step done"><div class="lbl">🎁 มอบของรางวัล</div><div class="dsc">แต้มตัดอัตโนมัติ → เสร็จ!</div></div>
     </div>
   </div>
