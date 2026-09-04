@@ -9,13 +9,38 @@ define('LARAVEL_START', microtime(true));
 |--------------------------------------------------------------------------
 | Detect Base Path (subdirectory)
 |--------------------------------------------------------------------------
-| SCRIPT_NAME = /stock-system/public/index.php → base = /stock-system
-| SCRIPT_NAME = /public/index.php              → base = (ว่าง)
+| รองรับหลายรูปแบบของ SCRIPT_NAME:
+|   /stock-system/public/index.php → base = /stock-system
+|   /stock-system/index.php        → base = /stock-system
+|   /public/index.php              → base = (ว่าง)
+|   /index.php                     → base = (ว่าง)
 */
 $__basePath = '';
 $__scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+// ลอง match แบบมี /public/
 if (preg_match('#^(.+)/public/index\.php$#', $__scriptName, $__m)) {
     $__basePath = rtrim($__m[1], '/');
+}
+// ลอง match แบบไม่มี /public/ (Apache point ตรงไปที่ public/)
+// แต่ต้องไม่ใช่แค่ /index.php (root) หรือ /public/index.php (ไม่มี sub)
+elseif (preg_match('#^(.+)/index\.php$#', $__scriptName, $__m)) {
+    $maybeBase = rtrim($__m[1], '/');
+    // ข้ามถ้าเป็นส่วนหนึ่งของ Laravel structure
+    if ($maybeBase !== '' && $maybeBase !== '/public') {
+        $__basePath = $maybeBase;
+    }
+}
+
+// Fallback: ใช้ PHP_SELF ลบ SCRIPT_NAME
+if (! $__basePath && isset($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_NAME'])) {
+    $__self = $_SERVER['PHP_SELF'];
+    $__script = $_SERVER['SCRIPT_NAME'];
+    // PHP_SELF = /stock-system/index.php/setup/step1
+    // SCRIPT_NAME = /stock-system/index.php
+    // base = ทุกอย่างก่อน /index.php
+    if (preg_match('#^(.+?)/index\.php#', $__self, $__m)) {
+        $__basePath = rtrim($__m[1], '/');
+    }
 }
 
 /*
