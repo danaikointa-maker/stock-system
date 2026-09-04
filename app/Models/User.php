@@ -16,15 +16,25 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    protected $fillable = ['org_node_id', 'name', 'email', 'phone', 'password', 'role', 'is_active'];
+    protected $fillable = [
+        'org_node_id',
+        'name',
+        'email',
+        'phone',
+        'password',
+        'role',
+        'is_active',
+        'max_social_links',
+    ];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
-        'is_active'         => 'boolean',
-        'role'              => Role::class,
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+        'max_social_links' => 'integer',
+        'role' => Role::class,
     ];
 
     public function node(): BelongsTo

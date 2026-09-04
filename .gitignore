@@ -3,6 +3,7 @@
 .env
 .env.*
 !.env.example
+.1env
 
 # Storage (generated files)
 storage/logs/*
