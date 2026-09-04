@@ -19,6 +19,14 @@ class AccountingController extends Controller
 {
     public function __construct(private DocSequenceService $docSeq) {}
 
+    /** หา node_id ของ user — ถ้าไม่มี (admin) ใช้ node แรกที่เห็น */
+    private function resolveNodeId(Request $request): int
+    {
+        return $request->user()->node_id
+            ?? $request->user()->visibleNodeIds()[0]
+            ?? 0;
+    }
+
     // ════════════════════════════════════
     // 📊 Dashboard บัญชี
     // ════════════════════════════════════
@@ -79,7 +87,7 @@ class AccountingController extends Controller
         return view('accounting.invoices.form', [
             'invoice' => null,
             'products' => $products,
-            'docNo' => $this->docSeq->next('INV', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('INV', $this->resolveNodeId($request)),
         ]);
     }
 
@@ -101,10 +109,10 @@ class AccountingController extends Controller
 
         $invoice = DB::transaction(function () use ($data, $request) {
             $inv = Invoice::create([
-                'invoice_no' => $this->docSeq->next('INV', $request->user()->node_id, $data['invoice_date']),
+                'invoice_no' => $this->docSeq->next('INV', $this->resolveNodeId($request), $data['invoice_date']),
                 'invoice_date' => $data['invoice_date'],
                 'due_date' => $data['due_date'],
-                'org_node_id' => $request->user()->node_id,
+                'org_node_id' => $this->resolveNodeId($request),
                 'customer_name' => $data['customer_name'],
                 'customer_address' => $data['customer_address'],
                 'customer_tax_id' => $data['customer_tax_id'],
@@ -176,7 +184,7 @@ class AccountingController extends Controller
             'receipt' => null,
             'invoice' => $invoice,
             'invoices' => $invoices,
-            'docNo' => $this->docSeq->next('RCP', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('RCP', $this->resolveNodeId($request)),
         ]);
     }
 
@@ -195,8 +203,8 @@ class AccountingController extends Controller
 
         $receipt = DB::transaction(function () use ($data, $request) {
             $rcp = Receipt::create($data + [
-                'receipt_no' => $this->docSeq->next('RCP', $request->user()->node_id, $data['receipt_date']),
-                'org_node_id' => $request->user()->node_id,
+                'receipt_no' => $this->docSeq->next('RCP', $this->resolveNodeId($request), $data['receipt_date']),
+                'org_node_id' => $this->resolveNodeId($request),
                 'created_by' => $request->user()->id,
             ]);
 
@@ -236,7 +244,7 @@ class AccountingController extends Controller
     {
         return view('accounting.payments.form', [
             'payment' => null,
-            'docNo' => $this->docSeq->next('PAY', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('PAY', $this->resolveNodeId($request)),
             'whtRates' => WithholdingTax::commonRates(),
         ]);
     }
@@ -257,8 +265,8 @@ class AccountingController extends Controller
 
         $payment = DB::transaction(function () use ($data, $request) {
             $pay = Payment::create($data + [
-                'payment_no' => $this->docSeq->next('PAY', $request->user()->node_id, $data['payment_date']),
-                'org_node_id' => $request->user()->node_id,
+                'payment_no' => $this->docSeq->next('PAY', $this->resolveNodeId($request), $data['payment_date']),
+                'org_node_id' => $this->resolveNodeId($request),
                 'created_by' => $request->user()->id,
             ]);
 
@@ -266,9 +274,9 @@ class AccountingController extends Controller
             if (!empty($data['wht_rate']) && $data['wht_rate'] > 0) {
                 $whtAmount = $data['amount'] * ($data['wht_rate'] / 100);
                 WithholdingTax::create([
-                    'wht_no' => $this->docSeq->next('WHT', $request->user()->node_id, $data['payment_date']),
+                    'wht_no' => $this->docSeq->next('WHT', $this->resolveNodeId($request), $data['payment_date']),
                     'issue_date' => $data['payment_date'],
-                    'org_node_id' => $request->user()->node_id,
+                    'org_node_id' => $this->resolveNodeId($request),
                     'payee_name' => $data['payee_name'],
                     'payee_tax_id' => $data['payee_tax_id'] ?? null,
                     'income_amount' => $data['amount'],
@@ -317,7 +325,7 @@ class AccountingController extends Controller
             'taxInvoice' => null,
             'invoice' => $invoice,
             'invoices' => $invoices,
-            'docNo' => $this->docSeq->next('TXI', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('TXI', $this->resolveNodeId($request)),
         ]);
     }
 
@@ -339,8 +347,8 @@ class AccountingController extends Controller
         if (!empty($data['invoice_id'])) {
             $inv = Invoice::find($data['invoice_id']);
             $taxInv = TaxInvoice::create($data + [
-                'tax_invoice_no' => $this->docSeq->next('TXI', $request->user()->node_id, $data['issue_date']),
-                'org_node_id' => $request->user()->node_id,
+                'tax_invoice_no' => $this->docSeq->next('TXI', $this->resolveNodeId($request), $data['issue_date']),
+                'org_node_id' => $this->resolveNodeId($request),
                 'subtotal' => $inv->subtotal,
                 'vat_amount' => $inv->vat_amount,
                 'total' => $inv->total,
@@ -350,8 +358,8 @@ class AccountingController extends Controller
             $subtotal = $request->input('subtotal', 0);
             $vatAmount = $subtotal * ($data['vat_rate'] / 100);
             $taxInv = TaxInvoice::create($data + [
-                'tax_invoice_no' => $this->docSeq->next('TXI', $request->user()->node_id, $data['issue_date']),
-                'org_node_id' => $request->user()->node_id,
+                'tax_invoice_no' => $this->docSeq->next('TXI', $this->resolveNodeId($request), $data['issue_date']),
+                'org_node_id' => $this->resolveNodeId($request),
                 'subtotal' => $subtotal,
                 'vat_amount' => $vatAmount,
                 'total' => $subtotal + $vatAmount,
@@ -764,7 +772,7 @@ class AccountingController extends Controller
         return view('accounting.quotations.form', [
             'quotation' => null,
             'nodes' => $nodes,
-            'docNo' => $this->docSeq->next('QT', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('QT', $this->resolveNodeId($request)),
         ]);
     }
 
@@ -916,7 +924,7 @@ class AccountingController extends Controller
         $products = Product::where('status', 'active')->orderBy('name')->get();
         return view('accounting.po.form', [
             'po' => null, 'nodes' => $nodes, 'products' => $products,
-            'docNo' => $this->docSeq->next('PO', $request->user()->node_id),
+            'docNo' => $this->docSeq->next('PO', $this->resolveNodeId($request)),
         ]);
     }
 
@@ -1036,7 +1044,7 @@ class AccountingController extends Controller
             'journal'  => null,
             'nodes'    => $nodes,
             'accounts' => $accounts,
-            'docNo'    => $this->docSeq->next('JV', $request->user()->node_id),
+            'docNo'    => $this->docSeq->next('JV', $this->resolveNodeId($request)),
         ]);
     }
 
