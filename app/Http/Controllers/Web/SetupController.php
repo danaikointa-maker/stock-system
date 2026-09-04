@@ -251,7 +251,7 @@ class SetupController extends Controller
                     [
                         'name'     => $admin['name'],
                         'password' => Hash::make($admin['password']),
-                        'role'     => 'admin',
+                        'role'     => \App\Enums\Role::SystemAdmin,
                         'status'   => 'active',
                     ]
                 );
