@@ -9,8 +9,10 @@
   <a href="{{ route('accounting.invoices.create') }}" class="btn btn-create">📄 สร้างบิลเรียกเก็บ</a>
   <a href="{{ route('accounting.receipts.create') }}" class="btn btn-ok">💰 สร้างบิลรับ</a>
   <a href="{{ route('accounting.payments.create') }}" class="btn btn-ship">💸 สร้างบิลจ่าย</a>
-  <a href="{{ route('accounting.tax-invoices.create') }}" class="btn btn-view">🧾 ใบกำกับภาษี</a>
-  <a href="{{ route('accounting.reports') }}" class="btn btn-approve">📈 รายงาน</a>
+  <a href="{{ route('accounting.delivery.create') }}" class="btn btn-view">🚚 ใบส่งของ</a>
+  <a href="{{ route('accounting.credit.create') }}" class="btn" style="background:#fef2f2;color:#b91c1c">↩️ ใบลดหนี้</a>
+  <a href="{{ route('accounting.stock-ledger') }}" class="btn btn-blue">📋 Ledger</a>
+  <a href="{{ route('accounting.audit') }}" class="btn btn-approve">🔍 Audit</a>
 </div>
 
 {{-- KPI Cards --}}
@@ -34,6 +36,29 @@
     <div class="lbl">⏳ หนี้คงค้าง</div>
     <div class="val">{{ number_format($outstanding, 0) }}</div>
     <div class="sub">{{ $overdueCount }} บิลเกินกำหนด ({{ number_format($overdueAmount, 0) }})</div>
+  </div>
+</div>
+
+<div class="grid g4" style="margin-bottom:20px">
+  <div class="kpi">
+    <div class="lbl">🚚 ใบส่งของ</div>
+    <div class="val">{{ number_format($totalDeliveries) }}</div>
+    <div class="sub">{{ $pendingShip }} พร้อมส่ง</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">↩️ ใบลดหนี้ (ยืนยันแล้ว)</div>
+    <div class="val">{{ number_format($totalCredits, 2) }}</div>
+    <div class="sub">{{ $pendingCredits }} รอยืนยัน</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">📋 Stock Ledger</div>
+    <div class="val">IMMUTABLE</div>
+    <div class="sub">แก้ไข/ลบไม่ได้</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">🔍 Audit</div>
+    <div class="val">ตรวจสอบได้</div>
+    <div class="sub">ยอดตรง แม่นยำ</div>
   </div>
 </div>
 

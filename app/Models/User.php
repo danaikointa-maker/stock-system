@@ -84,6 +84,12 @@ class User extends Authenticatable
         return $nodeId !== null && in_array($nodeId, $this->visibleNodeIds(), true);
     }
 
+    /** Collection of OrgNode ที่ user เห็น */
+    public function visibleNodes()
+    {
+        return \App\Models\OrgNode::whereIn('id', $this->visibleNodeIds())->get();
+    }
+
     /**
      * จัดการผู้ใช้คนอื่นได้ไหม
      * เงื่อนไข: ต้องมีสิทธิ์ manage-members + เป้าหมายอยู่ในสายงานตัวเอง + ห้ามจัดการตัวเอง/คนระดับสูงกว่า

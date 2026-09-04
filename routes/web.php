@@ -325,6 +325,25 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         // Withholding Tax
         Route::get('/withholding-taxes', [\App\Http\Controllers\Web\AccountingController::class, 'withholdingTaxes'])->name('withholding-taxes');
         Route::get('/withholding-taxes/{wht}', [\App\Http\Controllers\Web\AccountingController::class, 'showWithholdingTax'])->name('wht.show');
+
+        // Delivery Notes
+        Route::get('/delivery-notes', [\App\Http\Controllers\Web\AccountingController::class, 'deliveryNotes'])->name('delivery');
+        Route::get('/delivery-notes/create', [\App\Http\Controllers\Web\AccountingController::class, 'createDeliveryNote'])->name('delivery.create');
+        Route::post('/delivery-notes', [\App\Http\Controllers\Web\AccountingController::class, 'storeDeliveryNote'])->name('delivery.store');
+        Route::get('/delivery-notes/{delivery}', [\App\Http\Controllers\Web\AccountingController::class, 'showDelivery'])->name('delivery.show');
+        Route::patch('/delivery-notes/{delivery}/ship', [\App\Http\Controllers\Web\AccountingController::class, 'shipDelivery'])->name('delivery.ship');
+        Route::patch('/delivery-notes/{delivery}/deliver', [\App\Http\Controllers\Web\AccountingController::class, 'deliverDelivery'])->name('delivery.deliver');
+
+        // Credit Notes
+        Route::get('/credit-notes', [\App\Http\Controllers\Web\AccountingController::class, 'creditNotes'])->name('credit');
+        Route::get('/credit-notes/create/{deliveryNote?}', [\App\Http\Controllers\Web\AccountingController::class, 'createCreditNote'])->name('credit.create');
+        Route::post('/credit-notes', [\App\Http\Controllers\Web\AccountingController::class, 'storeCreditNote'])->name('credit.store');
+        Route::get('/credit-notes/{credit}', [\App\Http\Controllers\Web\AccountingController::class, 'showCreditNote'])->name('credit.show');
+        Route::patch('/credit-notes/{credit}/confirm', [\App\Http\Controllers\Web\AccountingController::class, 'confirmCreditNote'])->name('credit.confirm');
+
+        // Stock Ledger & Audit
+        Route::get('/stock-ledger', [\App\Http\Controllers\Web\AccountingController::class, 'stockLedger'])->name('stock-ledger');
+        Route::get('/audit', [\App\Http\Controllers\Web\AccountingController::class, 'audit'])->name('audit');
     });
 
     // คู่มือขั้นตอนการทำงาน (Workflow Guide)

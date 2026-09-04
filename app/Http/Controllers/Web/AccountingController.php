@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Invoice, InvoiceItem, Receipt, Payment, TaxInvoice, WithholdingTax, JournalEntry, JournalLine, Account, Product};
+use App\Models\{
+    Invoice, InvoiceItem, Receipt, Payment, TaxInvoice, WithholdingTax,
+    JournalEntry, JournalLine, Account, Product, Sale,
+    DeliveryNote, DeliveryItem, CreditNote, CreditItem, StockLedger
+};
 use App\Services\DocSequenceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +42,10 @@ class AccountingController extends Controller
                 ->whereYear('invoice_date', now()->year)
                 ->selectRaw('MONTH(invoice_date) as m, SUM(total) as total')
                 ->groupBy('m')->orderBy('m')->pluck('total', 'm'),
+            'totalDeliveries' => DeliveryNote::whereIn('org_node_id', $nodeIds)->count(),
+            'pendingShip' => DeliveryNote::whereIn('org_node_id', $nodeIds)->where('status', 'ready')->count(),
+            'totalCredits' => CreditNote::whereIn('org_node_id', $nodeIds)->where('status', 'confirmed')->sum('total_amount'),
+            'pendingCredits' => CreditNote::whereIn('org_node_id', $nodeIds)->where('status', 'draft')->count(),
         ]);
     }
 
@@ -438,5 +446,299 @@ class AccountingController extends Controller
         })->orderBy('code')->get();
 
         return view('accounting.chart', compact('accounts'));
+    }
+
+    // ════════════════════════════════════
+    // 🚚 ใบส่งของ (Delivery Notes)
+    // ════════════════════════════════════
+    public function deliveryNotes(Request $request)
+    {
+        $q = DeliveryNote::where(function($query) use ($request) {
+            $query->whereNull('org_node_id')
+                  ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
+        })->with('node')->latest()->paginate(20);
+
+        return view('accounting.delivery.index', ['notes' => $q]);
+    }
+
+    public function createDeliveryNote(Request $request)
+    {
+        $nodes = $request->user()->visibleNodes();
+        $sales = Sale::where(function($q) use ($request) {
+            $q->whereNull('org_node_id')
+              ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
+        })->latest()->limit(50)->get();
+
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+
+        return view('accounting.delivery.form', compact('nodes', 'sales', 'products'));
+    }
+
+    public function storeDeliveryNote(Request $request)
+    {
+        $data = $request->validate([
+            'org_node_id'     => 'required|exists:org_nodes,id',
+            'sale_id'         => 'nullable|exists:sales,id',
+            'customer_name'   => 'required|string|max:150',
+            'delivery_address' => 'nullable|string',
+            'recipient_name'  => 'nullable|string|max:100',
+            'recipient_phone' => 'nullable|string|max:30',
+            'tracking_no'     => 'nullable|string|max:50',
+            'carrier'         => 'nullable|string|max:100',
+            'note'            => 'nullable|string',
+            'items'           => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.lot_id'     => 'nullable|exists:product_lots,id',
+            'items.*.qty'        => 'required|integer|min:1',
+            'items.*.unit_cost'  => 'required|numeric|min:0',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $docNo = $this->docSeq->next('DLV', $data['org_node_id']);
+
+        $delivery = DB::transaction(function () use ($data, $request, $docNo) {
+            $totalQty = 0;
+            $totalAmount = 0;
+            $items = [];
+
+            foreach ($data['items'] as $item) {
+                $lineTotal = bcmul($item['unit_price'] ?? $item['unit_cost'], $item['qty'], 2);
+                $totalQty += $item['qty'];
+                $totalAmount = bcadd($totalAmount, $lineTotal, 2);
+                $items[] = [
+                    'product_id' => $item['product_id'],
+                    'lot_id'     => $item['lot_id'] ?? null,
+                    'qty'        => $item['qty'],
+                    'unit_cost'  => $item['unit_cost'],
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'line_total' => $lineTotal,
+                ];
+            }
+
+            $delivery = DeliveryNote::create([
+                'org_node_id'      => $data['org_node_id'],
+                'doc_no'           => $docNo,
+                'sale_id'          => $data['sale_id'] ?? null,
+                'customer_name'    => $data['customer_name'],
+                'delivery_address' => $data['delivery_address'] ?? null,
+                'recipient_name'   => $data['recipient_name'] ?? null,
+                'recipient_phone'  => $data['recipient_phone'] ?? null,
+                'status'           => 'ready',
+                'total_qty'        => $totalQty,
+                'total_amount'     => $totalAmount,
+                'tracking_no'      => $data['tracking_no'] ?? null,
+                'carrier'          => $data['carrier'] ?? null,
+                'note'             => $data['note'] ?? null,
+                'created_by'       => $request->user()->id,
+            ]);
+
+            foreach ($items as $item) {
+                $delivery->items()->create($item);
+            }
+
+            return $delivery;
+        });
+
+        return redirect()->route('accounting.delivery.show', $delivery)
+            ->with('flash', '🚚 สร้างใบส่งของสำเร็จ: ' . $docNo);
+    }
+
+    public function showDelivery(DeliveryNote $delivery)
+    {
+        $delivery->load(['items.product', 'items.lot', 'node', 'creator', 'sale', 'creditNotes']);
+        return view('accounting.delivery.show', compact('delivery'));
+    }
+
+    public function shipDelivery(DeliveryNote $delivery)
+    {
+        if ($delivery->status !== 'ready') {
+            return back()->with('error', '❌ ใบส่งของยังไม่พร้อมส่ง');
+        }
+
+        $delivery->update(['status' => 'shipped', 'shipped_at' => now()]);
+
+        // บันทึก Stock Ledger + Journal Entry
+        app(\App\Services\StockLedgerService::class)->recordDelivery($delivery);
+
+        return back()->with('flash', '🚚 ส่งของสำเร็จ — ตัดสต๊อก + บันทึกบัญชีอัตโนมัติ');
+    }
+
+    public function deliverDelivery(DeliveryNote $delivery)
+    {
+        if (!in_array($delivery->status, ['shipped', 'ready'])) {
+            return back()->with('error', '❌ ยังไม่ได้ส่งของ');
+        }
+
+        // ถ้ายังไม่ได้ shipped → ship ก่อน
+        if ($delivery->status === 'ready') {
+            $delivery->update(['status' => 'shipped', 'shipped_at' => now()]);
+            app(\App\Services\StockLedgerService::class)->recordDelivery($delivery);
+        }
+
+        $delivery->update(['status' => 'delivered', 'delivered_at' => now()]);
+        return back()->with('flash', '✅ ยืนยันการส่งถึงปลายทางสำเร็จ');
+    }
+
+    // ════════════════════════════════════
+    // ↩️ ใบลดหนี้ / ใบคืนสินค้า (Credit Notes)
+    // ════════════════════════════════════
+    public function creditNotes(Request $request)
+    {
+        $q = CreditNote::where(function($query) use ($request) {
+            $query->whereNull('org_node_id')
+                  ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
+        })->with('node')->latest()->paginate(20);
+
+        return view('accounting.credit.index', ['notes' => $q]);
+    }
+
+    public function createCreditNote(Request $request, ?DeliveryNote $deliveryNote = null)
+    {
+        $nodes = $request->user()->visibleNodes();
+        $deliveries = DeliveryNote::where(function($q) use ($request) {
+            $q->whereNull('org_node_id')
+              ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
+        })->whereIn('status', ['shipped', 'delivered'])->latest()->limit(50)->get();
+
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+
+        return view('accounting.credit.form', compact('nodes', 'deliveries', 'products', 'deliveryNote'));
+    }
+
+    public function storeCreditNote(Request $request)
+    {
+        $data = $request->validate([
+            'org_node_id'      => 'required|exists:org_nodes,id',
+            'type'             => 'required|in:return,discount,cancel,adjustment',
+            'reason'           => 'required|string|max:255',
+            'delivery_note_id' => 'nullable|exists:delivery_notes,id',
+            'customer_name'    => 'required|string|max:150',
+            'vat_rate'         => 'nullable|numeric|min:0|max:100',
+            'note'             => 'nullable|string',
+            'items'            => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.lot_id'     => 'nullable|exists:product_lots,id',
+            'items.*.qty'        => 'required|integer|min:1',
+            'items.*.unit_cost'  => 'required|numeric|min:0',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $docNo = $this->docSeq->next('CN', $data['org_node_id']);
+        $vatRate = $data['vat_rate'] ?? 7;
+
+        $credit = DB::transaction(function () use ($data, $request, $docNo, $vatRate) {
+            $subtotal = 0;
+            $items = [];
+
+            foreach ($data['items'] as $item) {
+                $price = $item['unit_price'] ?? $item['unit_cost'];
+                $lineTotal = bcmul($price, $item['qty'], 2);
+                $subtotal = bcadd($subtotal, $lineTotal, 2);
+                $items[] = [
+                    'product_id' => $item['product_id'],
+                    'lot_id'     => $item['lot_id'] ?? null,
+                    'qty'        => $item['qty'],
+                    'unit_cost'  => $item['unit_cost'],
+                    'unit_price' => $price,
+                    'line_total' => $lineTotal,
+                ];
+            }
+
+            $vat = bcmul($subtotal, bcdiv($vatRate, 100, 4), 2);
+            $total = bcadd($subtotal, $vat, 2);
+
+            $credit = CreditNote::create([
+                'org_node_id'      => $data['org_node_id'],
+                'doc_no'           => $docNo,
+                'type'             => $data['type'],
+                'reason'           => $data['reason'],
+                'delivery_note_id' => $data['delivery_note_id'] ?? null,
+                'customer_name'    => $data['customer_name'],
+                'subtotal'         => $subtotal,
+                'vat_amount'       => $vat,
+                'total_amount'     => $total,
+                'status'           => 'draft',
+                'note'             => $data['note'] ?? null,
+                'created_by'       => $request->user()->id,
+            ]);
+
+            foreach ($items as $item) {
+                $credit->items()->create($item);
+            }
+
+            return $credit;
+        });
+
+        return redirect()->route('accounting.credit.show', $credit)
+            ->with('flash', '↩️ สร้างใบลดหนี้สำเร็จ: ' . $docNo . ' (ร่าง)');
+    }
+
+    public function showCreditNote(CreditNote $credit)
+    {
+        $credit->load(['items.product', 'items.lot', 'node', 'creator', 'deliveryNote', 'invoice']);
+        return view('accounting.credit.show', compact('credit'));
+    }
+
+    public function confirmCreditNote(CreditNote $credit)
+    {
+        if ($credit->status !== 'draft') {
+            return back()->with('error', '❌ ใบลดหนี้ถูกยืนยันแล้ว');
+        }
+
+        $credit->update(['status' => 'confirmed']);
+
+        // บันทึก Stock Ledger + Journal Entry
+        app(\App\Services\StockLedgerService::class)->recordCreditNote($credit);
+
+        return back()->with('flash', '✅ ยืนยันใบลดหนี้สำเร็จ — บันทึกบัญชี + คืนสต๊อกอัตโนมัติ');
+    }
+
+    // ════════════════════════════════════
+    // 📋 Stock Ledger (Audit Trail)
+    // ════════════════════════════════════
+    public function stockLedger(Request $request)
+    {
+        $q = StockLedger::query();
+
+        // กรองตาม node
+        $q->where(function($query) use ($request) {
+            $query->whereNull('org_node_id')
+                  ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
+        });
+
+        // filters
+        if ($request->filled('product_id')) {
+            $q->where('product_id', $request->product_id);
+        }
+        if ($request->filled('movement_type')) {
+            $q->where('movement_type', $request->movement_type);
+        }
+        if ($request->filled('from')) {
+            $q->where('created_at', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $q->where('created_at', '<=', $request->to . ' 23:59:59');
+        }
+
+        $ledgers = $q->with(['product', 'node', 'creator', 'lot'])->latest('id')->paginate(30);
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+
+        return view('accounting.stock-ledger', compact('ledgers', 'products'));
+    }
+
+    // ════════════════════════════════════
+    // 🔍 Audit — ตรวจยอดตรง
+    // ════════════════════════════════════
+    public function audit(Request $request)
+    {
+        $service = app(\App\Services\StockLedgerService::class);
+        $nodeId = $request->input('node_id');
+
+        $stockResult    = $service->verifyBalances($nodeId);
+        $journalResult  = $service->verifyJournals($nodeId);
+
+        $nodes = $request->user()->visibleNodes();
+
+        return view('accounting.audit', compact('stockResult', 'journalResult', 'nodes', 'nodeId'));
     }
 }

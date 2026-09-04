@@ -234,6 +234,18 @@
       <a href="{{ route('accounting.withholding-taxes') }}" class="{{ request()->routeIs('accounting.wht*') || request()->routeIs('accounting.withholding*') ? 'on' : '' }}">
         📋 หัก ณ ที่จ่าย
       </a>
+      <a href="{{ route('accounting.delivery') }}" class="{{ request()->routeIs('accounting.delivery*') ? 'on' : '' }}">
+        🚚 ใบส่งของ
+      </a>
+      <a href="{{ route('accounting.credit') }}" class="{{ request()->routeIs('accounting.credit*') ? 'on' : '' }}">
+        ↩️ ใบลดหนี้/คืนสินค้า
+      </a>
+      <a href="{{ route('accounting.stock-ledger') }}" class="{{ request()->routeIs('accounting.stock-ledger') ? 'on' : '' }}">
+        📋 Stock Ledger
+      </a>
+      <a href="{{ route('accounting.audit') }}" class="{{ request()->routeIs('accounting.audit') ? 'on' : '' }}">
+        🔍 Audit (ตรวจสอบยอด)
+      </a>
       <a href="{{ route('accounting.reports') }}" class="{{ request()->routeIs('accounting.reports') ? 'on' : '' }}">
         📈 รายงานบัญชี
       </a>
