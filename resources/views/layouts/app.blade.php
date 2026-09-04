@@ -146,29 +146,112 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   </div>
 </div>
 {{-- ═══ Help Modal ═══ --}}
-<div id="helpModal" class="help-overlay">
-  <div style="background:#fff;border-radius:16px;max-width:700px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)">
-      <h2 id="helpTitle" style="font-size:17px;margin:0">📖 คู่มือการใช้งาน</h2>
-      <button type="button" id="helpClose" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px 8px">✕</button>
+<div id="helpModal" class="help-overlay" aria-hidden="true">
+  <div class="help-dialog">
+    <div class="help-header">
+      <h2 id="helpTitle">📖 คู่มือการใช้งาน</h2>
+      <button type="button" id="helpClose" class="help-close" aria-label="ปิด">✕</button>
     </div>
-    <div id="helpContent" style="padding:24px;font-size:14px;line-height:1.8;max-height:70vh;overflow-y:auto">
+    <div id="helpContent" class="help-body">
       <p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>
     </div>
-    <div style="padding:12px 24px;border-top:1px solid var(--line);text-align:center">
-      <div id="helpNavBtns" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>
+    <div class="help-footer">
+      <div id="helpNavBtns"></div>
     </div>
   </div>
 </div>
 <style>
-#helpContent h3{font-size:15px;margin:16px 0 8px;color:var(--brand)}
+/* ── Help Modal Animations ── */
+.help-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:30px 16px;overflow-y:auto;
+  background:rgba(10,12,8,0);
+  backdrop-filter:blur(0px);
+  pointer-events:none;
+  transition:background .35s ease,backdrop-filter .35s ease;
+}
+.help-overlay.show{
+  background:rgba(10,12,8,.55);
+  backdrop-filter:blur(6px);
+  pointer-events:auto;
+}
+.help-overlay.closing{
+  background:rgba(10,12,8,0);
+  backdrop-filter:blur(0px);
+}
+
+.help-dialog{
+  background:#fff;border-radius:18px;max-width:720px;width:100%;
+  margin:20px auto;
+  box-shadow:0 25px 80px rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.1);
+  opacity:0;
+  transform:translateY(24px) scale(.97);
+  transition:opacity .35s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1);
+}
+.help-overlay.show .help-dialog{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.help-overlay.closing .help-dialog{
+  opacity:0;
+  transform:translateY(16px) scale(.97);
+  transition:opacity .25s ease-in,transform .25s ease-in;
+}
+
+.help-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--line);
+}
+.help-header h2{font-size:17px;margin:0;font-weight:700}
+.help-close{
+  background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);
+  padding:4px 10px;border-radius:8px;transition:background .15s,color .15s;
+}
+.help-close:hover{background:#f0f0ec;color:var(--ink)}
+
+.help-body{
+  padding:24px;font-size:14px;line-height:1.85;max-height:65vh;overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.help-footer{
+  padding:14px 24px;border-top:1px solid var(--line);
+}
+#helpNavBtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+#helpNavBtns .btn{transition:all .15s ease}
+#helpNavBtns .btn:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+
+/* ── Help Content Typography ── */
+#helpContent h3{font-size:15px;margin:20px 0 8px;color:var(--brand);display:flex;align-items:center;gap:6px}
 #helpContent h3:first-child{margin-top:0}
+#helpContent h4{font-size:13.5px;margin:14px 0 6px;color:var(--ink);font-weight:600}
 #helpContent ul,#helpContent ol{margin:8px 0 12px 20px}
-#helpContent li{margin-bottom:4px}
+#helpContent li{margin-bottom:5px}
 #helpContent b{color:var(--ink)}
 #helpContent code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
-.help-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;justify-content:center;align-items:flex-start;padding:30px 16px;overflow-y:auto}
-.help-overlay.show{display:flex}
+#helpContent p{margin-bottom:8px}
+
+/* Tip / Warning boxes inside help */
+#helpContent .tip-box{
+  background:#f0fdf4;border:1px solid #86efac;border-radius:10px;
+  padding:12px 16px;margin:12px 0;font-size:13px;line-height:1.7;
+}
+#helpContent .tip-box b{color:#15803d}
+#helpContent .warn-box{
+  background:#fefce8;border:1px solid #fde047;border-radius:10px;
+  padding:12px 16px;margin:12px 0;font-size:13px;line-height:1.7;
+}
+#helpContent .warn-box b{color:#a16207}
+#helpContent .info-box{
+  background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;
+  padding:12px 16px;margin:12px 0;font-size:13px;line-height:1.7;
+}
+#helpContent .info-box b{color:#1e40af}
+
+/* Content fade transition */
+#helpContent{transition:opacity .2s ease}
+#helpContent.fading{opacity:.3}
 </style>
 
 <script>
@@ -183,6 +266,7 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   })();
 
   var modal = document.getElementById('helpModal');
+  var dialog = modal.querySelector('.help-dialog');
   var helpTitle = document.getElementById('helpTitle');
   var helpContent = document.getElementById('helpContent');
   var helpNavBtns = document.getElementById('helpNavBtns');
@@ -190,23 +274,30 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   var helpClose = document.getElementById('helpClose');
   var currentPage = '';
   var cachedPages = [];
+  var isClosing = false;
 
   function loadHelp(page) {
-    helpContent.innerHTML = '<p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>';
-    var url = B + '/help?url=' + encodeURIComponent(window.location.pathname);
-    if (page) url += '&page=' + encodeURIComponent(page);
-    fetch(url, { headers: { 'Accept': 'application/json' } })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        helpTitle.textContent = data.title || '📖 คู่มือ';
-        helpContent.innerHTML = data.content || '<p>ไม่มีเนื้อหา</p>';
-        currentPage = data.current || '';
-        cachedPages = data.pages || [];
-        renderNav();
-      })
-      .catch(function() {
-        helpContent.innerHTML = '<p style="color:var(--bad)">โหลดคู่มือไม่สำเร็จ กรุณาลองใหม่</p>';
-      });
+    // Fade content out → load → fade in
+    helpContent.classList.add('fading');
+    setTimeout(function(){
+      var url = B + '/help?url=' + encodeURIComponent(window.location.pathname);
+      if (page) url += '&page=' + encodeURIComponent(page);
+      fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          helpTitle.textContent = data.title || '📖 คู่มือ';
+          helpContent.innerHTML = data.content || '<p>ไม่มีเนื้อหา</p>';
+          helpContent.scrollTop = 0;
+          currentPage = data.current || '';
+          cachedPages = data.pages || [];
+          renderNav();
+          helpContent.classList.remove('fading');
+        })
+        .catch(function() {
+          helpContent.innerHTML = '<p style="color:var(--bad)">โหลดคู่มือไม่สำเร็จ กรุณาลองใหม่</p>';
+          helpContent.classList.remove('fading');
+        });
+    }, 200);
   }
 
   function renderNav() {
@@ -226,11 +317,34 @@ code{background:#f1f4f9;padding:2px 6px;border-radius:4px;font-size:12px}
   }
 
   function openHelp() {
+    if (isClosing) return;
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.remove('closing');
     modal.classList.add('show');
     loadHelp();
   }
 
-  function closeHelp() { modal.classList.remove('show'); }
+  function closeHelp() {
+    if (isClosing || !modal.classList.contains('show')) return;
+    isClosing = true;
+    modal.classList.add('closing');
+    // Wait for animation to finish
+    dialog.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName !== 'opacity') return;
+      dialog.removeEventListener('transitionend', handler);
+      modal.classList.remove('show', 'closing');
+      modal.setAttribute('aria-hidden', 'true');
+      isClosing = false;
+    });
+    // Fallback in case transitionend doesn't fire
+    setTimeout(function() {
+      if (isClosing) {
+        modal.classList.remove('show', 'closing');
+        modal.setAttribute('aria-hidden', 'true');
+        isClosing = false;
+      }
+    }, 400);
+  }
 
   helpBtn.addEventListener('click', openHelp);
   helpClose.addEventListener('click', closeHelp);
