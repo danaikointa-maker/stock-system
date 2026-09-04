@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <meta name="theme-color" content="{{ $colors['primary'] }}">
 <title>{{ $profile->display_name }} · {{ config('app.name', 'RaoMembers') }}</title>
-<link rel="icon" href="{{ brand_logo() }}">
+<link rel="icon" href="{{ brand_favicon() }}">
 
 <style>
   /*

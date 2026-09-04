@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', config('app.name', 'RaoMembers'))</title>
-<link rel="icon" href="{{ brand_logo() }}">
+<link rel="icon" href="{{ brand_favicon() }}">
 <link rel="apple-touch-icon" href="{{ brand_logo() }}">
 <style>
 :root{
@@ -200,8 +200,39 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:5px;font-size:12px;color:#
   transition:all .15s}
 .pager a:hover{border-color:var(--primary);color:var(--primary);background:#eff6ff}
 .pager .on{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+/* ═══ Action buttons by role ═══ */
+.btn-create{background:linear-gradient(135deg,#10b981,#059669);border-color:#059669;color:#fff;box-shadow:0 2px 8px rgba(16,185,129,.3)}
+.btn-create:hover{box-shadow:0 4px 14px rgba(16,185,129,.4)}
+.btn-edit{background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.3)}
+.btn-edit:hover{box-shadow:0 4px 14px rgba(59,130,246,.4)}
+.btn-view{background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-color:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(139,92,246,.3)}
+.btn-view:hover{box-shadow:0 4px 14px rgba(139,92,246,.4)}
+.btn-approve{background:linear-gradient(135deg,#f59e0b,#d97706);border-color:#d97706;color:#fff;box-shadow:0 2px 8px rgba(245,158,11,.3)}
+.btn-approve:hover{box-shadow:0 4px 14px rgba(245,158,11,.4)}
+.btn-ship{background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:#4f46e5;color:#fff;box-shadow:0 2px 8px rgba(99,102,241,.3)}
+.btn-ship:hover{box-shadow:0 4px 14px rgba(99,102,241,.4)}
+.btn-receive{background:linear-gradient(135deg,#06b6d4,#0891b2);border-color:#0891b2;color:#fff;box-shadow:0 2px 8px rgba(6,182,212,.3)}
+.btn-receive:hover{box-shadow:0 4px 14px rgba(6,182,212,.4)}
+
+/* ═══ Section title bars — color-coded ═══ */
+.section-bar{padding:14px 18px;border-radius:var(--radius) var(--radius) 0 0;font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:8px;color:#fff}
+.section-bar.sales{background:linear-gradient(135deg,#10b981,#059669)}
+.section-bar.stock{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.section-bar.transfer{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.section-bar.alert{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.section-bar.team{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.section-bar.report{background:linear-gradient(135deg,#6366f1,#4f46e5)}
+.section-bar.qr{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.section-bar.shop{background:linear-gradient(135deg,#ec4899,#db2777)}
+
+/* Chart container */
+.chart-wrap{position:relative;width:100%;max-height:300px}
+.chart-wrap canvas{width:100%!important;max-height:300px}
+
 @media(max-width:860px){.sidebar{display:none}.content{padding:16px}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
 @stack('head')
 </head>
 <body>

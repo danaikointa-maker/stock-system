@@ -9,7 +9,7 @@
     <h3>🖼️ โลโก้ปัจจุบัน</h3>
     <div class="body">
       @if($currentLogo)
-        <div style="text-align:center;padding:30px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);border-radius:12px;margin-bottom:20px">
+        <div style="text-align:center;padding:30px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);border-radius:12px;margin-bottom:20px;background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0">
           <img src="{{ $currentLogo['url'] }}" alt="Logo" style="max-width:200px;max-height:200px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,.15))">
         </div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;font-size:13px">

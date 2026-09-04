@@ -55,16 +55,11 @@ class BrandController extends Controller
     {
         $this->clearOldLogos();
 
-        // คัดลอก default logo กลับมา (ถ้ามี backup)
-        $default = resource_path('assets/default-logo.svg');
-        if (File::exists($default)) {
-            File::copy($default, public_path('brand/logo.svg'));
-        }
-
+        // ไม่ copy default กลับ → ให้ brand_logo() return transparent PNG
         cache()->forget('brand_logo_file');
 
         return redirect()->route('admin.brand.index')
-            ->with('status', 'รีเซ็ตโลโก้เป็นค่าเริ่มต้นแล้ว');
+            ->with('status', 'ลบโลโก้แล้ว — ระบบจะใช้พื้นที่โปร่งใสแทน');
     }
 
     private function getCurrentLogo(): ?array

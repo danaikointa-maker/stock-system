@@ -48,6 +48,30 @@
   </div>
 </div>
 
+{{-- กราฟยอดขายแยกตามหน่วยงาน — Bar Chart --}}
+@if($salesByNode->isNotEmpty())
+<div class="card">
+  <div class="section-bar report">📊 ยอดขายแยกตามหน่วยงาน</div>
+  <div class="body">
+    <div class="chart-wrap"><canvas id="salesByNodeChart"></canvas></div>
+  </div>
+</div>
+@endif
+
+<div class="grid g2">
+  {{-- Doughnut — สินค้าขายดี --}}
+  @if($topProducts->isNotEmpty())
+  <div class="card">
+    <div class="section-bar sales">🍩 สัดส่วนสินค้าขายดี</div>
+    <div class="body">
+      <div class="chart-wrap" style="max-height:280px;display:flex;justify-content:center">
+        <canvas id="topProductsChart"></canvas>
+      </div>
+    </div>
+  </div>
+  @endif
+</div>
+
 <div class="card">
   <h3>ยอดขายแยกตามหน่วยงาน</h3>
   @if($salesByNode->isEmpty())
@@ -139,3 +163,78 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof Chart === 'undefined') return;
+  var colors = ['#10b981','#3b82f6','#f97316','#8b5cf6','#f43f5e','#06b6d4','#f59e0b','#6366f1','#ec4899','#14b8a6'];
+
+  // Bar chart — sales by node
+  var nodeCtx = document.getElementById('salesByNodeChart');
+  if (nodeCtx) {
+    var nodeData = @json($salesByNode);
+    new Chart(nodeCtx, {
+      type: 'bar',
+      data: {
+        labels: nodeData.map(function(r){ return r.name; }),
+        datasets: [{
+          label: 'ยอดขาย (บาท)',
+          data: nodeData.map(function(r){ return r.revenue; }),
+          backgroundColor: colors.slice(0, nodeData.length),
+          borderRadius: 6,
+          borderSkipped: false,
+          maxBarThickness: 50,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        indexAxis: nodeData.length > 5 ? 'y' : 'x',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e293b', padding: 12, cornerRadius: 8,
+            callbacks: { label: function(c){ return '฿' + c.parsed.y?.toLocaleString() || c.parsed.x?.toLocaleString(); } }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(148,163,184,.1)' }, ticks: { font: { size: 11 }, color: '#94a3b8',
+            callback: function(v){ return v >= 1000 ? (v/1000)+'k' : v; } } },
+          y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // Doughnut — top products
+  var prodCtx = document.getElementById('topProductsChart');
+  if (prodCtx) {
+    var prodData = @json($topProducts);
+    new Chart(prodCtx, {
+      type: 'doughnut',
+      data: {
+        labels: prodData.map(function(p){ return p.name; }),
+        datasets: [{
+          data: prodData.map(function(p){ return p.qty; }),
+          backgroundColor: colors.slice(0, prodData.length),
+          borderWidth: 2, borderColor: '#fff', hoverOffset: 8,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: {
+          legend: { position: 'right', labels: { padding: 12, font: { size: 11 }, usePointStyle: true } },
+          tooltip: {
+            backgroundColor: '#1e293b', padding: 12, cornerRadius: 8,
+            callbacks: { label: function(c){
+              var total = c.dataset.data.reduce(function(a,b){return a+b;},0);
+              return c.label + ': ' + c.parsed.toLocaleString() + ' ชิ้น (' + ((c.parsed/total)*100).toFixed(1) + '%)';
+            }}
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+@endpush

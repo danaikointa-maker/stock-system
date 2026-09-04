@@ -47,6 +47,26 @@
   </div>
 </div>
 
+{{-- กราฟ --}}
+<div class="grid g2" style="margin-bottom:18px">
+  <div class="card">
+    <div class="section-bar qr">🍩 ผลลัพธ์การสแกน</div>
+    <div class="body">
+      <div class="chart-wrap" style="max-height:260px;display:flex;justify-content:center">
+        <canvas id="resultDoughnut"></canvas>
+      </div>
+    </div>
+  </div>
+  @if($daily->isNotEmpty())
+  <div class="card">
+    <div class="section-bar report">📊 สแกนรายวัน</div>
+    <div class="body">
+      <div class="chart-wrap"><canvas id="dailyBar"></canvas></div>
+    </div>
+  </div>
+  @endif
+</div>
+
 <div class="grid g2">
   <div class="card">
     <h3>ผลการสแกนแยกตามประเภท</h3>
@@ -143,3 +163,73 @@
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof Chart === 'undefined') return;
+
+  // Doughnut — by result
+  var resultCtx = document.getElementById('resultDoughnut');
+  if (resultCtx) {
+    var byResult = @json($by_result);
+    var labels = {success:'สำเร็จ', already_used:'ใช้แล้ว', invalid:'ไม่ถูกต้อง', expired:'หมดอายุ', not_found:'ไม่พบ'};
+    var colors = {success:'#10b981', already_used:'#f59e0b', invalid:'#ef4444', expired:'#8b5cf6', not_found:'#94a3b8'};
+    var keys = Object.keys(byResult);
+    new Chart(resultCtx, {
+      type: 'doughnut',
+      data: {
+        labels: keys.map(function(k){ return labels[k] || k; }),
+        datasets: [{
+          data: keys.map(function(k){ return byResult[k]; }),
+          backgroundColor: keys.map(function(k){ return colors[k] || '#94a3b8'; }),
+          borderWidth: 2, borderColor: '#fff', hoverOffset: 8,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 14, font: { size: 11 }, usePointStyle: true } },
+          tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 8 }
+        }
+      }
+    });
+  }
+
+  // Bar — daily scans
+  var dailyCtx = document.getElementById('dailyBar');
+  if (dailyCtx) {
+    var daily = @json($daily);
+    new Chart(dailyCtx, {
+      type: 'bar',
+      data: {
+        labels: daily.map(function(d){ return d.d?.slice(5); }),
+        datasets: [
+          {
+            label: 'สแกนสำเร็จ',
+            data: daily.map(function(d){ return d.scans; }),
+            backgroundColor: '#06b6d4', borderRadius: 4, maxBarThickness: 30,
+          },
+          {
+            label: 'แต้มที่แจก',
+            data: daily.map(function(d){ return d.pts; }),
+            backgroundColor: '#8b5cf6', borderRadius: 4, maxBarThickness: 30,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { size: 11 }, usePointStyle: true } },
+          tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 8 }
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,.1)' }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+});
+</script>
+@endpush
