@@ -407,37 +407,52 @@
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
 
-  // Initialize groups
+  // ═══════════════════════════════════════
+  // Initialize: เปิด sub-groups ก่อน → แล้วเปิด parent groups
+  // ═══════════════════════════════════════
+
+  // Step 1: เปิด sub-groups ที่มี active link
+  sidebar.querySelectorAll('.nav-subgroup').forEach(function(sub) {
+    const parentGroup = sub.closest('.nav-group');
+    const parentKey = parentGroup ? parentGroup.dataset.group : '';
+    const subKey = parentKey + '_' + sub.dataset.subgroup;
+    const subHasActive = sub.querySelector('.nav-link.on') !== null;
+    const subOpen = saved.hasOwnProperty(subKey) ? saved[subKey] : (subHasActive || sub.classList.contains('open'));
+
+    if (subOpen) {
+      sub.classList.add('open');
+      // ไม่ต้อง set max-height ที่นี่ — จะทำตอน parent เปิด
+    } else {
+      sub.classList.remove('open');
+      sub.querySelector('.nav-sub-body').style.maxHeight = '0px';
+    }
+  });
+
+  // Step 2: เปิด parent groups (sub-groups เปิดแล้ว → scrollHeight ถูกต้อง)
   sidebar.querySelectorAll('.nav-group').forEach(function(group) {
     const key = group.dataset.group;
     const hasActive = group.querySelector('.nav-link.on') !== null;
     const isOpen = saved.hasOwnProperty(key) ? saved[key] : (hasActive || group.classList.contains('open'));
+    const body = group.querySelector('.nav-group-body');
 
     if (isOpen) {
       group.classList.add('open');
-      group.querySelector('.nav-group-body').style.maxHeight = group.querySelector('.nav-group-body').scrollHeight + 'px';
+      // ใช้ max-height: none ทันที (ไม่ต้องรอ transition)
+      body.style.maxHeight = 'none';
     } else {
       group.classList.remove('open');
-      group.querySelector('.nav-group-body').style.maxHeight = '0px';
+      body.style.maxHeight = '0px';
     }
 
-    // Initialize sub-groups
-    group.querySelectorAll('.nav-subgroup').forEach(function(sub) {
-      const subKey = key + '_' + sub.dataset.subgroup;
-      const subHasActive = sub.querySelector('.nav-link.on') !== null;
-      const subOpen = saved.hasOwnProperty(subKey) ? saved[subKey] : (subHasActive || sub.classList.contains('open'));
-
-      if (subOpen) {
-        sub.classList.add('open');
-        sub.querySelector('.nav-sub-body').style.maxHeight = sub.querySelector('.nav-sub-body').scrollHeight + 'px';
-      } else {
-        sub.classList.remove('open');
-        sub.querySelector('.nav-sub-body').style.maxHeight = '0px';
-      }
+    // Recalculate sub-group heights (ตอนนี้ parent เปิดแล้ว)
+    group.querySelectorAll('.nav-subgroup.open .nav-sub-body').forEach(function(subBody) {
+      subBody.style.maxHeight = 'none';
     });
   });
 
-  // Group toggle
+  // ═══════════════════════════════════════
+  // Toggle: group (with animation)
+  // ═══════════════════════════════════════
   sidebar.querySelectorAll('.nav-group-toggle').forEach(function(btn) {
     btn.addEventListener('click', function() {
       const group = this.closest('.nav-group');
@@ -446,19 +461,27 @@
       const isOpen = group.classList.contains('open');
 
       if (isOpen) {
+        // Close: animate from current height → 0
         body.style.maxHeight = body.scrollHeight + 'px';
-        requestAnimationFrame(function() {
-          body.style.maxHeight = '0px';
-        });
+        // Force reflow
+        body.offsetHeight;
+        body.style.maxHeight = '0px';
         group.classList.remove('open');
         saved[key] = false;
       } else {
+        // Open: animate from 0 → scrollHeight → none
         group.classList.add('open');
+        body.style.maxHeight = '0px';
+        // Force reflow
+        body.offsetHeight;
         body.style.maxHeight = body.scrollHeight + 'px';
         saved[key] = true;
-        // After transition, set auto for dynamic content
+
+        // After transition → set none for dynamic content
         body.addEventListener('transitionend', function handler() {
-          if (group.classList.contains('open')) body.style.maxHeight = 'none';
+          if (group.classList.contains('open')) {
+            body.style.maxHeight = 'none';
+          }
           body.removeEventListener('transitionend', handler);
         });
       }
@@ -467,7 +490,9 @@
     });
   });
 
-  // Sub-group toggle
+  // ═══════════════════════════════════════
+  // Toggle: sub-group (with animation + recalc parent)
+  // ═══════════════════════════════════════
   sidebar.querySelectorAll('.nav-sub-toggle').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -480,23 +505,27 @@
 
       if (isOpen) {
         body.style.maxHeight = body.scrollHeight + 'px';
-        requestAnimationFrame(function() {
-          body.style.maxHeight = '0px';
-        });
+        body.offsetHeight;
+        body.style.maxHeight = '0px';
         sub.classList.remove('open');
         saved[subKey] = false;
       } else {
         sub.classList.add('open');
+        body.style.maxHeight = '0px';
+        body.offsetHeight;
         body.style.maxHeight = body.scrollHeight + 'px';
         saved[subKey] = true;
+
         body.addEventListener('transitionend', function handler() {
-          if (sub.classList.contains('open')) body.style.maxHeight = 'none';
+          if (sub.classList.contains('open')) {
+            body.style.maxHeight = 'none';
+          }
           body.removeEventListener('transitionend', handler);
         });
       }
 
-      // Recalculate parent height
-      if (parentBody.style.maxHeight !== 'none') {
+      // Recalculate parent height (parent ต้อง open อยู่แล้ว)
+      if (parentGroup.classList.contains('open') && parentBody.style.maxHeight !== 'none') {
         parentBody.style.maxHeight = 'none';
       }
 
@@ -504,11 +533,11 @@
     });
   });
 
-  // Keyboard shortcut: Ctrl+B toggle sidebar on mobile
-  document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'b') {
-      e.preventDefault();
-      document.getElementById('sidebar').classList.toggle('mobile-show');
+  // Scroll to active link
+  requestAnimationFrame(function() {
+    var active = sidebar.querySelector('.nav-link.on');
+    if (active) {
+      active.scrollIntoView({ block: 'nearest', behavior: 'instant' });
     }
   });
 })();
