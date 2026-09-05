@@ -115,11 +115,16 @@ Route::middleware(['auth', 'active.user'])->group(function () {
     Route::prefix('agent/shops')->name('agent.shops.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Web\ShopProfileController::class, 'index'])->name('index');
         Route::get('/history', [\App\Http\Controllers\Web\ShopProfileController::class, 'history'])->name('history');
+        Route::get('/map', [\App\Http\Controllers\Web\MapController::class, 'agentMap'])->name('map');
         Route::get('/{shop}/edit', [\App\Http\Controllers\Web\ShopProfileController::class, 'edit'])->name('edit');
         Route::put('/{shop}', [\App\Http\Controllers\Web\ShopProfileController::class, 'update'])->name('update');
         Route::get('/{shop}/checkin', [\App\Http\Controllers\Web\ShopProfileController::class, 'checkin'])->name('checkin');
         Route::post('/{shop}/checkin', [\App\Http\Controllers\Web\ShopProfileController::class, 'storeCheckin'])->name('store-checkin');
     });
+
+    // แผนที่สาธารณะ (ทุกคนเข้าถึงได้)
+    Route::get('/shops/map', [\App\Http\Controllers\Web\MapController::class, 'publicMap'])->name('shops.map');
+    Route::get('/shops/nearby', [\App\Http\Controllers\Web\MapController::class, 'nearby'])->name('shops.nearby');
 
     // จัดการสมาชิกในสายงาน
     Route::prefix('members')->name('members.')->group(function () {

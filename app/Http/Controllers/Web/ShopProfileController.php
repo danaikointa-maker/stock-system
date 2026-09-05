@@ -67,6 +67,8 @@ class ShopProfileController extends Controller
             'opening_hours' => 'nullable|string|max:100',
             'shop_type' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:2000',
+            'show_on_map' => 'nullable',
+            'map_description' => 'nullable|string|max:255',
             'photos' => 'nullable|array|max:5',
             'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
@@ -106,6 +108,8 @@ class ShopProfileController extends Controller
             'opening_hours' => $validated['opening_hours'] ?? null,
             'shop_type' => $validated['shop_type'] ?? null,
             'notes' => $validated['notes'] ?? null,
+            'show_on_map' => $request->has('show_on_map'),
+            'map_description' => $validated['map_description'] ?? null,
             'photos' => $finalPhotos ?: null,
         ]);
 

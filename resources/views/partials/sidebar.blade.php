@@ -19,6 +19,10 @@
       <span class="nav-icon">📊</span>
       <span class="nav-text">ภาพรวม</span>
     </a>
+    <a href="{{ route('shops.map') }}" class="nav-link {{ request()->routeIs('shops.map') || request()->routeIs('shops.nearby') ? 'on' : '' }}">
+      <span class="nav-icon">🗺️</span>
+      <span class="nav-text">ค้นหาร้านค้าใกล้ฉัน</span>
+    </a>
 
     {{-- ═══ 2. ขายและแลกแต้ม ═══ --}}
     @if($u->hasAbility('sell') || $u->hasAbility('accept-redeem'))
@@ -166,8 +170,11 @@
             </a>
           @endif
           @if($u->hasAbility('manage-shop-profile') || $u->hasAbility('agent-checkin'))
-            <a href="{{ route('agent.shops.index') }}" class="nav-link {{ request()->routeIs('agent.shops.*') ? 'on' : '' }}">
+            <a href="{{ route('agent.shops.index') }}" class="nav-link {{ request()->routeIs('agent.shops.*') && !request()->routeIs('agent.shops.map') ? 'on' : '' }}">
               <span class="nav-icon">🏪</span><span class="nav-text">จัดการร้านค้า + Check-in</span>
+            </a>
+            <a href="{{ route('agent.shops.map') }}" class="nav-link {{ request()->routeIs('agent.shops.map') ? 'on' : '' }}">
+              <span class="nav-icon">🗺️</span><span class="nav-text">แผนที่ร้านค้า + นำทาง</span>
             </a>
           @endif
         </div>

@@ -24,6 +24,7 @@ class OrgNode extends Model
         'parent_id', 'level_id', 'code', 'name', 'phone', 'address',
         'lat', 'lng', 'credit_limit', 'status',
         'email', 'line_id', 'opening_hours', 'photos', 'notes', 'shop_type',
+        'show_on_map', 'map_cover_photo', 'map_description',
     ];
 
     protected $casts = [

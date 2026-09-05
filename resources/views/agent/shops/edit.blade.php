@@ -51,6 +51,26 @@
                             <textarea name="notes" class="form-control" rows="3"
                                       placeholder="ข้อมูลเพิ่มเติมเกี่ยวกับร้าน...">{{ old('notes', $shop->notes) }}</textarea>
                         </div>
+
+                        <hr>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="show_on_map" value="1"
+                                       id="show_on_map" {{ old('show_on_map', $shop->show_on_map) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="show_on_map">
+                                    🗺️ แสดงบนแผนที่สาธารณะ (ลูกค้าเห็น)
+                                </label>
+                            </div>
+                            <small class="text-muted">ถ้าเปิด ร้านค้านี้จะแสดงในหน้า "ค้นหาร้านค้าใกล้ฉัน"</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">คำอธิบายสั้น (แสดงบนแผนที่)</label>
+                            <input type="text" name="map_description" class="form-control"
+                                   value="{{ old('map_description', $shop->map_description) }}"
+                                   placeholder="เช่น จำหน่ายสินค้าครบวงจร เปิดทุกวัน"
+                                   maxlength="255">
+                        </div>
                     </div>
                 </div>
 
