@@ -264,7 +264,9 @@ class AccountingController extends Controller
         ]);
 
         $payment = DB::transaction(function () use ($data, $request) {
-            $pay = Payment::create($data + [
+            // ตัด field ที่ไม่มีใน payments table ออก
+            $paymentData = collect($data)->except(['wht_rate', 'income_type'])->toArray();
+            $pay = Payment::create($paymentData + [
                 'payment_no' => $this->docSeq->next('PAY', $this->resolveNodeId($request), $data['payment_date']),
                 'org_node_id' => $this->resolveNodeId($request),
                 'created_by' => $request->user()->id,
