@@ -63,8 +63,16 @@
         <tr><td colspan="4" class="num">รวมก่อน VAT</td><td class="num"><b>{{ number_format($invoice->subtotal, 2) }}</b></td></tr>
         <tr><td colspan="4" class="num">VAT {{ $invoice->vat_rate }}%</td><td class="num">{{ number_format($invoice->vat_amount, 2) }}</td></tr>
         <tr style="background:#f0fdf4;font-size:16px"><td colspan="4" class="num"><b>ยอดรวมทั้งสิ้น</b></td><td class="num" style="color:var(--ok-dark)"><b>{{ number_format($invoice->total, 2) }}</b></td></tr>
-        @if($invoice->paid_amount > 0)
-          <tr><td colspan="4" class="num">ชำระแล้ว</td><td class="num" style="color:var(--ok)">{{ number_format($invoice->paid_amount, 2) }}</td></tr>
+        @php
+          $confirmedCredits = $invoice->creditNotes()->where('status', 'confirmed')->sum('total_amount');
+        @endphp
+        @if($invoice->paid_amount > 0 || $confirmedCredits > 0)
+          @if($invoice->paid_amount > 0)
+            <tr><td colspan="4" class="num">ชำระแล้ว</td><td class="num" style="color:var(--ok)">{{ number_format($invoice->paid_amount, 2) }}</td></tr>
+          @endif
+          @if($confirmedCredits > 0)
+            <tr><td colspan="4" class="num">↩️ ใบลดหนี้ (หักแล้ว)</td><td class="num" style="color:var(--bad-dark)">-{{ number_format($confirmedCredits, 2) }}</td></tr>
+          @endif
           <tr style="background:#fef3c7"><td colspan="4" class="num"><b>ค้างชำระ</b></td><td class="num" style="color:var(--bad-dark)"><b>{{ number_format($invoice->balance, 2) }}</b></td></tr>
         @endif
       </tfoot>
@@ -124,9 +132,8 @@
       </tr>
     </tfoot>
   </table>
-  <div style="padding:12px;background:#fffbeb;border-radius:0 0 12px 12px;font-size:12px;color:#92400e">
-    <b>ℹ️ หมายเหตุ:</b> ใบลดหนี้เป็นเอกสารแยกต่างหาก ไม่ได้หักออกจากยอดคงค้างของบิลโดยตรง
-    หากต้องการปรับลบลูกหนี้ ให้สร้างใบเสร็จรับเงินคืน (Refund Receipt) แยกต่างหาก
+  <div style="padding:12px;background:#ecfdf5;border-radius:0 0 12px 12px;font-size:12px;color:#065f46">
+    <b>✅ หมายเหตุ:</b> ใบลดหนี้ที่ยืนยันแล้ว (confirmed) จะถูกหักออกจากยอดคงค้างของบิลอัตโนมัติ
   </div>
 </div>
 @endif

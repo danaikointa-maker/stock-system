@@ -44,9 +44,21 @@
         </select>
       </div>
       <div class="field">
+        <label>อ้างอิงบิลเรียกเก็บ (หักยอดค้าง)</label>
+        <select name="invoice_id">
+          <option value="">ไม่เชื่อมบิล</option>
+          @foreach($invoices as $inv)
+            <option value="{{ $inv->id }}">{{ $inv->invoice_no }} - {{ $inv->customer_name }} (ค้าง {{ number_format($inv->balance, 2) }})</option>
+          @endforeach
+        </select>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="field">
         <label>เหตุผล / สาเหตุ *</label>
         <input type="text" name="reason" required placeholder="เช่น สินค้าชำรุด, ส่งผิดรายการ">
       </div>
+      <div class="field"></div>
     </div>
     <div class="grid g2" style="margin-top:12px">
       <div class="field">

@@ -653,9 +653,15 @@ class AccountingController extends Controller
               ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
         })->whereIn('status', ['shipped', 'delivered'])->latest()->limit(50)->get();
 
+        // ดึง invoices ที่มียอดค้าง (สำหรับเชื่อม CN)
+        $invoices = Invoice::whereIn('org_node_id', $request->user()->visibleNodeIds())
+            ->whereIn('status', ['issued', 'partial', 'overdue'])
+            ->where('balance', '>', 0)
+            ->latest('invoice_date')->limit(50)->get();
+
         $products = Product::where('status', 'active')->orderBy('name')->get();
 
-        return view('accounting.credit.form', compact('nodes', 'deliveries', 'products', 'deliveryNote'));
+        return view('accounting.credit.form', compact('nodes', 'deliveries', 'invoices', 'products', 'deliveryNote'));
     }
 
     public function storeCreditNote(Request $request)
@@ -665,6 +671,7 @@ class AccountingController extends Controller
             'type'             => 'required|in:return,discount,cancel,adjustment',
             'reason'           => 'required|string|max:255',
             'delivery_note_id' => 'nullable|exists:delivery_notes,id',
+            'invoice_id'       => 'nullable|exists:invoices,id',
             'customer_name'    => 'required|string|max:150',
             'vat_rate'         => 'nullable|numeric|min:0|max:100',
             'note'             => 'nullable|string',
@@ -706,6 +713,7 @@ class AccountingController extends Controller
                 'type'             => $data['type'],
                 'reason'           => $data['reason'],
                 'delivery_note_id' => $data['delivery_note_id'] ?? null,
+                'invoice_id'       => $data['invoice_id'] ?? null,
                 'customer_name'    => $data['customer_name'],
                 'subtotal'         => $subtotal,
                 'vat_amount'       => $vat,
@@ -738,12 +746,32 @@ class AccountingController extends Controller
             return back()->with('error', '❌ ใบลดหนี้ถูกยืนยันแล้ว');
         }
 
+        // ตรวจสอบว่ายอด CN ไม่เกินยอดค้างของ Invoice
+        if ($credit->invoice_id) {
+            $invoice = Invoice::find($credit->invoice_id);
+            $existingCredits = $invoice->creditNotes()
+                ->where('status', 'confirmed')
+                ->sum('total_amount');
+            $maxCredit = bcsub($invoice->total, bcadd($invoice->paid_amount, $existingCredits, 2), 2);
+
+            if (bccomp($credit->total_amount, $maxCredit, 2) > 0) {
+                return back()->with('error', '❌ ยอดใบลดหนี้ (' . number_format($credit->total_amount, 2) . ') เกินยอดค้าง (' . number_format($maxCredit, 2) . ') ของบิล ' . $invoice->invoice_no);
+            }
+        }
+
         $credit->update(['status' => 'confirmed']);
 
         // บันทึก Stock Ledger + Journal Entry
         app(\App\Services\StockLedgerService::class)->recordCreditNote($credit);
 
-        return back()->with('flash', '✅ ยืนยันใบลดหนี้สำเร็จ — บันทึกบัญชี + คืนสต๊อกอัตโนมัติ');
+        // อัปเดต Invoice balance (หัก CN ออกจากยอดค้าง)
+        if ($credit->invoice_id) {
+            $invoice = Invoice::find($credit->invoice_id);
+            $invoice->recalc();
+            $invoice->save();
+        }
+
+        return back()->with('flash', '✅ ยืนยันใบลดหนี้สำเร็จ — บันทึกบัญชี + คืนสต๊อก + กระทบยอดบิลอัตโนมัติ');
     }
 
     // ════════════════════════════════════

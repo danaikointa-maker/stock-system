@@ -57,14 +57,22 @@ class Invoice extends Model
         $this->vat_amount = bcmul($this->subtotal, bcdiv($this->vat_rate, 100, 4), 2);
         $this->total = bcadd($this->subtotal, $this->vat_amount, 2);
         $this->paid_amount = $this->receipts()->sum('amount');
-        
-        // balance = total - paid_amount (ไม่หัก credit notes)
-        $this->balance = bcsub($this->total, $this->paid_amount, 2);
+
+        // ยอดใบลดหนี้ที่ยืนยันแล้ว (เชื่อมกับ invoice นี้)
+        $creditAmount = $this->creditNotes()
+            ->where('status', 'confirmed')
+            ->sum('total_amount');
+
+        // balance = total - paid - credit (หัก CN ที่ยืนยันแล้ว)
+        $this->balance = bcsub(
+            bcsub($this->total, $this->paid_amount, 2),
+            $creditAmount, 2
+        );
 
         if ($this->balance <= 0) {
             $this->status = 'paid';
             $this->balance = 0;
-        } elseif ($this->paid_amount > 0) {
+        } elseif ($this->paid_amount > 0 || $creditAmount > 0) {
             $this->status = 'partial';
         } elseif ($this->due_date->isPast() && $this->status !== 'void') {
             $this->status = 'overdue';
