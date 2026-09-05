@@ -306,9 +306,10 @@ class AccountingTestSeeder extends Seeder
         // คืนสต๊อก 20 ชิ้น
         $this->simulateCreditStockReturn($credit, $product, $lot, $nodeId, $adminId, $docSeq);
 
-        // อัพเดท invoice balance
+        // อัพเดท invoice balance — ไม่หัก credit note (CN เป็นเอกสารแยก)
+        // balance = total(3,210) - paid(2,000) = 1,210
         $invoice->update([
-            'balance' => 1210.00 - 321.00,  // 889.00
+            'balance' => 1210.00,
         ]);
 
         // ═══════════════════════════════════════════

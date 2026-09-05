@@ -99,4 +99,36 @@
 </div>
 @endif
 
+{{-- ใบลดหนี้/คืนสินค้า ที่เชื่อมกับบิลนี้ --}}
+@if($invoice->creditNotes && $invoice->creditNotes->isNotEmpty())
+<div class="card">
+  <h3>↩️ ใบลดหนี้ / คืนสินค้า</h3>
+  <table>
+    <thead><tr><th>เลขที่</th><th>ประเภท</th><th>เหตุผล</th><th>วันที่</th><th>สถานะ</th><th class="num">ยอดลด</th></tr></thead>
+    <tbody>
+    @foreach($invoice->creditNotes as $cn)
+      <tr>
+        <td><a href="{{ route('accounting.credit.show', $cn) }}"><code>{{ $cn->doc_no }}</code></a></td>
+        <td>{{ $cn->type_label }}</td>
+        <td>{{ $cn->reason }}</td>
+        <td>{{ $cn->created_at->format('d/m/Y') }}</td>
+        <td><span class="badge {{ $cn->status === 'confirmed' ? 'ok' : ($cn->status === 'draft' ? 'warn' : 'bad') }}">{{ $cn->status }}</span></td>
+        <td class="num"><b style="color:var(--bad-dark)">{{ number_format($cn->total_amount, 2) }}</b></td>
+      </tr>
+    @endforeach
+    </tbody>
+    <tfoot>
+      <tr style="background:#fef2f2">
+        <td colspan="5" class="num"><b>รวมใบลดหนี้</b></td>
+        <td class="num"><b style="color:var(--bad-dark)">{{ number_format($invoice->creditNotes->sum('total_amount'), 2) }}</b></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div style="padding:12px;background:#fffbeb;border-radius:0 0 12px 12px;font-size:12px;color:#92400e">
+    <b>ℹ️ หมายเหตุ:</b> ใบลดหนี้เป็นเอกสารแยกต่างหาก ไม่ได้หักออกจากยอดคงค้างของบิลโดยตรง
+    หากต้องการปรับลบลูกหนี้ ให้สร้างใบเสร็จรับเงินคืน (Refund Receipt) แยกต่างหาก
+  </div>
+</div>
+@endif
+
 @endsection
