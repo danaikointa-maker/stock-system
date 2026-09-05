@@ -1,17 +1,18 @@
 ---
 slug: rao-members-stock-system
 title: RaoMembers Stock & Loyalty System
-tagline: ระบบสต๊อกสินค้า 6 ระดับสายงาน + QR สะสมแต้ม + ระบบบัญชีครบวงจร
+tagline: ระบบสต๊อกสินค้า 6 ระดับสายงาน + QR สะสมแต้ม + บัญชีครบวงจร + แผนที่นำทาง
 short_desc: >
   ระบบจัดการสต๊อกสินค้าหลายระดับ (เจ้าของ→คลัง→ตัวแทน→ร้านค้า→ผู้ขาย)
   พร้อม POS ขายหน้าร้าน, QR สะสมแต้ม/แลกของรางวัล, ใบโอนสินค้า,
   ระบบบัญชีและการเงินครบวงจร (บิลเรียกเก็บ/รับ/จ่าย, ใบกำกับภาษี,
-  ใบหัก ณ ที่จ่าย, งบการเงิน), ศูนย์ความปลอดภัย และ Workflow Guide
+  ใบหัก ณ ที่จ่าย, งบการเงิน), ระบบแผนที่นำทาง (Leaflet + GPS),
+  จัดการร้านค้า + Check-in, ศูนย์ความปลอดภัย และ Workflow Guide
 
 category: บริหารจัดการ / สต๊อกสินค้า / Loyalty
 system_type: software
 sub_type: Web App (ใช้ผ่านเบราว์เซอร์)
-tags: [สต๊อก, POS, QR Code, สะสมแต้ม, โอนสินค้า, บัญชี, ใบกำกับภาษี, Laravel]
+tags: [สต๊อก, POS, QR Code, สะสมแต้ม, โอนสินค้า, บัญชี, ใบกำกับภาษี, แผนที่, GPS, Laravel]
 php_version: PHP 8.2+
 status: production
 featured: true
@@ -54,33 +55,38 @@ tech_stack:
   - { name: PHP,      version: 8.2+,  desc: Backend หลัก }
   - { name: Laravel,  version: 11.x,  desc: Framework + 6 บทบาท + Gate/Policy }
   - { name: Blade,    version: Native,desc: Template engine + Tailwind CSS }
-  - { name: MySQL,    version: 8.0,   desc: 38+ tables (stock, sales, accounting) }
+  - { name: MySQL,    version: 8.0,   desc: 40+ tables (stock, sales, accounting, maps) }
   - { name: Redis,    version: 7.x,   desc: Queue + cache + session }
+  - { name: Leaflet,  version: 1.9,   desc: แผนที่ + GPS + นำทาง (OpenStreetMap) }
   - { name: DomPDF,   version: 3.x,   desc: ใบเสร็จ / ใบกำกับภาษี / รายงาน PDF }
 
 modules:
   - { name: POS,        desc: จุดขายหน้าร้าน,        items: [เปิดบิลขาย, ตัดสต๊อก, สะสมแต้ม, พิมพ์ใบเสร็จ] }
   - { name: Stock,      desc: คลังสินค้า,             items: [ล็อต QR, โอน 6 ระดับ, นับสต๊อก, ปรับยอด] }
   - { name: Loyalty,    desc: QR สะสมแต้ม,           items: [QR สินค้า, QR ร้านค้า, แลกรางวัล, วงเงินเดือน] }
-  - { name: Accounting, desc: บัญชีและการเงิน,        items: [บิลเรียกเก็บ/รับ/จ่าย, ใบกำกับภาษี, WHT, งบการเงิน] }
+  - { name: Accounting, desc: บัญชีและการเงิน,        items: [บิลเรียกเก็บ/รับ/จ่าย, ใบกำกับภาษี, WHT, งบการเงิน, Role-based] }
+  - { name: Map,        desc: แผนที่และนำทาง,         items: [GPS, Leaflet, ค้นหาใกล้, นำทาง, ระยะทาง] }
+  - { name: ShopMgmt,   desc: จัดการร้านค้า,          items: [ข้อมูลร้าน, Check-in, ถ่ายรูป, ประวัติ] }
   - { name: Admin,      desc: เจ้าของระบบ,            items: [แพ็กเกจ, ความปลอดภัย, ตั้งค่า, แบรนด์] }
   - { name: Shop,       desc: หน้าร้าน,               items: [ตั้งค่าร้าน, QR ร้านค้า, ของรางวัล] }
 
 structure:
   overview: Web App เดียว (Laravel 11 + Blade) แยกสิทธิ์ 6 บทบาท ข้อมูลเข้ารหัส สำรองอัตโนมัติ
-  frontend: Blade + Tailwind CSS + Vanilla JS รองรับมือถือ/แท็บเล็ต
-  backend: Laravel 11 PHP 8.2 — StockService, SaleService, PointService, AccountingService, DocSequenceService, StockLedgerService
-  database: MySQL 8 — products, product_lots, stock_balances, stock_movements, stock_ledger, sales, transfers, invoices, payments, journal_entries, accounts
+  frontend: Blade + Tailwind CSS + Vanilla JS + Leaflet.js รองรับมือถือ/แท็บเล็ต
+  backend: Laravel 11 PHP 8.2 — StockService, SaleService, PointService, AccountingService, DocSequenceService, StockLedgerService, MapController, ShopProfileController
+  database: MySQL 8 — products, product_lots, stock_balances, stock_movements, stock_ledger, sales, transfers, invoices, payments, journal_entries, accounts, agent_checkins, org_nodes (GPS/map)
   cache: Redis queue + session + cache
   queue: Queue — LINE Notify, Email SMTP, SMS, PDF generation
-  storage: Local / S3 (รูปภาพ, โลโก้, เอกสาร)
+  storage: Local / S3 (รูปภาพ, โลโก้, เอกสาร, รูปร้าน, รูป check-in)
   deployment: Cloud / On-premise + สำรองรายวัน
-  integrations: [LINE OA / LINE Notify, Gmail SMTP, Thai Bulk SMS, Twilio]
+  integrations: [LINE OA / LINE Notify, Gmail SMTP, Thai Bulk SMS, Twilio, OpenStreetMap, OSRM Routing]
   layers:
     - { name: POS ขายหน้าร้าน,    desc: เปิดบิล + ตัดสต๊อก + แต้ม,       tech: Blade + JS }
     - { name: คลังสินค้า,        desc: ล็อต QR + โอน + นับ,            tech: Laravel }
     - { name: QR สะสมแต้ม,       desc: สแกน + ให้แต้ม + แลกรางวัล,      tech: Laravel + Queue }
     - { name: บัญชีและการเงิน,   desc: บิล + ใบกำกับภาษี + งบการเงิน,    tech: Laravel + bcmath }
+    - { name: แผนที่และนำทาง,     desc: GPS + Leaflet + OSRM,            tech: Leaflet + JS }
+    - { name: จัดการร้านค้า,     desc: ข้อมูลร้าน + Check-in + รูป,     tech: Laravel + GPS }
     - { name: Core Services,      desc: Stock/Sale/Point/Accounting,     tech: PHP 8.2 }
     - { name: แจ้งเตือน,          desc: LINE / Email / SMS,              tech: Queue }
   flow:
@@ -90,6 +96,8 @@ structure:
     - ร้านค้ายื่นใบเบิกแต้ม → Admin อนุมัติ → จ่ายเงินคืน
     - ระบบบัญชี: ออกบิลเรียกเก็บ → รับเงิน → ใบกำกับภาษี → รายงานงบการเงิน
     - Stock Ledger: ทุก movement บันทึก immutable + Journal Entry อัตโนมัติ
+    - Agent: จัดการข้อมูลร้าน → Check-in GPS → ถ่ายรูปยืนยัน → นำทางไปร้าน
+    - ลูกค้า: ค้นหาร้านใกล้ → ดูแผนที่ → นำทางด้วย Google Maps
 
 workflow_steps:
   - { step: ติดตั้งระบบ,       desc: Clone repo + ตั้ง .env + migrate,            duration: 1 ชั่วโมง }
@@ -97,6 +105,7 @@ workflow_steps:
   - { step: สร้างสายงาน,       desc: สร้างหน่วยงาน 6 ระดับ + สมาชิก,               duration: 1–2 วัน }
   - { step: นำเข้าสินค้า,      desc: สร้างสินค้า + ล็อต QR + ราคา,                duration: 1–3 วัน }
   - { step: ตั้งค่าแพ็กเกจ,    desc: แพ็กเกจสมาชิก + อัตราแต้ม + ของรางวัล,          duration: 1 วัน }
+  - { step: กรอกข้อมูลร้านค้า,  desc: ที่อยู่, GPS, รูปถ่าย, เวลาทำการ,            duration: 1–2 วัน }
   - { step: อบรมทีม,           desc: คลัง/ตัวแทน/ร้านค้า/ผู้ขาย ออนไลน์,          duration: 1 วัน }
   - { step: เปิดใช้จริง,        desc: ใช้คู่ขนาน 3–7 วันแล้วตัดระบบเดิม,           duration: 3–7 วัน }
 
@@ -111,9 +120,9 @@ demo_note: มีระบบ Demo ครบ 6 ระดับ ทดลอง�
 is_public: true
 ---
 
-# RaoMembers — ระบบสต๊อกสินค้าหลายระดับ + QR สะสมแต้ม + บัญชีครบวงจร
+# RaoMembers — ระบบสต๊อกสินค้าหลายระดับ + QR สะสมแต้ม + บัญชีครบวงจร + แผนที่นำทาง
 
-> รันบน **PHP 8.2+** | Laravel 11 | MySQL 8 | Redis 7 | Cloud / On-premise
+> รันบน **PHP 8.2+** | Laravel 11 | MySQL 8 | Redis 7 | Leaflet + OpenStreetMap | Cloud / On-premise
 
 ## ระบบทำอะไรได้บ้าง
 
@@ -125,8 +134,19 @@ is_public: true
 - **ระบบแต้ม v3** — กระเป๋าแยกตามร้าน, วงเงินรายเดือน, FIFO, หมดอายุ
 - **เบิกเงินคืน** — ร้านยื่นใบเบิก → admin อนุมัติ → จ่ายเงิน
 - **ระบบบัญชีครบวงจร** — บิลเรียกเก็บ/รับ/จ่าย, ใบกำกับภาษี, หัก ณ ที่จ่าย, ใบส่งของ, ใบลดหนี้, ใบเสนอราคา, ใบสั่งซื้อ, ลงบัญชีแยก
+- **บัญชี Role-based** — แต่ละบทบาทเห็นเมนู/เอกสารเฉพาะที่เกี่ยวข้อง (Agent/Warehouse/Shop/Admin)
 - **งบการเงิน 5 ฉบับ** — General Ledger, งบทดลอง, งบกำไรขาดทุน, งบแสดงฐานะ, AR/AP Aging
 - **Stock Ledger (Immutable)** — ทุก movement บันทึกถาวร แก้ไข/ลบไม่ได้ + Journal Entry อัตโนมัติ
+- **🗺️ แผนที่นำทาง** — Leaflet + OpenStreetMap (ฟรี ไม่ต้อง API key)
+  - GPS auto-detect ตำแหน่งผู้ใช้
+  - จิ้มแผนที่เลือกพิกัด
+  - แสดงเส้นทางจริง (OSRM routing)
+  - นำทางผ่าน Google Maps / Apple Maps app
+  - คำนวณระยะทาง + เรียงใกล้-ไกล
+- **🏪 จัดการร้านค้า** — กรอกข้อมูลร้าน, ที่อยู่, GPS, รูปถ่าย, เวลาทำการ
+- **📍 Check-in + ถ่ายรูป** — Agent check-in GPS + ถ่ายรูปยืนยัน + ระยะห่างจากร้าน
+- **📋 AR Aging** — รายงานลูกหนี้ค้างรับ แยก 30/60/90 วัน สำหรับ Agent
+- **🔔 Badge แจ้งเตือน** — Overdue badge ใน sidebar
 - **ศูนย์ความปลอดภัย** — audit trail, rate limit, IP block, security events
 - **แจ้งเตือน** — LINE OA / LINE Notify / Gmail SMTP / Thai Bulk SMS / Twilio
 - **Sidebar Collapsible** — เมนูย่อ/ขยายได้ จำสถานะข้าม session + sub-groups
@@ -139,6 +159,7 @@ is_public: true
 - ร้านค้า / แฟรนไชส์ ที่ต้องการ Track & Trace สินค้าตั้งแต่คลังถึงมือลูกค้า
 - ธุรกิจที่ต้องการระบบ Loyalty Program (สะสมแต้ม + แลกรางวัล)
 - ธุรกิจที่ต้องการระบบบัญชีครบวงจรเชื่อมกับสต๊อกสินค้า
+- **ตัวแทนขาย** ที่ต้องเดินทางไปเยี่ยมร้านค้า + นำทาง + ยืนยันการทำงาน
 
 ---
 
@@ -176,15 +197,21 @@ php artisan serve
 # เปิด http://localhost:8000/login
 ```
 
+### สร้างลิงก์ storage (สำหรับรูปถ่าย)
+
+```bash
+php artisan storage:link
+```
+
 ### บัญชีทดสอบ (รหัสผ่าน: `password` ทุกบัญชี)
 
 | อีเมล | ระดับ | สิทธิ์หลัก |
 |---|---|---|
-| `admin@demo.test` | เจ้าของระบบ | ทุกอย่าง + บัญชี + งบการเงิน |
-| `wh@demo.test` | คลังใหญ่ | จัดการสต๊อก โอนของ |
+| `admin@demo.test` | เจ้าของระบบ | ทุกอย่าง + บัญชี + งบการเงิน + แผนที่ |
+| `wh@demo.test` | คลังใหญ่ | จัดการสต๊อก โอนของ + PO/PAY |
 | `swh@demo.test` | คลังย่อย | รับของ โอนต่อ |
-| `agent@demo.test` | ตัวแทนขาย | จัดการสมาชิก โอนของ |
-| `shop@demo.test` | ร้านค้า | POS + ตั้งค่าร้าน + QR + บัญชี |
+| `agent@demo.test` | ตัวแทนขาย | เอกสารขาย + จัดการร้านค้า + แผนที่ + AR |
+| `shop@demo.test` | ร้านค้า | POS + ตั้งค่าร้าน + QR + ใบเสร็จ |
 | `seller@demo.test` | ผู้ขาย | POS เท่านั้น |
 
 ---
@@ -252,23 +279,28 @@ stock-system/
 ├── app/
 │   ├── Console/Commands/          # Artisan commands
 │   ├── Enums/                     # Role, TransferStatus, MovementType enums
+│   │   └── Role.php               # 6 บทบาท + 25 abilities
 │   ├── Exceptions/                # Custom exceptions
 │   ├── Http/
-│   │   ├── Controllers/Web/       # Web controllers (20+)
-│   │   │   ├── AccountingController.php   # ระบบบัญชี 58 methods
+│   │   ├── Controllers/Web/       # Web controllers (22+)
+│   │   │   ├── AccountingController.php   # ระบบบัญชี 60+ methods
 │   │   │   ├── DashboardController.php    # ภาพรวม
+│   │   │   ├── MapController.php          # แผนที่ + นำทาง + API
 │   │   │   ├── SaleController.php         # POS ขาย
+│   │   │   ├── ShopProfileController.php  # จัดการร้านค้า + Check-in
 │   │   │   ├── TransferController.php     # ใบโอนสินค้า
 │   │   │   ├── WorkflowController.php     # คู่มือการทำงาน
 │   │   │   └── ...
 │   │   └── Middleware/            # Security middleware
-│   ├── Models/                    # Eloquent models (44+)
+│   ├── Models/                    # Eloquent models (46+)
 │   │   ├── Account.php            # ผังบัญชี
+│   │   ├── AgentCheckin.php       # Check-in GPS + รูปถ่าย
 │   │   ├── CreditNote.php         # ใบลดหนี้
 │   │   ├── DeliveryNote.php       # ใบส่งของ
 │   │   ├── Invoice.php            # บิลเรียกเก็บ
 │   │   ├── JournalEntry.php       # รายการบัญชี
 │   │   ├── ManualJournal.php      # ลงบัญชีแยก
+│   │   ├── OrgNode.php            # หน่วยงาน (GPS, map, photos)
 │   │   ├── PurchaseOrder.php      # ใบสั่งซื้อ
 │   │   ├── Quotation.php          # ใบเสนอราคา
 │   │   ├── StockLedger.php        # Stock Ledger (immutable)
@@ -280,16 +312,18 @@ stock-system/
 │   │   └── ...
 │   └── Policies/                  # Authorization
 ├── database/
-│   ├── migrations/                # DB schema (15+)
+│   ├── migrations/                # DB schema (18+)
 │   │   ├── 2026_01_01_*           # Core tables (products, users, org)
 │   │   ├── 2026_09_04_200000      # Accounting (10 tables)
 │   │   ├── 2026_09_04_210000      # Delivery + Credit + Stock Ledger
-│   │   └── 2026_09_04_220000      # Quotation + PO + Manual Journal
-│   └── seeders/                   # Demo data
+│   │   ├── 2026_09_04_220000      # Quotation + PO + Manual Journal
+│   │   ├── 2026_09_05_100000      # Shop profile fields (email, photos, etc.)
+│   │   ├── 2026_09_05_100001      # Agent check-ins table
+│   │   └── 2026_09_05_100002      # Map fields (show_on_map, cover, description)
+│   └── seeders/                   # Demo data + AccountingTestSeeder
 ├── resources/views/
 │   ├── accounting/                # 25+ accounting views
-│   │   ├── dashboard.blade.php
-│   │   ├── invoices/              # บิลเรียกเก็บ (index/form/show)
+│   │   ├── invoices/              # บิลเรียกเก็บ
 │   │   ├── receipts/              # บิลรับ
 │   │   ├── payments/              # บิลจ่าย
 │   │   ├── delivery/              # ใบส่งของ
@@ -297,18 +331,27 @@ stock-system/
 │   │   ├── quotations/            # ใบเสนอราคา
 │   │   ├── po/                    # ใบสั่งซื้อ
 │   │   ├── journals/              # ลงบัญชีแยก
-│   │   ├── stock-ledger.blade.php
-│   │   ├── general-ledger.blade.php
-│   │   ├── trial-balance.blade.php
-│   │   ├── profit-loss.blade.php
-│   │   ├── balance-sheet.blade.php
-│   │   └── aging-report.blade.php
+│   │   ├── ar-aging.blade.php     # AR Aging สำหรับ Agent
+│   │   └── ...                    # งบการเงิน 5 ฉบับ
+│   ├── agent/                     # จัดการร้านค้า
+│   │   └── shops/
+│   │       ├── index.blade.php    # รายการร้าน + stats
+│   │       ├── edit.blade.php     # แก้ไขข้อมูล + GPS + รูป
+│   │       ├── checkin.blade.php  # Check-in + ถ่ายรูป
+│   │       └── history.blade.php  # ประวัติ check-in
+│   ├── maps/                      # แผนที่
+│   │   ├── agent.blade.php        # แผนที่ Agent (นำทาง)
+│   │   └── public.blade.php       # ค้นหาร้านค้าใกล้ฉัน
+│   ├── components/
+│   │   └── map.blade.php          # Map component (reusable)
 │   ├── workflow/                  # Workflow Guide
-│   ├── partials/sidebar.blade.php # Sidebar collapsible
+│   ├── partials/sidebar.blade.php # Sidebar collapsible (role-based)
 │   └── layouts/app.blade.php
 ├── routes/
-│   ├── web.php                    # 60+ routes
+│   ├── web.php                    # 80+ routes
 │   └── api.php
+├── docs/
+│   └── ACCOUNTING_WORKFLOW.md     # คู่มือขั้นตอนบัญชี
 ├── tests/                         # 169 tests, 419 assertions
 ├── install.sh / install.bat       # Auto installer
 └── README.md / INSTALL.md / PERMISSIONS.md
@@ -340,6 +383,8 @@ stock-system/
 | | journal_entries, journal_lines | รายการบัญชี (Double-entry) |
 | | manual_journals, manual_journal_lines | ลงบัญชีแยกด้วยมือ |
 | | doc_sequences | ตัวเลขเอกสารอัตโนมัติ |
+| **ร้านค้า** | org_nodes | หน่วยงาน + ที่อยู่ + GPS + รูปถ่าย + map |
+| | agent_checkins | Check-in GPS + รูปถ่าย + ระยะห่าง |
 
 ---
 
@@ -374,6 +419,23 @@ stock-system/
     → Audit ตรวจสอบยอดตรงอัตโนมัติ
 ```
 
+### 🗺️ แผนที่และนำทาง
+```
+Agent/ลูกค้า → เปิดแผนที่ → GPS auto-detect ตำแหน่ง
+    → ดูร้านค้าในแผนที่ → คลิกดูเส้นทาง
+    → OSRM routing คำนวณเส้นทางจริง + ระยะทาง + เวลา
+    → กด "นำทาง" → เปิด Google Maps / Apple Maps
+```
+
+### 🏪 จัดการร้านค้า + Check-in
+```
+Agent → แก้ไขข้อมูลร้านค้า (ที่อยู่, GPS, รูปถ่าย)
+    → เดินทางไปร้าน → กด Check-in (GPS auto)
+    → ถ่ายรูปหน้าร้าน/สินค้า/หลักฐาน
+    → ระบบคำนวณระยะห่างจากร้าน (Haversine)
+    → บันทึกประวัติ + timestamp
+```
+
 ---
 
 ## 📒 ระบบบัญชีและการเงิน
@@ -399,12 +461,105 @@ stock-system/
 ### งบการเงิน 5 ฉบับ
 
 | # | งบ | ตรวจสอบ |
-|---|---|---------|
+|---|---|---------| 
 | 1 | 📒 General Ledger | รายการแยกตามบัญชี + running balance |
 | 2 | ⚖️ งบทดลอง | Dr = Cr สมดุล? |
 | 3 | 📈 งบกำไรขาดทุน | รายได้ - ค่าใช้จ่าย = กำไร/ขาดทุน |
 | 4 | 🏦 งบแสดงฐานะ | สินทรัพย์ = หนี้สิน + ทุน |
 | 5 | ⏳ AR/AP Aging | ลูกหนี้/เจ้าหนี้คงค้าง + อายุหนี้ |
+
+### สิทธิ์บัญชีแยกตามบทบาท
+
+| หมวด | SystemAdmin | Warehouse | Agent | Shop | Seller |
+|------|:-----------:|:---------:|:-----:|:----:|:------:|
+| **Dashboard** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **เอกสารขาย** (QT, INV, RCP, TXI, CN) | ✅ ทั้งหมด | ❌ | ✅ ทั้งหมด | ✅ RCP เท่านั้น | ❌ |
+| **เอกสารจัดซื้อ** (PO, PAY, WHT) | ✅ ทั้งหมด | ✅ ทั้งหมด | ❌ | ❌ | ❌ |
+| **ใบส่งของ** | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **ตรวจสอบ/บัญชี** (Ledger, Audit, JV) | ✅ ทั้งหมด | ❌ | ❌ | ❌ | ❌ |
+| **งบการเงิน** (5 ฉบับ + ผังบัญชี) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **AR Aging** (ลูกหนี้ค้างรับ) | ✅ | ❌ | ✅ | ❌ | ❌ |
+
+### สูตรคำนวณ
+
+| สูตร | รายละเอียด |
+|---|---|
+| **VAT** | `vat_amount = subtotal × (vat_rate / 100)` |
+| **WHT** | คำนวณจาก `income_amount` (ก่อน VAT) ไม่ใช่ total |
+| **ยอดรวม** | `total = subtotal + vat_amount` |
+| **สุทธิ** | `net_total = total - wht_amount` |
+| **คงค้าง** | `balance = total - paid_amount` (ไม่หัก Credit Notes) |
+
+---
+
+## 🗺️ ระบบแผนที่และนำทาง
+
+### เทคโนโลยี
+
+- **Leaflet.js 1.9** — แผนที่ open-source (ฟรี ไม่จำกัด)
+- **OpenStreetMap** — tile layer (ไม่ต้อง API key)
+- **OSRM Routing** — คำนวณเส้นทางจริง + ระยะทาง
+- **Haversine Formula** — คำนวณระยะทางตรง (line-of-sight)
+- **Geolocation API** — GPS จากอุปกรณ์
+
+### ฟีเจอร์แผนที่
+
+| ฟีเจอร์ | รายละเอียด | ใครใช้ได้ |
+|---------|-----------|----------|
+| 🗺️ ค้นหาร้านค้าใกล้ฉัน | ดูร้านค้าบนแผนที่ + กรอกระยะทาง/ประเภท | ทุกคน |
+| 📍 GPS auto-detect | รับตำแหน่งปัจจุบันอัตโนมัติ | ทุกคน |
+| 🛣️ แสดงเส้นทางจริง | OSRM routing แสดงเส้นทางบนแผนที่ | ทุกคน |
+| 🧭 นำทาง | เปิด Google Maps / Apple Maps app | ทุกคน |
+| 📏 ระยะทาง | คำนวณ + แสดงใกล้-ไกล + เรียงลำดับ | ทุกคน |
+| 🏪 แผนที่ร้านค้า (Agent) | ดูร้านทั้งหมด + นำทาง + ระยะทาง | Agent + Admin |
+| ✏️ จิ้มเลือกพิกัด | คลิกแผนที่ → ตั้งพิกัดร้านค้า | Agent + Admin |
+| 📍 Check-in GPS | บันทึกตำแหน่ง + ถ่ายรูป + ระยะห่าง | Agent + Admin |
+
+### ปุ่มนำทางอัจฉริยะ
+
+| อุปกรณ์ | เปิดแอป |
+|---------|---------|
+| iOS | Apple Maps (`maps://`) |
+| Android | Google Maps Navigation (`google.navigation:`) |
+| Desktop | Google Maps Web (`google.com/maps/dir/`) |
+
+---
+
+## 🏪 ระบบจัดการร้านค้า + Check-in
+
+### ข้อมูลร้านค้า (Agent กรอก/แก้ไข)
+
+| Field | ประเภท | รายละเอียด |
+|---|---|---|
+| ชื่อร้าน | text | ชื่อร้านค้า |
+| ประเภทร้าน | select | ร้านสะดวกซื้อ, ของชำ, ซูเปอร์, ขายส่ง, ตลาดนัด, ออนไลน์ |
+| ที่อยู่ | textarea | ที่อยู่เต็ม |
+| พิกัด GPS | decimal | ละติจูด + ลองจิจูด (จิ้มแผนที่หรือ GPS) |
+| เบอร์โทร | text | เบอร์ติดต่อ |
+| Email | text | อีเมล |
+| LINE ID | text | LINE สำหรับติดต่อ |
+| เวลาทำการ | text | เช่น 08:00-20:00 ทุกวัน |
+| รูปถ่ายร้าน | images | สูงสุด 5 รูป (JPG/PNG/WebP, ≤5MB) |
+| แสดงบนแผนที่ | boolean | ลูกค้าเห็นใน "ค้นหาร้านค้าใกล้ฉัน" |
+| คำอธิบาย | text | แสดงบนแผนที่ (สั้นๆ) |
+
+### ระบบ Check-in
+
+| ฟีเจอร์ | รายละเอียด |
+|---------|-----------|
+| **Auto GPS** | เปิดหน้า → รับพิกัดอัตโนมัติ |
+| **4 ประเภท** | 🏪 เยี่ยม, 🚚 ส่งของ, 📦 รับของ, 📌 อื่นๆ |
+| **ถ่ายรูป** | สูงสุด 5 รูป (หน้าร้าน, สินค้า, หลักฐาน) |
+| **ระยะห่าง** | Haversine → แสดงว่าอยู่ห่างจากร้านกี่เมตร |
+| **Timestamp** | บันทึกวันเวลาอัตโนมัติ |
+| **Preview** | ดูรูปก่อนส่ง |
+
+### Dashboard จัดการร้านค้า
+
+- 🏪 จำนวนร้านค้าที่ดูแล
+- 📍 จำนวน Check-in เดือนนี้
+- 📸 จำนวน Check-in ที่มีรูปถ่าย
+- 📋 ประวัติ Check-in ล่าสุด (10 รายการ)
 
 ---
 
@@ -450,6 +605,9 @@ nano .env    # แก้ DB_CONNECTION=mysql, DB_HOST, DB_DATABASE, ฯลฯ
 
 # ติดตั้งแบบ production
 bash install.sh prod
+
+# สร้าง storage link (สำหรับรูปถ่ายร้าน/check-in)
+php artisan storage:link
 ```
 
 ### ตั้งค่า Web Server (Nginx)
@@ -460,6 +618,8 @@ server {
     server_name stock.example.com;
     root /var/www/stock/public;
     index index.php;
+
+    client_max_body_size 20M;  # สำหรับ upload รูปถ่าย
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -499,6 +659,7 @@ server {
 
 - [INSTALL.md](INSTALL.md) — คู่มือติดตั้งละเอียด (step-by-step)
 - [PERMISSIONS.md](PERMISSIONS.md) — ตารางสิทธิ์ 6 บทบาท × ทุกหน้า
+- [docs/ACCOUNTING_WORKFLOW.md](docs/ACCOUNTING_WORKFLOW.md) — คู่มือขั้นตอนบัญชี (Role-based 6 ระดับ)
 - Workflow Guide — คู่มือขั้นตอนการทำงาน (เข้าถึงได้จาก topbar ในระบบ)
 
 ---
@@ -535,18 +696,66 @@ Private — All rights reserved.
 - `recordSale()` — ตัดสต๊อก + Revenue Journal
 - `verifyBalances()` + `verifyJournals()` — ตรวจสอบยอดตรง
 
+## Abilities (Role-based)
+
+### 25 Abilities ใน Role enum
+- **พื้นฐาน**: manage-members, manage-nodes, approve-transfer, ship-stock, receive-stock, sell, view-reports, adjust-stock, manage-products, accept-redeem, manage-shop, claim-money, manage-packages, approve-claim, manage-subscriptions, view-security
+- **บัญชี**: create-quotation, create-invoice, create-receipt, create-delivery, create-payment, create-purchase-order, create-credit-note, create-tax-invoice, view-financial-statements, manage-journals, view-ar-report
+- **ร้านค้า+แผนที่**: manage-shop-profile, agent-checkin
+
+### Authorization
+- Sidebar: `@if($u->hasAbility('...'))` แสดง/ซ่อนเมนูตาม role
+- Controller: `abort_unless($request->user()->hasAbility('...'), 403)` ป้องกัน direct URL access
+- บัญชี Role-based: Agent/Warehouse/Shop/Admin เห็นเอกสารต่างกัน
+
 ## Sidebar
 
 - Collapsible groups + nested sub-groups
 - localStorage จำสถานะ (key: `sidebar_state`)
 - Active auto-open เมื่อมี link `.on` ในกลุ่ม
-- บัญชีแบ่งเป็น 4 sub-groups: เอกสาร (6), ส่งของ (3), ตรวจสอบ (3), งบการเงิน (6)
+- บัญชีแบ่งเป็น 4 sub-groups: เอกสารขาย, เอกสารจัดซื้อ, ตรวจสอบ/บัญชี, งบการเงิน
+- Badge แจ้งเตือน: overdue count ใน Dashboard บัญชี, pending claims ใน บริหารจัดการ
+
+## แผนที่ (Map System)
+
+### Components
+- `resources/views/components/map.blade.php` — Reusable Blade component
+  - Props: id, height, centerLat/Lng, zoom, editable, showRoute, showUserLocation
+  - JS API: `addMarker()`, `fitBounds()`, `showRoute()`, `clearRoute()`, `navigateTo()`, `distance()`
+- Icons: 🏪 store (น้ำเงิน), 📍 user (เขียว), 📌 destination (แดง), 🏭 warehouse (เหลือง)
+
+### Routes
+- `/shops/map` — แผนที่สาธารณะ (ลูกค้าเห็นร้านที่ show_on_map = true)
+- `/shops/nearby?lat=&lng=&radius=` — API: ร้านค้าใกล้พิกัด
+- `/agent/shops/map` — แผนที่ Agent (เห็นร้านทั้งหมดใน subtree)
+
+### Navigation
+- iOS → `maps://maps.apple.com/?daddr=LAT,LNG`
+- Android → `google.navigation:q=LAT,LNG`
+- Desktop → `https://www.google.com/maps/dir/?api=1&destination=LAT,LNG&travelmode=driving`
+
+### OrgNode map fields
+- `show_on_map` (boolean) — แสดงบนแผนที่สาธารณะ
+- `map_cover_photo` (string) — รูป cover สำหรับแสดงบนแผนที่
+- `map_description` (string) — คำอธิบายสั้น (255 chars)
+- `lat`, `lng` (decimal) — พิกัด GPS
+- `photos` (JSON) — รูปถ่ายร้าน (สูงสุด 5 รูป)
+
+### AgentCheckin
+- `user_id` → Agent ที่ check-in
+- `org_node_id` → ร้านค้า
+- `latitude`, `longitude` → พิกัดตอน check-in
+- `type` → visit, delivery, pickup, other
+- `photos` → รูปถ่ายยืนยัน (JSON)
+- `distance_meters` → ระยะห่างจากร้าน (Haversine)
 
 ## Routes รวม
 
-- Web routes: 60+ routes
+- Web routes: 80+ routes
 - Accounting routes: 40+ routes
-- Accounting controller: 58 methods
+- Agent/Shop routes: 10+ routes
+- Map routes: 3 routes
+- Accounting controller: 60+ methods
 
 ## Known Issues (Fixed)
 
@@ -557,3 +766,12 @@ Private — All rights reserved.
 | JournalEntry/JournalLine models ไม่มี | สร้างใหม่ |
 | Gate::authorize ไม่มี policy | ลบออก ใช้ inline check |
 | user->node_id = null (SystemAdmin) | resolveNodeId() helper |
+| Payment::create() ส่ง field ที่ไม่มี | กรอง wht_rate/income_type ออก |
+| InvoiceItem ใช้ line_total แทน amount | แก้เป็น amount |
+| JournalLine ใช้ dc+amount แทน debit+credit | migration แก้ schema |
+| JournalEntry ใช้ reference แทน doc_no | แก้ 8 จุด |
+| JournalEntry ไม่มี created_by | เพิ่ม auth()->id() 6 จุด |
+| Accounts migration ใช้ type แทน category/sub_type | เพิ่ม columns |
+| Invoice balance หัก CN | แก้เป็น total - paid_amount เท่านั้น |
+| Sidebar ไม่ขยายหลัง refresh | เรียง init: sub-groups ก่อน parent |
+| WHT คำนวณจาก total แทน income | แก้เป็น income_amount (pre-VAT) |
