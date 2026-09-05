@@ -897,7 +897,8 @@ class AccountingController extends Controller
                     'description' => $item->description,
                     'qty'         => $item->qty,
                     'unit_price'  => $item->unit_price,
-                    'line_total'  => $item->line_total,
+                    'amount'      => $item->line_total,
+                    'sort_order'  => $item->id,
                 ]);
             }
 
