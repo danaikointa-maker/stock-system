@@ -158,6 +158,10 @@ class AccountingController extends Controller
         if ($invoice->status === 'paid') {
             return back()->with('error', '❌ บิลที่ชำระแล้วไม่สามารถยกเลิกได้ ให้ใช้ใบลดหนี้แทน');
         }
+        // ห้าม void ถ้ามีการรับเงินบางส่วนแล้ว (ต้องคืนเงินก่อน)
+        if ($invoice->paid_amount > 0) {
+            return back()->with('error', '❌ บิลนี้มีการรับเงินแล้ว (' . number_format($invoice->paid_amount, 2) . ') — ต้องคืนเงินก่อนยกเลิก');
+        }
         $invoice->update(['status' => 'void', 'balance' => 0]);
         return redirect()->route('accounting.invoices')->with('flash', '❌ ยกเลิกบิล ' . $invoice->invoice_no . ' แล้ว');
     }
@@ -386,13 +390,14 @@ class AccountingController extends Controller
             ]);
         } else {
             $subtotal = $request->input('subtotal', 0);
-            $vatAmount = $subtotal * ($data['vat_rate'] / 100);
+            $vatAmount = bcmul($subtotal, bcdiv($data['vat_rate'], 100, 4), 2);
+            $total = bcadd($subtotal, $vatAmount, 2);
             $taxInv = TaxInvoice::create($data + [
                 'tax_invoice_no' => $this->docSeq->next('TXI', $this->resolveNodeId($request), $data['issue_date']),
                 'org_node_id' => $this->resolveNodeId($request),
                 'subtotal' => $subtotal,
                 'vat_amount' => $vatAmount,
-                'total' => $subtotal + $vatAmount,
+                'total' => $total,
                 'created_by' => $request->user()->id,
             ]);
         }
@@ -925,6 +930,7 @@ class AccountingController extends Controller
                 'balance'          => $quotation->total,
                 'status'           => 'issued',
                 'notes'            => 'แปลงจากใบเสนอราคา: ' . $quotation->doc_no,
+                'created_by'       => auth()->id(),
             ]);
 
             foreach ($quotation->items as $item) {
@@ -1315,8 +1321,11 @@ class AccountingController extends Controller
         $nodeIds = $request->user()->visibleNodeIds();
 
         // Revenue accounts
-        $revenueAccounts = Account::where('category', 'revenue')->get();
-        $expenseAccounts = Account::where('category', 'expense')->get();
+        $accountScope = function($q) use ($nodeIds) {
+            $q->whereNull('org_node_id')->orWhereIn('org_node_id', $nodeIds);
+        };
+        $revenueAccounts = Account::where('category', 'revenue')->where($accountScope)->get();
+        $expenseAccounts = Account::where('category', 'expense')->where($accountScope)->get();
 
         $revenues = [];
         $totalRevenue = 0;
@@ -1358,12 +1367,14 @@ class AccountingController extends Controller
     {
         $asOf = $request->input('as_of', now()->toDateString());
         abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
+        $nodeIds = $request->user()->visibleNodeIds();
+        $accountScope = fn($q) => $q->whereNull('org_node_id')->orWhereIn('org_node_id', $nodeIds);
 
         $categories = ['asset', 'liability', 'equity'];
         $sections = [];
 
         foreach ($categories as $cat) {
-            $accounts = Account::where('category', $cat)->get();
+            $accounts = Account::where('category', $cat)->where($accountScope)->get();
             $items = [];
             $total = 0;
 
@@ -1392,8 +1403,8 @@ class AccountingController extends Controller
 
         // Retained earnings = Revenue - Expense (cumulative)
         $retainedEarnings = 0;
-        $revenueAccounts = Account::where('category', 'revenue')->get();
-        $expenseAccounts = Account::where('category', 'expense')->get();
+        $revenueAccounts = Account::where('category', 'revenue')->where($accountScope)->get();
+        $expenseAccounts = Account::where('category', 'expense')->where($accountScope)->get();
 
         foreach ($revenueAccounts as $acc) {
             $retainedEarnings = bcadd($retainedEarnings,
@@ -1431,17 +1442,12 @@ class AccountingController extends Controller
         $nodeIds = $request->user()->visibleNodeIds();
         abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
 
-        // AR — ลูกหนี้ค้างรับ (จาก Invoices)
+        // AR — ลูกหนี้ค้างรับ (จาก Invoices) — แยกตาม invoice
         $receivables = Invoice::whereIn('org_node_id', $nodeIds)
             ->whereIn('status', ['issued', 'partial', 'overdue'])
             ->where('balance', '>', 0)
-            ->selectRaw("
-                customer_name,
-                SUM(balance) as total_balance,
-                DATEDIFF(CURDATE(), due_date) as days_overdue
-            ")
-            ->groupBy('customer_name')
-            ->orderByDesc('days_overdue')
+            ->select('id', 'invoice_no', 'customer_name', 'balance', 'due_date', 'invoice_date')
+            ->orderBy('due_date')
             ->get();
 
         // AP — เจ้าหนี้ค้างจ่าย (จาก Purchase Orders)
@@ -1479,16 +1485,18 @@ class AccountingController extends Controller
         $over90 = collect();
 
         foreach ($invoices as $inv) {
-            $days = now()->diffInDays($inv->due_date, false);
+            // คำนวณจำนวนวันที่เกินกำหนด (เข้ากันได้ทั้ง Carbon 2 + 3)
+            $daysDiff = now()->diffInDays($inv->due_date);
+            $isPast = $inv->due_date->isPast();
 
-            if ($days < 0) {
+            if (!$isPast) {
                 // ยังไม่ถึงกำหนด
                 $current->push($inv);
-            } elseif ($days <= 30) {
+            } elseif ($daysDiff <= 30) {
                 $days30->push($inv);
-            } elseif ($days <= 60) {
+            } elseif ($daysDiff <= 60) {
                 $days60->push($inv);
-            } elseif ($days <= 90) {
+            } elseif ($daysDiff <= 90) {
                 $days90->push($inv);
             } else {
                 $over90->push($inv);

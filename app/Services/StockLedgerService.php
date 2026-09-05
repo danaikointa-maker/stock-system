@@ -130,21 +130,21 @@ class StockLedgerService
                         }
                     }
                 }
+            }
 
-                // Journal for revenue reversal (all types)
-                if ($credit->total_amount > 0) {
-                    $vat = $credit->vat_amount;
-                    $net = $credit->subtotal;
+            // Journal for revenue reversal (ทำครั้งเดียว ข้างนอก items loop)
+            if ($credit->total_amount > 0) {
+                $vat = $credit->vat_amount;
+                $net = $credit->subtotal;
 
-                    // Dr. รายได้ (ลด)
-                    $this->addJournalLine($entry->id, 'revenue', 'sales', $net, 'debit');
-                    if ($vat > 0) {
-                        // Dr. VAT payable (ลด)
-                        $this->addJournalLine($entry->id, 'liability', 'vat_payable', $vat, 'debit');
-                    }
-                    // Cr. ลูกหนี้ (ลด)
-                    $this->addJournalLine($entry->id, 'asset', 'accounts_receivable', $credit->total_amount, 'credit');
+                // Dr. รายได้ (ลด)
+                $this->addJournalLine($entry->id, 'revenue', 'sales', $net, 'debit');
+                if ($vat > 0) {
+                    // Dr. VAT payable (ลด)
+                    $this->addJournalLine($entry->id, 'liability', 'vat_payable', $vat, 'debit');
                 }
+                // Cr. ลูกหนี้ (ลด)
+                $this->addJournalLine($entry->id, 'asset', 'accounts_receivable', $credit->total_amount, 'credit');
             }
 
             $credit->update(['posted_to_accounting' => true]);

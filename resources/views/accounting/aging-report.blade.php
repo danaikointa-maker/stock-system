@@ -11,17 +11,22 @@
       <div class="empty">✅ ไม่มีลูกหนี้คงค้าง</div>
     @else
       <table>
-        <thead><tr><th>ลูกค้า</th><th class="num">ยอดค้าง</th><th class="num">เกินกำหนด</th></tr></thead>
+        <thead><tr><th>บิล</th><th>ลูกค้า</th><th>กำหนดชำระ</th><th class="num">ยอดค้าง</th><th class="num">เกินกำหนด</th></tr></thead>
         <tbody>
         @foreach($receivables as $r)
+          @php $daysOverdue = now()->diffInDays($r->due_date); @endphp
           <tr>
+            <td><a href="{{ route('accounting.invoices.show', $r->id) }}"><code>{{ $r->invoice_no }}</code></a></td>
             <td>{{ $r->customer_name }}</td>
-            <td class="num"><b style="color:var(--bad-dark)">{{ number_format($r->total_balance, 2) }}</b></td>
+            <td>{{ $r->due_date->format('d/m/Y') }}</td>
+            <td class="num"><b style="color:var(--bad-dark)">{{ number_format($r->balance, 2) }}</b></td>
             <td class="num">
-              @if($r->days_overdue > 30)
-                <span class="badge bad">{{ $r->days_overdue }} วัน</span>
-              @elseif($r->days_overdue > 0)
-                <span class="badge warn">{{ $r->days_overdue }} วัน</span>
+              @if($daysOverdue > 90)
+                <span class="badge bad">{{ $daysOverdue }} วัน</span>
+              @elseif($daysOverdue > 30)
+                <span class="badge bad">{{ $daysOverdue }} วัน</span>
+              @elseif($daysOverdue > 0)
+                <span class="badge warn">{{ $daysOverdue }} วัน</span>
               @else
                 <span class="badge ok">ยังไม่เกิน</span>
               @endif
@@ -29,7 +34,7 @@
           </tr>
         @endforeach
         </tbody>
-        <tfoot><tr style="background:#fef3c7"><td><b>รวม</b></td><td class="num"><b>{{ number_format($receivables->sum('total_balance'), 2) }}</b></td><td></td></tr></tfoot>
+        <tfoot><tr style="background:#fef3c7"><td colspan="3"><b>รวม</b></td><td class="num"><b>{{ number_format($receivables->sum('balance'), 2) }}</b></td><td></td></tr></tfoot>
       </table>
     @endif
   </div>
