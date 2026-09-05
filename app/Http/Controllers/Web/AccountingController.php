@@ -1454,4 +1454,47 @@ class AccountingController extends Controller
 
         return view('accounting.aging-report', compact('receivables', 'payables'));
     }
+
+    // ════════════════════════════════════
+    // 📋 AR Aging สำหรับ Agent (ลูกหนี้ค้างรับ)
+    // ════════════════════════════════════
+    public function arAging(Request $request)
+    {
+        abort_unless($request->user()->hasAbility('view-ar-report'), 403, 'ไม่มีสิทธิ์ดูรายงานลูกหนี้');
+        $nodeIds = $request->user()->visibleNodeIds();
+
+        // ดึง Invoice ที่ค้างชำระ
+        $invoices = Invoice::whereIn('org_node_id', $nodeIds)
+            ->whereIn('status', ['issued', 'partial', 'overdue'])
+            ->where('balance', '>', 0)
+            ->select('id', 'invoice_no', 'customer_name', 'total', 'balance', 'due_date', 'invoice_date')
+            ->orderBy('due_date')
+            ->get();
+
+        // แยกตาม aging bucket
+        $current = collect();
+        $days30 = collect();
+        $days60 = collect();
+        $days90 = collect();
+        $over90 = collect();
+
+        foreach ($invoices as $inv) {
+            $days = now()->diffInDays($inv->due_date, false);
+
+            if ($days < 0) {
+                // ยังไม่ถึงกำหนด
+                $current->push($inv);
+            } elseif ($days <= 30) {
+                $days30->push($inv);
+            } elseif ($days <= 60) {
+                $days60->push($inv);
+            } elseif ($days <= 90) {
+                $days90->push($inv);
+            } else {
+                $over90->push($inv);
+            }
+        }
+
+        return view('accounting.ar-aging', compact('current', 'days30', 'days60', 'days90', 'over90'));
+    }
 }

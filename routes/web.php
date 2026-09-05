@@ -375,6 +375,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
         Route::get('/profit-loss', [\App\Http\Controllers\Web\AccountingController::class, 'profitLoss'])->name('profit-loss');
         Route::get('/balance-sheet', [\App\Http\Controllers\Web\AccountingController::class, 'balanceSheet'])->name('balance-sheet');
         Route::get('/aging-report', [\App\Http\Controllers\Web\AccountingController::class, 'agingReport'])->name('aging-report');
+        Route::get('/ar-aging', [\App\Http\Controllers\Web\AccountingController::class, 'arAging'])->name('ar-aging');
     });
 
     // คู่มือขั้นตอนการทำงาน (Workflow Guide)

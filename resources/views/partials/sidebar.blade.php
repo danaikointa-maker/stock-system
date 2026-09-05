@@ -252,9 +252,23 @@
         <div class="nav-group-body">
 
           {{-- Dashboard --}}
+          @php
+            $overdueCount = \App\Models\Invoice::whereIn('org_node_id', $u->visibleNodeIds())
+                ->where('status', 'overdue')->count();
+          @endphp
           <a href="{{ route('accounting.dashboard') }}" class="nav-link {{ request()->routeIs('accounting.dashboard') ? 'on' : '' }}">
             <span class="nav-icon">📊</span><span class="nav-text">Dashboard บัญชี</span>
+            @if($overdueCount > 0)
+              <span class="nav-badge badge-danger">{{ $overdueCount }}</span>
+            @endif
           </a>
+
+          {{-- AR Aging สำหรับ Agent --}}
+          @if($u->hasAbility('view-ar-report'))
+          <a href="{{ route('accounting.ar-aging') }}" class="nav-link {{ request()->routeIs('accounting.ar-aging') ? 'on' : '' }}">
+            <span class="nav-icon">📋</span><span class="nav-text">ลูกหนี้ค้างรับ</span>
+          </a>
+          @endif
 
           {{-- เอกสารขาย --}}
           @if($u->hasAbility('create-quotation') || $u->hasAbility('create-invoice') || $u->hasAbility('create-receipt') || $u->hasAbility('create-credit-note'))

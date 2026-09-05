@@ -71,7 +71,7 @@ enum Role: string
                 // บัญชี: ทุกเอกสาร + งบการเงิน + ลงบัญชีแยก
                 'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
                 'create-payment', 'create-purchase-order', 'create-credit-note', 'create-tax-invoice',
-                'view-financial-statements', 'manage-journals',
+                'view-financial-statements', 'manage-journals', 'view-ar-report',
             ],
             self::WarehouseAdmin => [
                 'manage-members', 'manage-nodes', 'approve-transfer', 'ship-stock',
@@ -87,6 +87,7 @@ enum Role: string
                 // บัญชี: เสนอราคา + บิลเรียกเก็บ + ส่งของ + รับเงิน + ลดหนี้
                 'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
                 'create-credit-note', 'create-tax-invoice',
+                'view-ar-report',
             ],
             self::ShopUser => [
                 'manage-members', 'manage-nodes', 'ship-stock', 'receive-stock',
