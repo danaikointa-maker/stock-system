@@ -165,6 +165,11 @@
               @endif
             </a>
           @endif
+          @if($u->hasAbility('manage-shop-profile') || $u->hasAbility('agent-checkin'))
+            <a href="{{ route('agent.shops.index') }}" class="nav-link {{ request()->routeIs('agent.shops.*') ? 'on' : '' }}">
+              <span class="nav-icon">🏪</span><span class="nav-text">จัดการร้านค้า + Check-in</span>
+            </a>
+          @endif
         </div>
       </div>
     @endif

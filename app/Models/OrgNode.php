@@ -23,12 +23,14 @@ class OrgNode extends Model
     protected $fillable = [
         'parent_id', 'level_id', 'code', 'name', 'phone', 'address',
         'lat', 'lng', 'credit_limit', 'status',
+        'email', 'line_id', 'opening_hours', 'photos', 'notes', 'shop_type',
     ];
 
     protected $casts = [
         'level_id'     => OrgLevel::class,
         'credit_limit' => 'decimal:2',
         'depth'        => 'integer',
+        'photos'       => 'array',
     ];
 
     /**

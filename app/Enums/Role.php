@@ -72,6 +72,7 @@ enum Role: string
                 'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
                 'create-payment', 'create-purchase-order', 'create-credit-note', 'create-tax-invoice',
                 'view-financial-statements', 'manage-journals', 'view-ar-report',
+                'manage-shop-profile', 'agent-checkin',
             ],
             self::WarehouseAdmin => [
                 'manage-members', 'manage-nodes', 'approve-transfer', 'ship-stock',
@@ -88,6 +89,8 @@ enum Role: string
                 'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
                 'create-credit-note', 'create-tax-invoice',
                 'view-ar-report',
+                // จัดการร้านค้า: แก้ไขข้อมูลร้านค้า + check-in + ถ่ายรูป
+                'manage-shop-profile', 'agent-checkin',
             ],
             self::ShopUser => [
                 'manage-members', 'manage-nodes', 'ship-stock', 'receive-stock',
