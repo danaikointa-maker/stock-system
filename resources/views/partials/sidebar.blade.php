@@ -240,8 +240,8 @@
       </div>
     @endif
 
-    {{-- ═══ 9. บัญชีและการเงิน (แบ่ง sub-group) ═══ --}}
-    @if($u->hasAbility('view-reports'))
+    {{-- ═══ 9. บัญชีและการเงิน (Role-based) ═══ --}}
+    @if($u->hasAbility('create-quotation') || $u->hasAbility('create-invoice') || $u->hasAbility('create-receipt') || $u->hasAbility('create-delivery') || $u->hasAbility('create-payment') || $u->hasAbility('create-purchase-order') || $u->hasAbility('create-credit-note') || $u->hasAbility('view-financial-statements'))
       @php $isAcct = request()->routeIs('accounting.*'); @endphp
       <div class="nav-group {{ $isAcct ? 'open' : '' }}" data-group="accounting">
         <button class="nav-group-toggle" type="button">
@@ -251,89 +251,112 @@
         </button>
         <div class="nav-group-body">
 
-          {{-- Sub: Dashboard --}}
+          {{-- Dashboard --}}
           <a href="{{ route('accounting.dashboard') }}" class="nav-link {{ request()->routeIs('accounting.dashboard') ? 'on' : '' }}">
             <span class="nav-icon">📊</span><span class="nav-text">Dashboard บัญชี</span>
           </a>
 
-          {{-- Sub: เอกสาร --}}
-          <div class="nav-subgroup {{ request()->routeIs('accounting.quotations*') || request()->routeIs('accounting.invoices*') || request()->routeIs('accounting.receipts*') || request()->routeIs('accounting.payments*') || request()->routeIs('accounting.tax-invoices*') || request()->routeIs('accounting.wht*') || request()->routeIs('accounting.withholding*') ? 'open' : '' }}" data-subgroup="docs">
+          {{-- เอกสารขาย --}}
+          @if($u->hasAbility('create-quotation') || $u->hasAbility('create-invoice') || $u->hasAbility('create-receipt') || $u->hasAbility('create-credit-note'))
+          <div class="nav-subgroup {{ request()->routeIs('accounting.quotations*') || request()->routeIs('accounting.invoices*') || request()->routeIs('accounting.receipts*') || request()->routeIs('accounting.tax-invoices*') || request()->routeIs('accounting.credit*') ? 'open' : '' }}" data-subgroup="sales">
             <button class="nav-sub-toggle" type="button">
               <span class="nav-icon">📄</span>
-              <span class="nav-text">เอกสารการเงิน</span>
-              <span class="nav-sub-count">6</span>
+              <span class="nav-text">เอกสารขาย</span>
               <span class="nav-chevron sm">›</span>
             </button>
             <div class="nav-sub-body">
+              @if($u->hasAbility('create-quotation'))
               <a href="{{ route('accounting.quotations') }}" class="nav-link {{ request()->routeIs('accounting.quotations*') ? 'on' : '' }}">
                 <span class="nav-icon">📋</span><span class="nav-text">ใบเสนอราคา</span>
               </a>
+              @endif
+              @if($u->hasAbility('create-invoice'))
               <a href="{{ route('accounting.invoices') }}" class="nav-link {{ request()->routeIs('accounting.invoices*') ? 'on' : '' }}">
                 <span class="nav-icon">📄</span><span class="nav-text">บิลเรียกเก็บ</span>
               </a>
+              @endif
+              @if($u->hasAbility('create-receipt'))
               <a href="{{ route('accounting.receipts') }}" class="nav-link {{ request()->routeIs('accounting.receipts*') ? 'on' : '' }}">
-                <span class="nav-icon">💰</span><span class="nav-text">บิลรับ</span>
+                <span class="nav-icon">💰</span><span class="nav-text">ใบเสร็จรับเงิน</span>
               </a>
-              <a href="{{ route('accounting.payments') }}" class="nav-link {{ request()->routeIs('accounting.payments*') ? 'on' : '' }}">
-                <span class="nav-icon">💸</span><span class="nav-text">บิลจ่าย</span>
-              </a>
+              @endif
+              @if($u->hasAbility('create-tax-invoice'))
               <a href="{{ route('accounting.tax-invoices') }}" class="nav-link {{ request()->routeIs('accounting.tax-invoices*') ? 'on' : '' }}">
                 <span class="nav-icon">🧾</span><span class="nav-text">ใบกำกับภาษี</span>
+              </a>
+              @endif
+              @if($u->hasAbility('create-credit-note'))
+              <a href="{{ route('accounting.credit') }}" class="nav-link {{ request()->routeIs('accounting.credit*') ? 'on' : '' }}">
+                <span class="nav-icon">↩️</span><span class="nav-text">ใบลดหนี้</span>
+              </a>
+              @endif
+            </div>
+          </div>
+          @endif
+
+          {{-- เอกสารจัดซื้อ --}}
+          @if($u->hasAbility('create-purchase-order') || $u->hasAbility('create-payment'))
+          <div class="nav-subgroup {{ request()->routeIs('accounting.po*') || request()->routeIs('accounting.payments*') || request()->routeIs('accounting.wht*') || request()->routeIs('accounting.withholding*') ? 'open' : '' }}" data-subgroup="purchase">
+            <button class="nav-sub-toggle" type="button">
+              <span class="nav-icon">🛒</span>
+              <span class="nav-text">เอกสารจัดซื้อ</span>
+              <span class="nav-chevron sm">›</span>
+            </button>
+            <div class="nav-sub-body">
+              @if($u->hasAbility('create-purchase-order'))
+              <a href="{{ route('accounting.po') }}" class="nav-link {{ request()->routeIs('accounting.po*') ? 'on' : '' }}">
+                <span class="nav-icon">🛒</span><span class="nav-text">ใบสั่งซื้อ</span>
+              </a>
+              @endif
+              @if($u->hasAbility('create-payment'))
+              <a href="{{ route('accounting.payments') }}" class="nav-link {{ request()->routeIs('accounting.payments*') ? 'on' : '' }}">
+                <span class="nav-icon">💸</span><span class="nav-text">บิลจ่าย</span>
               </a>
               <a href="{{ route('accounting.withholding-taxes') }}" class="nav-link {{ request()->routeIs('accounting.wht*') || request()->routeIs('accounting.withholding*') ? 'on' : '' }}">
                 <span class="nav-icon">📋</span><span class="nav-text">หัก ณ ที่จ่าย</span>
               </a>
+              @endif
             </div>
           </div>
+          @endif
 
-          {{-- Sub: ส่งของ/สั่งซื้อ --}}
-          <div class="nav-subgroup {{ request()->routeIs('accounting.delivery*') || request()->routeIs('accounting.credit*') || request()->routeIs('accounting.po*') ? 'open' : '' }}" data-subgroup="logistics">
-            <button class="nav-sub-toggle" type="button">
-              <span class="nav-icon">🚚</span>
-              <span class="nav-text">ส่งของ / สั่งซื้อ / คืน</span>
-              <span class="nav-sub-count">3</span>
-              <span class="nav-chevron sm">›</span>
-            </button>
-            <div class="nav-sub-body">
-              <a href="{{ route('accounting.delivery') }}" class="nav-link {{ request()->routeIs('accounting.delivery*') ? 'on' : '' }}">
-                <span class="nav-icon">🚚</span><span class="nav-text">ใบส่งของ</span>
-              </a>
-              <a href="{{ route('accounting.po') }}" class="nav-link {{ request()->routeIs('accounting.po*') ? 'on' : '' }}">
-                <span class="nav-icon">🛒</span><span class="nav-text">ใบสั่งซื้อ</span>
-              </a>
-              <a href="{{ route('accounting.credit') }}" class="nav-link {{ request()->routeIs('accounting.credit*') ? 'on' : '' }}">
-                <span class="nav-icon">↩️</span><span class="nav-text">ใบลดหนี้ / คืนสินค้า</span>
-              </a>
-            </div>
-          </div>
+          {{-- ส่งของ --}}
+          @if($u->hasAbility('create-delivery'))
+          <a href="{{ route('accounting.delivery') }}" class="nav-link {{ request()->routeIs('accounting.delivery*') ? 'on' : '' }}">
+            <span class="nav-icon">🚚</span><span class="nav-text">ใบส่งของ</span>
+          </a>
+          @endif
 
-          {{-- Sub: ตรวจสอบ + บันทึก --}}
+          {{-- ตรวจสอบ/บัญชี --}}
+          @if($u->hasAbility('view-financial-statements'))
           <div class="nav-subgroup {{ request()->routeIs('accounting.stock-ledger') || request()->routeIs('accounting.audit') || request()->routeIs('accounting.journals*') ? 'open' : '' }}" data-subgroup="audit">
             <button class="nav-sub-toggle" type="button">
               <span class="nav-icon">🔍</span>
-              <span class="nav-text">ตรวจสอบ / บันทึก</span>
-              <span class="nav-sub-count">3</span>
+              <span class="nav-text">ตรวจสอบ / บัญชี</span>
               <span class="nav-chevron sm">›</span>
             </button>
             <div class="nav-sub-body">
               <a href="{{ route('accounting.stock-ledger') }}" class="nav-link {{ request()->routeIs('accounting.stock-ledger') ? 'on' : '' }}">
                 <span class="nav-icon">📋</span><span class="nav-text">Stock Ledger</span>
               </a>
-              <a href="{{ route('accounting.journals') }}" class="nav-link {{ request()->routeIs('accounting.journals*') ? 'on' : '' }}">
-                <span class="nav-icon">📒</span><span class="nav-text">ลงบัญชีแยก</span>
-              </a>
               <a href="{{ route('accounting.audit') }}" class="nav-link {{ request()->routeIs('accounting.audit') ? 'on' : '' }}">
                 <span class="nav-icon">🔍</span><span class="nav-text">Audit ตรวจสอบยอด</span>
               </a>
+              @if($u->hasAbility('manage-journals'))
+              <a href="{{ route('accounting.journals') }}" class="nav-link {{ request()->routeIs('accounting.journals*') ? 'on' : '' }}">
+                <span class="nav-icon">📒</span><span class="nav-text">ลงบัญชีแยก</span>
+              </a>
+              @endif
             </div>
           </div>
+          @endif
 
-          {{-- Sub: งบการเงิน --}}
-          <div class="nav-subgroup {{ request()->routeIs('accounting.general-ledger') || request()->routeIs('accounting.trial-balance') || request()->routeIs('accounting.profit-loss') || request()->routeIs('accounting.balance-sheet') || request()->routeIs('accounting.aging-report') || request()->routeIs('accounting.chart') ? 'open' : '' }}" data-subgroup="statements">
+          {{-- งบการเงิน (เจ้าของระบบเท่านั้น) --}}
+          @if($u->hasAbility('view-financial-statements'))
+          <div class="nav-subgroup {{ request()->routeIs('accounting.general-ledger') || request()->routeIs('accounting.trial-balance') || request()->routeIs('accounting.profit-loss') || request()->routeIs('accounting.balance-sheet') || request()->routeIs('accounting.aging-report') || request()->routeIs('accounting.reports') ? 'open' : '' }}" data-subgroup="statements">
             <button class="nav-sub-toggle" type="button">
               <span class="nav-icon">📊</span>
               <span class="nav-text">งบการเงิน</span>
-              <span class="nav-sub-count">6</span>
               <span class="nav-chevron sm">›</span>
             </button>
             <div class="nav-sub-body">
@@ -355,13 +378,12 @@
               <a href="{{ route('accounting.aging-report') }}" class="nav-link {{ request()->routeIs('accounting.aging-report') ? 'on' : '' }}">
                 <span class="nav-icon">⏳</span><span class="nav-text">AR/AP Aging</span>
               </a>
+              <a href="{{ route('accounting.chart') }}" class="nav-link {{ request()->routeIs('accounting.chart') ? 'on' : '' }}">
+                <span class="nav-icon">🗂️</span><span class="nav-text">ผังบัญชี</span>
+              </a>
             </div>
           </div>
-
-          {{-- ผังบัญชี --}}
-          <a href="{{ route('accounting.chart') }}" class="nav-link {{ request()->routeIs('accounting.chart') ? 'on' : '' }}">
-            <span class="nav-icon">🗂️</span><span class="nav-text">ผังบัญชี</span>
-          </a>
+          @endif
 
         </div>
       </div>

@@ -79,6 +79,7 @@ class AccountingController extends Controller
 
     public function createInvoice(Request $request)
     {
+        abort_unless($request->user()->hasAbility('create-invoice'), 403, 'ไม่มีสิทธิ์สร้างบิลเรียกเก็บ');
         $products = Product::whereIn('id', function($q) use ($request) {
             $q->select('product_id')->from('product_lots')
               ->whereIn('org_node_id', $request->user()->visibleNodeIds());
@@ -175,6 +176,7 @@ class AccountingController extends Controller
 
     public function createReceipt(Request $request, ?Invoice $invoice = null)
     {
+        abort_unless($request->user()->hasAbility('create-receipt'), 403, 'ไม่มีสิทธิ์สร้างใบเสร็จรับเงิน');
         $invoices = Invoice::whereIn('org_node_id', $request->user()->visibleNodeIds())
             ->whereIn('status', ['issued', 'partial', 'overdue'])
             ->where('balance', '>', 0)
@@ -242,6 +244,7 @@ class AccountingController extends Controller
 
     public function createPayment(Request $request)
     {
+        abort_unless($request->user()->hasAbility('create-payment'), 403, 'ไม่มีสิทธิ์สร้างบิลจ่าย');
         return view('accounting.payments.form', [
             'payment' => null,
             'docNo' => $this->docSeq->next('PAY', $this->resolveNodeId($request)),
@@ -342,6 +345,7 @@ class AccountingController extends Controller
 
     public function createTaxInvoice(Request $request, ?Invoice $invoice = null)
     {
+        abort_unless($request->user()->hasAbility('create-tax-invoice'), 403, 'ไม่มีสิทธิ์สร้างใบกำกับภาษี');
         $invoices = Invoice::whereIn('org_node_id', $request->user()->visibleNodeIds())
             ->whereDoesntHave('taxInvoice')
             ->whereIn('status', ['issued', 'partial', 'paid'])
@@ -426,6 +430,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function reports(Request $request)
     {
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูรายงานบัญชี');
         $user = $request->user();
         $nodeIds = $user->visibleNodeIds();
         $from = $request->input('from', now()->startOfMonth()->toDateString());
@@ -480,6 +485,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function chartOfAccounts(Request $request)
     {
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูผังบัญชี');
         $accounts = Account::where(function($q) use ($request) {
             $q->whereNull('org_node_id')
               ->orWhereIn('org_node_id', $request->user()->visibleNodeIds());
@@ -503,6 +509,7 @@ class AccountingController extends Controller
 
     public function createDeliveryNote(Request $request)
     {
+        abort_unless($request->user()->hasAbility('create-delivery'), 403, 'ไม่มีสิทธิ์สร้างใบส่งของ');
         $nodes = $request->user()->visibleNodes();
         $sales = Sale::where(function($q) use ($request) {
             $q->whereNull('org_node_id')
@@ -634,6 +641,7 @@ class AccountingController extends Controller
 
     public function createCreditNote(Request $request, ?DeliveryNote $deliveryNote = null)
     {
+        abort_unless($request->user()->hasAbility('create-credit-note'), 403, 'ไม่มีสิทธิ์สร้างใบลดหนี้');
         $nodes = $request->user()->visibleNodes();
         $deliveries = DeliveryNote::where(function($q) use ($request) {
             $q->whereNull('org_node_id')
@@ -738,6 +746,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function stockLedger(Request $request)
     {
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดู Stock Ledger');
         $q = StockLedger::query();
 
         // กรองตาม node
@@ -771,6 +780,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function audit(Request $request)
     {
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ตรวจสอบบัญชี');
         $service = app(\App\Services\StockLedgerService::class);
         $nodeId = $request->input('node_id');
 
@@ -794,6 +804,7 @@ class AccountingController extends Controller
 
     public function createQuotation(Request $request)
     {
+        abort_unless($request->user()->hasAbility('create-quotation'), 403, 'ไม่มีสิทธิ์สร้างใบเสนอราคา');
         $nodes = $request->user()->visibleNodes();
         return view('accounting.quotations.form', [
             'quotation' => null,
@@ -947,6 +958,7 @@ class AccountingController extends Controller
 
     public function createPurchaseOrder(Request $request)
     {
+        abort_unless($request->user()->hasAbility('create-purchase-order'), 403, 'ไม่มีสิทธิ์สร้างใบสั่งซื้อ');
         $nodes = $request->user()->visibleNodes();
         $products = Product::where('status', 'active')->orderBy('name')->get();
         return view('accounting.po.form', [
@@ -1053,6 +1065,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function manualJournals(Request $request)
     {
+        abort_unless($request->user()->hasAbility('manage-journals'), 403, 'ไม่มีสิทธิ์ดูบัญชีแยก');
         $q = ManualJournal::whereIn('org_node_id', $request->user()->visibleNodeIds())
             ->with('lines.account')
             ->latest('entry_date')->paginate(20);
@@ -1061,6 +1074,7 @@ class AccountingController extends Controller
 
     public function createManualJournal(Request $request)
     {
+        abort_unless($request->user()->hasAbility('manage-journals'), 403, 'ไม่มีสิทธิ์ลงบัญชีแยก');
         $nodes = $request->user()->visibleNodes();
         $accounts = Account::where(function($q) use ($request) {
             $q->whereNull('org_node_id')
@@ -1200,6 +1214,7 @@ class AccountingController extends Controller
     // ════════════════════════════════════
     public function generalLedger(Request $request)
     {
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
         $from = $request->input('from', now()->startOfMonth()->toDateString());
         $to = $request->input('to', now()->toDateString());
         $accountId = $request->input('account_id');
@@ -1245,6 +1260,7 @@ class AccountingController extends Controller
     public function trialBalance(Request $request)
     {
         $asOf = $request->input('as_of', now()->toDateString());
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
         $nodeIds = $request->user()->visibleNodeIds();
 
         $accounts = Account::where(function($q) use ($nodeIds) {
@@ -1294,6 +1310,7 @@ class AccountingController extends Controller
     public function profitLoss(Request $request)
     {
         $from = $request->input('from', now()->startOfMonth()->toDateString());
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
         $to = $request->input('to', now()->toDateString());
         $nodeIds = $request->user()->visibleNodeIds();
 
@@ -1340,6 +1357,7 @@ class AccountingController extends Controller
     public function balanceSheet(Request $request)
     {
         $asOf = $request->input('as_of', now()->toDateString());
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
 
         $categories = ['asset', 'liability', 'equity'];
         $sections = [];
@@ -1411,6 +1429,7 @@ class AccountingController extends Controller
     public function agingReport(Request $request)
     {
         $nodeIds = $request->user()->visibleNodeIds();
+        abort_unless($request->user()->hasAbility('view-financial-statements'), 403, 'ไม่มีสิทธิ์ดูงบการเงิน');
 
         // AR — ลูกหนี้ค้างรับ (จาก Invoices)
         $receivables = Invoice::whereIn('org_node_id', $nodeIds)

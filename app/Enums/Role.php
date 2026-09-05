@@ -68,21 +68,32 @@ enum Role: string
                 'receive-stock', 'sell', 'view-reports', 'adjust-stock', 'manage-products',
                 'accept-redeem', 'manage-shop', 'claim-money', 'manage-packages',
                 'approve-claim', 'manage-subscriptions', 'view-security',
+                // บัญชี: ทุกเอกสาร + งบการเงิน + ลงบัญชีแยก
+                'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
+                'create-payment', 'create-purchase-order', 'create-credit-note', 'create-tax-invoice',
+                'view-financial-statements', 'manage-journals',
             ],
             self::WarehouseAdmin => [
                 'manage-members', 'manage-nodes', 'approve-transfer', 'ship-stock',
                 'receive-stock', 'view-reports', 'adjust-stock',
                 'manage-subscriptions',
+                // บัญชี: จัดซื้อ + จ่าย + ส่งของ
+                'create-delivery', 'create-payment', 'create-purchase-order',
             ],
             self::AgentUser => [
                 'manage-members', 'manage-nodes', 'approve-transfer', 'ship-stock',
                 'receive-stock', 'view-reports',
                 'manage-subscriptions',
+                // บัญชี: เสนอราคา + บิลเรียกเก็บ + ส่งของ + รับเงิน + ลดหนี้
+                'create-quotation', 'create-invoice', 'create-receipt', 'create-delivery',
+                'create-credit-note', 'create-tax-invoice',
             ],
             self::ShopUser => [
                 'manage-members', 'manage-nodes', 'ship-stock', 'receive-stock',
                 'sell', 'view-reports',
                 'accept-redeem', 'manage-shop', 'claim-money',
+                // บัญชี: รับเงินจากลูกค้า
+                'create-receipt',
             ],
             self::SellerUser => ['receive-stock', 'sell', 'view-reports', 'accept-redeem'],
             self::Viewer     => ['view-reports'],
