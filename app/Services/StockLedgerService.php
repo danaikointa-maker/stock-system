@@ -36,9 +36,10 @@ class StockLedgerService
             $entry = JournalEntry::create([
                 'org_node_id'    => $delivery->org_node_id,
                 'entry_date'     => $delivery->shipped_at ?? now(),
-                'reference'      => 'DN-' . $delivery->doc_no,
+                'doc_no'        => 'DN-' . $delivery->doc_no,
                 'description'    => 'บันทึกใบส่งของ: ' . $delivery->doc_no,
                 'status'         => 'posted',
+                'created_by'     => auth()->id(),
             ]);
 
             foreach ($delivery->items as $item) {
@@ -53,7 +54,7 @@ class StockLedgerService
                     unitCost:     $item->unit_cost,
                     refType:      DeliveryNote::class,
                     refId:        $delivery->id,
-                    journalRef:   $entry->reference,
+                    journalRef:   $entry->doc_no,
                     note:         'ส่งของ: ' . $delivery->doc_no,
                     createdBy:    $delivery->created_by,
                 );
@@ -83,9 +84,10 @@ class StockLedgerService
             $entry = JournalEntry::create([
                 'org_node_id'    => $credit->org_node_id,
                 'entry_date'     => now(),
-                'reference'      => 'CN-' . $credit->doc_no,
+                'doc_no'        => 'CN-' . $credit->doc_no,
                 'description'    => 'ใบลดหนี้/คืนสินค้า: ' . $credit->doc_no . ' (' . $credit->reason . ')',
                 'status'         => 'posted',
+                'created_by'     => auth()->id(),
             ]);
 
             foreach ($credit->items as $item) {
@@ -101,7 +103,7 @@ class StockLedgerService
                         unitCost:     $item->unit_cost,
                         refType:      CreditNote::class,
                         refId:        $credit->id,
-                        journalRef:   $entry->reference,
+                        journalRef:   $entry->doc_no,
                         note:         'คืนสินค้า: ' . $credit->doc_no,
                         createdBy:    $credit->created_by,
                     );
@@ -158,9 +160,10 @@ class StockLedgerService
             $entry = JournalEntry::create([
                 'org_node_id'    => $transfer->from_node_id,
                 'entry_date'     => now(),
-                'reference'      => 'TRF-' . $transfer->doc_no,
+                'doc_no'        => 'TRF-' . $transfer->doc_no,
                 'description'    => 'โอนสินค้า: ' . $transfer->doc_no . ' (' . ($transfer->fromNode->name ?? '') . ' → ' . ($transfer->toNode->name ?? '') . ')',
                 'status'         => 'posted',
+                'created_by'     => auth()->id(),
             ]);
 
             foreach ($transfer->items as $item) {
@@ -179,7 +182,7 @@ class StockLedgerService
                     unitCost:     $cost,
                     refType:      Transfer::class,
                     refId:        $transfer->id,
-                    journalRef:   $entry->reference,
+                    journalRef:   $entry->doc_no,
                     note:         'โอนออก: ' . $transfer->doc_no,
                     createdBy:    $transfer->requested_by,
                 );
@@ -196,7 +199,7 @@ class StockLedgerService
                     unitCost:     $cost,
                     refType:      Transfer::class,
                     refId:        $transfer->id,
-                    journalRef:   $entry->reference,
+                    journalRef:   $entry->doc_no,
                     note:         'โอนเข้า: ' . $transfer->doc_no,
                     createdBy:    $transfer->requested_by,
                 );
@@ -218,9 +221,10 @@ class StockLedgerService
             $entry = JournalEntry::create([
                 'org_node_id'    => $sale->org_node_id,
                 'entry_date'     => $sale->sold_at ?? now(),
-                'reference'      => 'SAL-' . $sale->doc_no,
+                'doc_no'        => 'SAL-' . $sale->doc_no,
                 'description'    => 'ขายสินค้า: ' . $sale->doc_no,
                 'status'         => 'posted',
+                'created_by'     => auth()->id(),
             ]);
 
             foreach ($sale->items as $item) {
@@ -238,7 +242,7 @@ class StockLedgerService
                     unitCost:     $cost,
                     refType:      Sale::class,
                     refId:        $sale->id,
-                    journalRef:   $entry->reference,
+                    journalRef:   $entry->doc_no,
                     note:         'ขาย: ' . $sale->doc_no,
                     createdBy:    $sale->seller_user_id,
                 );
@@ -268,9 +272,10 @@ class StockLedgerService
             $entry = JournalEntry::create([
                 'org_node_id' => $orgNodeId,
                 'entry_date'  => now(),
-                'reference'   => 'RCPT-' . now()->format('ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT),
+                'doc_no'     => 'RCPT-' . now()->format('ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT),
                 'description' => 'รับสินค้าเข้าคลัง' . ($note ? ': ' . $note : ''),
                 'status'      => 'posted',
+                'created_by'  => $createdBy ?? auth()->id(),
             ]);
 
             $this->recordMovement(
@@ -283,7 +288,7 @@ class StockLedgerService
                 unitCost:     $unitCost,
                 refType:      $refType,
                 refId:        $refId,
-                journalRef:   $entry->reference,
+                journalRef:   $entry->doc_no,
                 note:         $note ?? 'รับเข้าคลัง',
                 createdBy:    $createdBy,
             );
@@ -414,7 +419,7 @@ class StockLedgerService
             if (bccomp($totalDebit, $totalCredit, 2) !== 0) {
                 $mismatches[] = [
                     'entry_id'     => $entry->id,
-                    'reference'    => $entry->reference,
+                    'reference'    => $entry->doc_no,
                     'total_debit'  => $totalDebit,
                     'total_credit' => $totalCredit,
                     'diff'         => bcsub($totalDebit, $totalCredit, 2),

@@ -1116,9 +1116,10 @@ class AccountingController extends Controller
             $entry = JournalEntry::create([
                 'org_node_id' => $journal->org_node_id,
                 'entry_date'  => $journal->entry_date,
-                'reference'   => $journal->doc_no,
+                'doc_no'      => $journal->doc_no,
                 'description' => $journal->description,
                 'status'      => 'posted',
+                'created_by'  => auth()->id(),
             ]);
 
             foreach ($journal->lines as $line) {
@@ -1205,7 +1206,7 @@ class AccountingController extends Controller
 
                 $entries[] = [
                     'date'        => $line->entry->entry_date,
-                    'reference'   => $line->entry->reference,
+                    'reference'   => $line->entry->doc_no,
                     'description' => $line->description,
                     'debit'       => $line->debit,
                     'credit'      => $line->credit,
