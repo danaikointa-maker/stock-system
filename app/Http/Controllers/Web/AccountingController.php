@@ -252,42 +252,66 @@ class AccountingController extends Controller
     public function storePayment(Request $request)
     {
         $data = $request->validate([
-            'payment_date' => 'required|date',
-            'payee_name' => 'required|max:200',
-            'payee_tax_id' => 'nullable|max:20',
-            'amount' => 'required|numeric|min:0.01',
-            'method' => 'required|in:cash,bank_transfer,promptpay,cheque',
-            'bank_ref' => 'nullable|max:100',
-            'description' => 'nullable|max:1000',
-            'wht_rate' => 'nullable|numeric|min:0',
-            'income_type' => 'nullable|max:200',
+            'payment_date'   => 'required|date',
+            'payee_name'     => 'required|max:200',
+            'payee_tax_id'   => 'nullable|max:20',
+            'income_amount'  => 'required|numeric|min:0.01',
+            'vat_rate'       => 'nullable|numeric|min:0|max:100',
+            'amount'         => 'required|numeric|min:0.01',  // ยอดรวม (income + VAT)
+            'method'         => 'required|in:cash,bank_transfer,promptpay,cheque',
+            'bank_ref'       => 'nullable|max:100',
+            'description'    => 'nullable|max:1000',
+            'wht_rate'       => 'nullable|numeric|min:0|max:100',
+            'wht_amount'     => 'nullable|numeric|min:0',
+            'net_amount'     => 'nullable|numeric|min:0',
+            'income_type'    => 'nullable|max:200',
         ]);
 
-        $payment = DB::transaction(function () use ($data, $request) {
-            // ตัด field ที่ไม่มีใน payments table ออก
-            $paymentData = collect($data)->except(['wht_rate', 'income_type'])->toArray();
-            $pay = Payment::create($paymentData + [
-                'payment_no' => $this->docSeq->next('PAY', $this->resolveNodeId($request), $data['payment_date']),
-                'org_node_id' => $this->resolveNodeId($request),
-                'created_by' => $request->user()->id,
+        // ═══ สูตรคำนวณที่ถูกต้อง ═══
+        // income_amount = ยอดก่อน VAT
+        // vat_amount    = income_amount × vat_rate / 100
+        // amount        = income_amount + vat_amount (ยอดรวม)
+        // wht_amount    = income_amount × wht_rate / 100  (WHT คำนวณจากยอดก่อน VAT!)
+        // net_amount    = amount - wht_amount (จ่ายสุทธิ)
+
+        $incomeAmount = $data['income_amount'];
+        $vatRate      = $data['vat_rate'] ?? 7;
+        $whtRate      = $data['wht_rate'] ?? 0;
+
+        $vatAmount = bcmul($incomeAmount, bcdiv($vatRate, 100, 4), 2);
+        $amount    = bcadd($incomeAmount, $vatAmount, 2);
+        $whtAmount = bcmul($incomeAmount, bcdiv($whtRate, 100, 4), 2);
+        $netAmount = bcsub($amount, $whtAmount, 2);
+
+        $payment = DB::transaction(function () use ($data, $request, $incomeAmount, $amount, $whtRate, $whtAmount, $netAmount) {
+            $pay = Payment::create([
+                'payment_no'   => $this->docSeq->next('PAY', $this->resolveNodeId($request), $data['payment_date']),
+                'payment_date' => $data['payment_date'],
+                'org_node_id'  => $this->resolveNodeId($request),
+                'payee_name'   => $data['payee_name'],
+                'payee_tax_id' => $data['payee_tax_id'] ?? null,
+                'amount'       => $amount,
+                'method'       => $data['method'],
+                'bank_ref'     => $data['bank_ref'] ?? null,
+                'description'  => $data['description'] ?? null,
+                'created_by'   => $request->user()->id,
             ]);
 
-            // สร้างใบหัก ณ ที่จ่าย (ถ้ามี)
-            if (!empty($data['wht_rate']) && $data['wht_rate'] > 0) {
-                $whtAmount = $data['amount'] * ($data['wht_rate'] / 100);
+            // สร้างใบหัก ณ ที่จ่าย (WHT คำนวณจาก income_amount ไม่ใช่ amount)
+            if ($whtRate > 0 && $whtAmount > 0) {
                 WithholdingTax::create([
-                    'wht_no' => $this->docSeq->next('WHT', $this->resolveNodeId($request), $data['payment_date']),
-                    'issue_date' => $data['payment_date'],
-                    'org_node_id' => $this->resolveNodeId($request),
-                    'payee_name' => $data['payee_name'],
-                    'payee_tax_id' => $data['payee_tax_id'] ?? null,
-                    'income_amount' => $data['amount'],
-                    'wht_rate' => $data['wht_rate'],
-                    'wht_amount' => $whtAmount,
-                    'net_amount' => $data['amount'] - $whtAmount,
-                    'income_type' => $data['income_type'] ?? null,
-                    'payment_id' => $pay->id,
-                    'created_by' => $request->user()->id,
+                    'wht_no'        => $this->docSeq->next('WHT', $this->resolveNodeId($request), $data['payment_date']),
+                    'issue_date'    => $data['payment_date'],
+                    'org_node_id'   => $this->resolveNodeId($request),
+                    'payee_name'    => $data['payee_name'],
+                    'payee_tax_id'  => $data['payee_tax_id'] ?? null,
+                    'income_amount' => $incomeAmount,
+                    'wht_rate'      => $whtRate,
+                    'wht_amount'    => $whtAmount,
+                    'net_amount'    => $netAmount,
+                    'income_type'   => $data['income_type'] ?? null,
+                    'payment_id'    => $pay->id,
+                    'created_by'    => $request->user()->id,
                 ]);
             }
 

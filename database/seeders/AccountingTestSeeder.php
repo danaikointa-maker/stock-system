@@ -247,13 +247,15 @@ class AccountingTestSeeder extends Seeder
             'org_node_id'  => $nodeId,
             'payee_name'   => 'บริษัท ผู้ขาย จำกัด',
             'payee_tax_id' => '0-9876-54321-01-1',
-            'amount'       => 5350.00,
+            'amount'       => 5350.00,  // ยอดรวม = 5,000 + VAT 350
             'method'       => 'bank_transfer',
             'bank_ref'     => 'KTB-20260830-002',
             'description'  => 'ชำระค่าสินค้า PO: ' . $poNo,
             'created_by'   => $adminId,
         ]);
 
+        // WHT คำนวณจากยอดก่อน VAT = 5,000 × 3% = 150
+        // จ่ายสุทธิ = 5,350 - 150 = 5,200
         $whtNo = $docSeq->next('WHT', $nodeId);
         WithholdingTax::create([
             'wht_no'        => $whtNo,
@@ -261,10 +263,10 @@ class AccountingTestSeeder extends Seeder
             'org_node_id'   => $nodeId,
             'payee_name'    => 'บริษัท ผู้ขาย จำกัด',
             'payee_tax_id'  => '0-9876-54321-01-1',
-            'income_amount' => 5000.00,
+            'income_amount' => 5000.00,  // ยอดก่อน VAT
             'wht_rate'      => 3,
-            'wht_amount'    => 150.00,
-            'net_amount'    => 5200.00,
+            'wht_amount'    => 150.00,   // 5,000 × 3% = 150
+            'net_amount'    => 5200.00,  // 5,350 - 150 = 5,200
             'income_type'   => 'บริการ',
             'payment_id'    => $payment->id,
             'created_by'    => $adminId,
